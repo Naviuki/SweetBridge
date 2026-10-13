@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36915.13 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SweetWave", "SweetWave\SweetWave.csproj", "{93FCCBF3-B7AB-43F7-B247-0BFC45D67965}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{93FCCBF3-B7AB-43F7-B247-0BFC45D67965}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93FCCBF3-B7AB-43F7-B247-0BFC45D67965}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93FCCBF3-B7AB-43F7-B247-0BFC45D67965}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93FCCBF3-B7AB-43F7-B247-0BFC45D67965}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {23AAEC82-2B87-4939-B9D5-4EE1F055EC35}
+	EndGlobalSection
+EndGlobal
