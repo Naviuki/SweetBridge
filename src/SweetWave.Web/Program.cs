@@ -82,6 +82,8 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
 }
 
+app.UseStatusCodePagesWithReExecute("/Error", "?statusCode={0}");
+
 app.UseStaticFiles();
 app.UseRouting();
 app.UseSession();

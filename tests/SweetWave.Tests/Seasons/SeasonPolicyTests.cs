@@ -124,5 +124,6 @@ public sealed class SeasonPolicyTests
             180,
             null,
             null,
-            ShippingDirection.YakutiaToDonbass);
+            ShippingDirection.YakutiaToDonbass,
+            true);
 }

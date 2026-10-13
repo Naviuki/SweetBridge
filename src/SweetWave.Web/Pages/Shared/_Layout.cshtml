@@ -45,7 +45,7 @@
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
-                                <a class="nav-link" asp-page="/Admin/Products">Админка</a>
+                                <a class="nav-link" asp-page="/Admin/Products/Index">Админка</a>
                             </li>
                             <li class="nav-item">
                                 <form asp-page="/Admin/Logout" asp-page-handler="Logout" method="post" class="d-inline">
