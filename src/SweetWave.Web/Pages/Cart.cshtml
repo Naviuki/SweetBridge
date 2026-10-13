@@ -1,0 +1,93 @@
+@page
+@model CartModel
+@{
+    ViewData["Title"] = "Корзина";
+}
+
+<h1 class="h3 mb-3">Корзина</h1>
+
+@if (Model.Cart.IsEmpty)
+{
+    <div class="alert alert-info">
+        Корзина пуста. <a asp-page="/Catalog">Перейти в каталог</a> и выберите сладости одной витрины.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Товар</th>
+                    <th class="text-end">Цена</th>
+                    <th style="width: 10rem;">Количество</th>
+                    <th class="text-end">Сумма</th>
+                    <th style="width: 8rem;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (CartLineView line in Model.Cart.Lines)
+                {
+                    string photoPath = string.IsNullOrWhiteSpace(line.Product.Photo)
+                        ? "/images/placeholder.svg"
+                        : $"/images/{line.Product.Photo}";
+
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="@photoPath" alt="@line.Product.Name" class="cart-photo" />
+                                <div>
+                                    <div class="fw-semibold">@line.Product.Name</div>
+                                    <div class="small text-secondary">
+                                        @line.Product.Manufacturer · @line.Product.WeightGrams.FormatWeight() за штуку
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-end">@line.Product.Price.FormatPrice()</td>
+                        <td>
+                            <form method="post" asp-page-handler="Update" class="d-flex gap-2">
+                                <input type="hidden" name="productId" value="@line.Product.Id" />
+                                <input class="form-control form-control-sm" type="number" name="quantity"
+                                       min="0" max="50" value="@line.Quantity" aria-label="Количество" />
+                                <button class="btn btn-sm btn-outline-secondary" type="submit">ОК</button>
+                            </form>
+                        </td>
+                        <td class="text-end">@line.LineTotal.FormatPrice()</td>
+                        <td class="text-end">
+                            <form method="post" asp-page-handler="Remove">
+                                <input type="hidden" name="productId" value="@line.Product.Id" />
+                                <button class="btn btn-sm btn-outline-danger" type="submit">Убрать</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="3" class="text-end">Товары</th>
+                    <th class="text-end">@Model.Cart.GoodsCost.FormatPrice()</th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <th colspan="3" class="text-end">Общий вес</th>
+                    <th class="text-end">@Model.Cart.TotalWeightGrams.FormatWeight()</th>
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <form method="post" asp-page-handler="Clear">
+            <button class="btn btn-outline-secondary" type="submit">Очистить корзину</button>
+        </form>
+
+        <div class="d-flex align-items-center gap-3">
+            <span class="text-secondary small">
+                Доставка рассчитается при оформлении с учётом заполнения выбранной волны.
+            </span>
+            <a class="btn btn-primary btn-lg" asp-page="/Checkout">Оформить</a>
+        </div>
+    </div>
+}

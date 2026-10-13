@@ -25,6 +25,15 @@ public interface IOrderService
     Task<OrderSummary?> FindAsync(string number, string phone, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Finds an order by its number without checking the phone: used on the confirmation page
+    /// right after the buyer places the order.
+    /// </summary>
+    /// <param name="number">Order number.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Order or <see langword="null"/> when nothing is found.</returns>
+    Task<OrderSummary?> FindByNumberAsync(string number, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Returns the orders that match the filter for the admin list.
     /// </summary>
     /// <param name="filter">Status and wave filter.</param>

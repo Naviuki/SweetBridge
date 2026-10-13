@@ -1,0 +1,87 @@
+@page
+@model ConfirmationModel
+@{
+    ViewData["Title"] = "Заказ оформлен";
+}
+
+@if (Model.Order is not null)
+{
+    <div class="alert alert-success">
+        Заказ <strong>@Model.Order.Number</strong> принят и ждёт отправки в волне от @Model.Order.WaveShipDate.FormatDate().
+        Сохраните номер: по нему и телефону можно отслеживать статус доставки.
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <h2 class="h5">Состав заказа</h2>
+                    <ul class="list-group list-group-flush">
+                        @foreach (OrderLineSummary item in Model.Order.Items)
+                        {
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span>@item.ProductName × @item.Quantity</span>
+                                <span>@item.LineTotal.FormatPrice()</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5">Стоимость</h2>
+                    <div class="d-flex justify-content-between">
+                        <span>Товары</span><span>@Model.Order.GoodsCost.FormatPrice()</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Доставка</span><span>@Model.Order.ShippingCost.FormatPrice()</span>
+                    </div>
+                    @if (Model.Order.HasThermoPack)
+                    {
+                        <div class="d-flex justify-content-between">
+                            <span>Термоупаковка</span><span>@Model.Order.ThermoPackCost.FormatPrice()</span>
+                        </div>
+                    }
+                    <div class="d-flex justify-content-between border-top mt-2 pt-2">
+                        <strong>Итого</strong><strong>@Model.Order.TotalCost.FormatPrice()</strong>
+                    </div>
+                    <p class="small text-secondary mb-0 mt-2">
+                        Стоимость зафиксирована на момент оформления.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm mb-3">
+                <div class="card-body">
+                    <h2 class="h5">Доставка</h2>
+                    <p class="mb-1"><strong>Получатель:</strong> @Model.Order.RecipientName</p>
+                    <p class="mb-1"><strong>Телефон:</strong> @Model.Order.RecipientPhone</p>
+                    <p class="mb-1"><strong>Город:</strong> @Model.Order.RecipientCity</p>
+                    @if (!string.IsNullOrWhiteSpace(Model.Order.RecipientPickupPoint))
+                    {
+                        <p class="mb-1"><strong>Пункт выдачи:</strong> @Model.Order.RecipientPickupPoint</p>
+                    }
+                    <p class="mb-0 text-secondary small">Вес заказа: @Model.Order.TotalWeightGrams.FormatWeight()</p>
+
+                    @if (Model.Order.IsGift && !string.IsNullOrWhiteSpace(Model.Order.GiftMessage))
+                    {
+                        <div class="alert alert-light border small mt-3 mb-0">
+                            <strong>Открытка:</strong> @Model.Order.GiftMessage
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="h5">Статус</h2>
+                    <partial name="_OrderStatusTimeline" model="Model.Order" />
+                    <a class="btn btn-outline-primary mt-3" asp-page="/Orders/Track">Отследить заказ</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}

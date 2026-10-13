@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SweetWave.Web.Domain.Entities;
 using SweetWave.Web.Domain.Exceptions;
 using SweetWave.Web.Infrastructure.Persistence;
+using SweetWave.Web.Services.Catalog;
 
 namespace SweetWave.Web.Services.Cart;
 
@@ -43,7 +44,7 @@ public sealed class SessionCartService : ICartService
 
         if (cart.Lines.Count != states.Count)
         {
-            WriteStates([.. cart.Lines.Select(line => new CartLineState(line.ProductId, line.Quantity))]);
+            WriteStates([.. cart.Lines.Select(line => new CartLineState(line.Product.Id, line.Quantity))]);
         }
 
         return cart;
@@ -148,23 +149,7 @@ public sealed class SessionCartService : ICartService
 
         List<CartLineView> lines = states
             .Where(state => products.ContainsKey(state.ProductId))
-            .Select(state =>
-            {
-                Product product = products[state.ProductId];
-
-                return new CartLineView(
-                    product.Id,
-                    product.Name,
-                    product.Manufacturer,
-                    product.Category,
-                    product.Region,
-                    product.Price,
-                    product.WeightGrams,
-                    state.Quantity,
-                    product.IsTemperatureSensitive,
-                    product.Photo,
-                    product.ShippingDirection);
-            })
+            .Select(state => new CartLineView(ProductSummary.FromProduct(products[state.ProductId]), state.Quantity))
             .ToList();
 
         return new CartView(lines);

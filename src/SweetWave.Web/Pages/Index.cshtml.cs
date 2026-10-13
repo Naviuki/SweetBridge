@@ -1,19 +1,42 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using SweetWave.Web.Domain.Enums;
+using SweetWave.Web.Services.Waves;
 
 namespace SweetWave.Web.Pages;
 
-public class IndexModel : PageModel
+/// <summary>
+/// Home page: both showcases, nearest waves and a short description of the mechanics.
+/// </summary>
+/// <param name="waveService">Wave service.</param>
+public sealed class IndexModel(IWaveService waveService) : PageModel
 {
-    private readonly ILogger<IndexModel> _logger;
+    private const int NearestWavesCount = 2;
 
-    public IndexModel(ILogger<IndexModel> logger)
+    /// <summary>
+    /// Nearest waves with the Yakutia confectionery.
+    /// </summary>
+    public IReadOnlyList<WaveSummary> WavesToDonbass { get; private set; } = [];
+
+    /// <summary>
+    /// Nearest waves with the Donbass confectionery.
+    /// </summary>
+    public IReadOnlyList<WaveSummary> WavesToYakutia { get; private set; } = [];
+
+    /// <summary>
+    /// Loads the nearest waves of both directions.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Task representing the operation.</returns>
+    public async Task OnGetAsync(CancellationToken cancellationToken)
     {
-        _logger = logger;
-    }
+        WavesToDonbass = await waveService.GetUpcomingAsync(
+            ShippingDirection.YakutiaToDonbass,
+            NearestWavesCount,
+            cancellationToken);
 
-    public void OnGet()
-    {
-
+        WavesToYakutia = await waveService.GetUpcomingAsync(
+            ShippingDirection.DonbassToYakutia,
+            NearestWavesCount,
+            cancellationToken);
     }
 }

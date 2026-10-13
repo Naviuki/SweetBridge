@@ -23,8 +23,8 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IDeliveryCostCalculator, DeliveryCostCalculator>();
         services.AddSingleton<ISeasonPolicy, SeasonPolicy>();
-        services.AddSingleton<IOrderNumberGenerator, DbOrderNumberGenerator>();
 
+        services.AddScoped<IOrderNumberGenerator, DbOrderNumberGenerator>();
         services.AddScoped<ICatalogService, CatalogService>();
         services.AddScoped<IProductManagementService, ProductManagementService>();
         services.AddScoped<ICartService, SessionCartService>();

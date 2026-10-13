@@ -1,0 +1,209 @@
+@page
+@model CheckoutModel
+@{
+    ViewData["Title"] = "Оформление заказа";
+    bool thermoRequired = Model.Offers.Any(offer => offer.ThermoPackRequired);
+}
+
+<h1 class="h3 mb-3">Оформление заказа</h1>
+
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<form method="post" class="row g-4">
+    <div class="col-lg-5">
+        <div class="card shadow-sm mb-3">
+            <div class="card-body">
+                <h2 class="h5">Ваши данные</h2>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="Input.BuyerName"></label>
+                    <input class="form-control" asp-for="Input.BuyerName" />
+                    <span class="text-danger small" asp-validation-for="Input.BuyerName"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label" asp-for="Input.BuyerPhone"></label>
+                    <input class="form-control" asp-for="Input.BuyerPhone" placeholder="+7 999 000-11-22" />
+                    <span class="text-danger small" asp-validation-for="Input.BuyerPhone"></span>
+                </div>
+
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" asp-for="Input.IsGift" data-gift-switch />
+                    <label class="form-check-label" asp-for="Input.IsGift"></label>
+                </div>
+
+                <div data-recipient-block class="border rounded p-3 @(Model.Input.IsGift ? string.Empty : "d-none")">
+                    <p class="small text-secondary">
+                        Заказ едет в @(Model.Cart.Direction?.GetDestinationName() ?? "регион покупателя"),
+                        поэтому укажите получателя в этом регионе.
+                    </p>
+
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.RecipientName"></label>
+                        <input class="form-control" asp-for="Input.RecipientName" />
+                        <span class="text-danger small" asp-validation-for="Input.RecipientName"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" asp-for="Input.RecipientPhone"></label>
+                        <input class="form-control" asp-for="Input.RecipientPhone" />
+                        <span class="text-danger small" asp-validation-for="Input.RecipientPhone"></span>
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label" asp-for="Input.GiftMessage"></label>
+                        <textarea class="form-control" rows="3" asp-for="Input.GiftMessage"></textarea>
+                        <span class="text-danger small" asp-validation-for="Input.GiftMessage"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3 mt-3">
+                    <label class="form-label" asp-for="Input.RecipientCity"></label>
+                    <input class="form-control" asp-for="Input.RecipientCity" placeholder="Якутск" />
+                    <span class="text-danger small" asp-validation-for="Input.RecipientCity"></span>
+                </div>
+
+                <div class="mb-0">
+                    <label class="form-label" asp-for="Input.RecipientPickupPoint"></label>
+                    <input class="form-control" asp-for="Input.RecipientPickupPoint" />
+                    <span class="text-danger small" asp-validation-for="Input.RecipientPickupPoint"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h5">Заказ</h2>
+                <ul class="list-group list-group-flush mb-3">
+                    @foreach (CartLineView line in Model.Cart.Lines)
+                    {
+                        <li class="list-group-item d-flex justify-content-between px-0">
+                            <span>@line.Product.Name × @line.Quantity</span>
+                            <span>@line.LineTotal.FormatPrice()</span>
+                        </li>
+                    }
+                </ul>
+
+                <div class="d-flex justify-content-between">
+                    <span>Товары</span>
+                    <strong>@Model.Cart.GoodsCost.FormatPrice()</strong>
+                </div>
+                <div class="d-flex justify-content-between text-secondary small">
+                    <span>Вес</span>
+                    <span>@Model.Cart.TotalWeightGrams.FormatWeight()</span>
+                </div>
+
+                <div class="form-check mt-3">
+                    <input class="form-check-input" type="checkbox" asp-for="Input.ThermoPackRequested"
+                           data-thermo-checkbox checked="@thermoRequired" />
+                    <label class="form-check-label" asp-for="Input.ThermoPackRequested"></label>
+                </div>
+                <p class="small text-secondary mb-0" data-thermo-note>
+                    @if (thermoRequired)
+                    {
+                        <span>Для выбранной волны термоупаковка обязательна: в заказе есть шоколад, а месяц отправки требует защиты от холода или жары.</span>
+                    }
+                    else
+                    {
+                        <span>Термоупаковка по желанию: она защитит шоколад в жару и мороз.</span>
+                    }
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h2 class="h5">Выбор волны</h2>
+                <p class="small text-secondary">
+                    Доставка идёт в @Model.Cart.Direction?.GetDestinationName(). Расчёт для каждой волны учитывает
+                    заполнение после вашего заказа и сезонные ограничения.
+                </p>
+
+                @if (Model.Offers.Count == 0)
+                {
+                    <div class="alert alert-warning">
+                        Сейчас нет открытых волн для этого направления. Попробуйте позже.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table align-middle" data-wave-table>
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Отправка</th>
+                                    <th>Приём до</th>
+                                    <th>Заполнение</th>
+                                    <th>Доставка</th>
+                                    <th>Срок</th>
+                                    <th class="text-end">Итого</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (WaveOffer offer in Model.Offers)
+                                {
+                                    decimal total = Model.Cart.GoodsCost + offer.DeliveryCost.TotalCost;
+
+                                    <tr data-thermo-required="@offer.ThermoPackRequired.ToString().ToLowerInvariant()"
+                                        class="@(offer.CanAcceptOrder ? string.Empty : "table-warning")">
+                                        <td>
+                                            <input class="form-check-input" type="radio" name="Input.WaveId"
+                                                   value="@offer.WaveId" id="wave-@offer.WaveId"
+                                                   checked="@(Model.Input.WaveId == offer.WaveId)" />
+                                        </td>
+                                        <td>
+                                            <label class="mb-0" for="wave-@offer.WaveId">@offer.ShipDate.FormatDate()</label>
+                                            @if (offer.ThermoPackRequired)
+                                            {
+                                                <div class="small text-warning-emphasis">термоупаковка обязательна</div>
+                                            }
+                                        </td>
+                                        <td>@offer.OrderCutoffDate.FormatDate()</td>
+                                        <td class="small">
+                                            @offer.FillPercentBefore.FormatPercent() → @offer.FillPercentAfter.FormatPercent()
+                                            @if (!offer.CanAcceptOrder)
+                                            {
+                                                <div class="small text-danger">не хватит места</div>
+                                            }
+                                        </td>
+                                        <td>
+                                            @offer.DeliveryCost.ShippingCost.FormatPrice()
+                                            @if (offer.DeliveryCost.DiscountPercent > 0)
+                                            {
+                                                <div class="small text-success">скидка @offer.DeliveryCost.DiscountPercent.FormatPercent()</div>
+                                            }
+                                            @if (offer.DeliveryCost.ThermoPackCost > 0)
+                                            {
+                                                <div class="small text-secondary">+ термо @offer.DeliveryCost.ThermoPackCost.FormatPrice()</div>
+                                            }
+                                        </td>
+                                        <td class="small">
+                                            @offer.EstimatedDeliveryFrom.FormatDate() —
+                                            @offer.EstimatedDeliveryTo.FormatDate()
+                                        </td>
+                                        <td class="text-end">@total.FormatPrice()</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <span class="text-danger small" asp-validation-for="Input.WaveId"></span>
+
+                    <div class="alert alert-light border small mb-3">
+                        Оплата на этом этапе демонстрационная: кнопка создаёт заказ и фиксирует стоимость.
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-lg w-100">Оплатить (демо)</button>
+                }
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

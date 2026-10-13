@@ -25,6 +25,18 @@ public interface IWaveService
         CancellationToken cancellationToken);
 
     /// <summary>
+    /// Returns the nearest waves that still accept orders, without delivery calculation.
+    /// </summary>
+    /// <param name="direction">Delivery direction.</param>
+    /// <param name="count">Maximum number of waves to return.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Nearest waves sorted by the shipment date.</returns>
+    Task<IReadOnlyList<WaveSummary>> GetUpcomingAsync(
+        ShippingDirection direction,
+        int count,
+        CancellationToken cancellationToken);
+
+    /// <summary>
     /// Returns all waves with their fill for the admin list.
     /// </summary>
     /// <param name="cancellationToken">Cancellation token.</param>

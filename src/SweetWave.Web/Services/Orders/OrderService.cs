@@ -127,23 +127,24 @@ public sealed class OrderService : IOrderService
             return null;
         }
 
-        string normalizedNumber = number.Trim().ToUpperInvariant();
-        string normalizedPhone = NormalizePhone(phone);
+        Order? order = await LoadOrderAsync(number, cancellationToken);
 
-        Order? order = await _dbContext.Orders
-            .AsNoTracking()
-            .Include(item => item.Items)
-            .Include(item => item.History)
-            .FirstOrDefaultAsync(item => item.Number == normalizedNumber, cancellationToken);
-
-        if (order is null || !HasMatchingPhone(order, normalizedPhone))
+        if (order is null)
         {
             return null;
         }
 
-        DateOnly waveShipDate = await GetWaveShipDateAsync(order.WaveId, cancellationToken);
+        string normalizedPhone = NormalizePhone(phone);
 
-        return CreateSummary(order, waveShipDate);
+        return HasMatchingPhone(order, normalizedPhone) ? await CreateSummaryAsync(order, cancellationToken) : null;
+    }
+
+    /// <inheritdoc />
+    public async Task<OrderSummary?> FindByNumberAsync(string number, CancellationToken cancellationToken)
+    {
+        Order? order = await LoadOrderAsync(number, cancellationToken);
+
+        return order is null ? null : await CreateSummaryAsync(order, cancellationToken);
     }
 
     /// <inheritdoc />
@@ -196,6 +197,24 @@ public sealed class OrderService : IOrderService
     }
 
     private DateOnly Today => DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
+
+    private Task<Order?> LoadOrderAsync(string number, CancellationToken cancellationToken)
+    {
+        string normalizedNumber = number.Trim().ToUpperInvariant();
+
+        return _dbContext.Orders
+            .AsNoTracking()
+            .Include(order => order.Items)
+            .Include(order => order.History)
+            .FirstOrDefaultAsync(order => order.Number == normalizedNumber, cancellationToken);
+    }
+
+    private async Task<OrderSummary> CreateSummaryAsync(Order order, CancellationToken cancellationToken)
+    {
+        DateOnly waveShipDate = await GetWaveShipDateAsync(order.WaveId, cancellationToken);
+
+        return CreateSummary(order, waveShipDate);
+    }
 
     private async Task<List<OrderItem>> BuildItemsAsync(IReadOnlyList<OrderLineRequest> lines, CancellationToken cancellationToken)
     {

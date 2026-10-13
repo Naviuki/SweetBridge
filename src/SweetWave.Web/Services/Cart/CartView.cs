@@ -1,4 +1,4 @@
-using SweetWave.Web.Domain.Enums;
+using SweetWave.Web.Services.Catalog;
 
 namespace SweetWave.Web.Services.Cart;
 
@@ -16,7 +16,7 @@ public sealed record CartView(IReadOnlyList<CartLineView> Lines)
     /// <summary>
     /// Direction of the showcase the cart belongs to, or <see langword="null"/> for an empty cart.
     /// </summary>
-    public ShippingDirection? Direction => Lines.Count == 0 ? null : Lines[0].ShippingDirection;
+    public Domain.Enums.ShippingDirection? Direction => Lines.Count == 0 ? null : Lines[0].Product.ShippingDirection;
 
     /// <summary>
     /// Total number of goods in the cart.
@@ -36,5 +36,10 @@ public sealed record CartView(IReadOnlyList<CartLineView> Lines)
     /// <summary>
     /// Indicates that the cart contains temperature sensitive goods.
     /// </summary>
-    public bool HasTemperatureSensitiveItems => Lines.Any(line => line.IsTemperatureSensitive);
+    public bool HasTemperatureSensitiveItems => Lines.Any(line => line.Product.IsTemperatureSensitive);
+
+    /// <summary>
+    /// Catalogue products of the cart.
+    /// </summary>
+    public IReadOnlyList<ProductSummary> Products => [.. Lines.Select(line => line.Product)];
 }

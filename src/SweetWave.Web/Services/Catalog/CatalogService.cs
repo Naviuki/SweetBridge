@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SweetWave.Web.Domain.Entities;
 using SweetWave.Web.Domain.Enums;
 using SweetWave.Web.Infrastructure.Persistence;
 
@@ -29,22 +30,9 @@ public sealed class CatalogService : ICatalogService
 
         Region region = ToRegion(query.Direction);
 
-        IQueryable<ProductSummary> products = _dbContext.Products
+        IQueryable<Product> products = _dbContext.Products
             .AsNoTracking()
-            .Where(product => product.IsActive && product.Region == region)
-            .Select(product => new ProductSummary(
-                product.Id,
-                product.Region,
-                product.Manufacturer,
-                product.Name,
-                product.Category,
-                product.WeightGrams,
-                product.Price,
-                product.IsTemperatureSensitive,
-                product.ShelfLifeDays,
-                product.Photo,
-                product.Description,
-                product.ShippingDirection));
+            .Where(product => product.IsActive && product.Region == region);
 
         if (!string.IsNullOrWhiteSpace(query.Category))
         {
@@ -52,12 +40,12 @@ public sealed class CatalogService : ICatalogService
             products = products.Where(product => product.Category == category);
         }
 
-        List<ProductSummary> result = await products
+        List<Product> result = await products
             .OrderBy(product => product.Category)
             .ThenBy(product => product.Name)
             .ToListAsync(cancellationToken);
 
-        return FilterByText(result, query.SearchText);
+        return FilterByText([.. result.Select(ProductSummary.FromProduct)], query.SearchText);
     }
 
     /// <inheritdoc />

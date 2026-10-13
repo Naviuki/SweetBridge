@@ -86,6 +86,31 @@ public sealed class WaveService : IWaveService
     }
 
     /// <inheritdoc />
+    public async Task<IReadOnlyList<WaveSummary>> GetUpcomingAsync(
+        ShippingDirection direction,
+        int count,
+        CancellationToken cancellationToken)
+    {
+        DateOnly today = Today;
+
+        List<Wave> waves = await _dbContext.Waves
+            .AsNoTracking()
+            .Where(wave => wave.Direction == direction
+                && wave.Status == WaveStatus.Planned
+                && wave.OrderCutoffDate >= today)
+            .OrderBy(wave => wave.ShipDate)
+            .Take(count)
+            .ToListAsync(cancellationToken);
+
+        Dictionary<int, int> loadedGrams = await WaveLoadQueries.GetLoadedGramsAsync(
+            _dbContext,
+            [.. waves.Select(wave => wave.Id)],
+            cancellationToken);
+
+        return [.. waves.Select(wave => CreateSummary(wave, loadedGrams.GetValueOrDefault(wave.Id)))];
+    }
+
+    /// <inheritdoc />
     public async Task<IReadOnlyList<WaveSummary>> GetAllAsync(CancellationToken cancellationToken)
     {
         List<Wave> waves = await _dbContext.Waves

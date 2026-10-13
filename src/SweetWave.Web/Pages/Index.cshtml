@@ -1,10 +1,115 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Главная";
+
+    var showcases = new[]
+    {
+        new
+        {
+            Direction = ShippingDirection.YakutiaToDonbass,
+            Title = "Сладости Якутии",
+            Description = "Печенье, карамель и шоколад от производителей Якутии.",
+            Waves = Model.WavesToDonbass,
+            ButtonClass = "btn-primary"
+        },
+        new
+        {
+            Direction = ShippingDirection.DonbassToYakutia,
+            Title = "Сладости Донбасса",
+            Description = "Шоколад и печенье от кондитерской фабрики Донбасса.",
+            Waves = Model.WavesToYakutia,
+            ButtonClass = "btn-outline-primary"
+        }
+    };
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="p-4 mb-4 bg-light rounded-3">
+    <h1 class="display-5 fw-semibold">SweetWave — сладкий мост между Якутией и ДНР</h1>
+    <p class="lead mb-3">
+        Заказы на сладости копятся в сборные партии — волны. Чем полнее волна, тем дешевле доставка
+        для каждого покупателя: скидка 20 % при заполнении более 50 % и 35 % при заполнении более 80 %.
+    </p>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-primary" asp-page="/Catalog" asp-route-direction="@ShippingDirection.YakutiaToDonbass">Сладости Якутии</a>
+        <a class="btn btn-outline-primary" asp-page="/Catalog" asp-route-direction="@ShippingDirection.DonbassToYakutia">Сладости Донбасса</a>
+    </div>
+</div>
+
+<div class="row g-4">
+    @foreach (var showcase in showcases)
+    {
+        <div class="col-lg-6">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h2 class="h4">@showcase.Title → @showcase.Direction.GetDestinationName()</h2>
+                    <p class="text-secondary">@showcase.Description</p>
+
+                    @if (showcase.Waves.Count == 0)
+                    {
+                        <p class="text-secondary small">Ближайших волн пока нет — загляните позже.</p>
+                    }
+                    else
+                    {
+                        <table class="table table-sm align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Отправка</th>
+                                    <th>Приём заказов до</th>
+                                    <th>Заполнено</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (WaveSummary wave in showcase.Waves)
+                                {
+                                    <tr>
+                                        <td>@wave.ShipDate.FormatDate()</td>
+                                        <td>@wave.OrderCutoffDate.FormatDate()</td>
+                                        <td>@wave.FillPercent.FormatPercent()</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+
+                    <a class="btn btn-sm @showcase.ButtonClass" asp-page="/Catalog" asp-route-direction="@showcase.Direction">Открыть витрину</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="row g-4 mt-1">
+    <div class="col-md-3">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h3 class="h6">Волны вместо посылок</h3>
+                <p class="small mb-0">Заказы едут сборной партией раз в две недели в каждом направлении.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h3 class="h6">Скидка за заполнение</h3>
+                <p class="small mb-0">Доставка считается от веса заказа и заполнения выбранной волны.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h3 class="h6">Термоупаковка</h3>
+                <p class="small mb-0">Зимой и летом шоколад едет только с термоупаковкой.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h3 class="h6">Подарок</h3>
+                <p class="small mb-0">Можно указать получателя в другом регионе и текст открытки.</p>
+            </div>
+        </div>
+    </div>
 </div>
