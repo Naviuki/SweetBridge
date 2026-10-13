@@ -89,11 +89,11 @@ SweetWave/
 
 ## Команда
 
-Менеджер: @kftm3
-Разработчик: @naviuki
-Разработчик: @Lor1Xqq
-Дизайнер: @naggavva
-Дизайнер: @PWKeith
+- Менеджер: @kftm3
+- Разработчик: @naviuki
+- Разработчик: @Lor1Xqq
+- Дизайнер: @naggavva
+- Дизайнер: @PWKeith
 
 ## Лицензия
 
