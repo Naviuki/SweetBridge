@@ -1,4 +1,4 @@
-using SweetWave.Web.Domain.Entities;
+using SweetWave.Web.Services.Catalog;
 
 namespace SweetWave.Web.Services.Seasons;
 
@@ -13,7 +13,7 @@ public interface ISeasonPolicy
     /// <param name="products">Products of the order.</param>
     /// <param name="shipDate">Planned shipment date.</param>
     /// <returns><see langword="true"/> when thermal packaging cannot be declined.</returns>
-    bool IsThermoPackRequired(IEnumerable<Product> products, DateOnly shipDate);
+    bool IsThermoPackRequired(IEnumerable<ProductSummary> products, DateOnly shipDate);
 
     /// <summary>
     /// Returns the number of days added to the delivery duration in the off-season months.

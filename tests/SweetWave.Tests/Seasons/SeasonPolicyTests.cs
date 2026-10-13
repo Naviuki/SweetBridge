@@ -1,6 +1,6 @@
-using SweetWave.Web.Domain.Entities;
 using SweetWave.Web.Domain.Enums;
 using SweetWave.Web.Options;
+using SweetWave.Web.Services.Catalog;
 using SweetWave.Web.Services.Seasons;
 
 namespace SweetWave.Tests.Seasons;
@@ -50,7 +50,7 @@ public sealed class SeasonPolicyTests
     public void IsThermoPackRequired_TemperatureSensitiveProduct_MatchesMandatoryMonths(int month, bool expected)
     {
         SeasonPolicy policy = CreatePolicy();
-        Product product = CreateProduct(isTemperatureSensitive: true);
+        ProductSummary product = CreateProduct(isTemperatureSensitive: true);
 
         bool result = policy.IsThermoPackRequired([product], new DateOnly(ReferenceYear, month, 15));
 
@@ -66,7 +66,7 @@ public sealed class SeasonPolicyTests
     public void IsThermoPackRequired_RegularProductInColdOrHotMonth_ReturnsFalse(int month)
     {
         SeasonPolicy policy = CreatePolicy();
-        Product product = CreateProduct(isTemperatureSensitive: false);
+        ProductSummary product = CreateProduct(isTemperatureSensitive: false);
 
         bool result = policy.IsThermoPackRequired([product], new DateOnly(ReferenceYear, month, 15));
 
@@ -81,7 +81,7 @@ public sealed class SeasonPolicyTests
     public void IsThermoPackRequired_TemperatureSensitiveProductOutsideMandatoryMonths_ReturnsFalse(int month)
     {
         SeasonPolicy policy = CreatePolicy();
-        Product product = CreateProduct(isTemperatureSensitive: true);
+        ProductSummary product = CreateProduct(isTemperatureSensitive: true);
 
         bool result = policy.IsThermoPackRequired([product], new DateOnly(ReferenceYear, month, 15));
 
@@ -111,16 +111,18 @@ public sealed class SeasonPolicyTests
         return new SeasonPolicy(Microsoft.Extensions.Options.Options.Create(options));
     }
 
-    private static Product CreateProduct(bool isTemperatureSensitive) => Product.Create(
-        "YKT-001",
-        Region.Yakutia,
-        "ЯХК",
-        "Тестовый шоколад",
-        "Шоколад",
-        100,
-        250m,
-        isTemperatureSensitive,
-        180,
-        null,
-        null);
+    private static ProductSummary CreateProduct(bool isTemperatureSensitive) =>
+        new(
+            "YKT-001",
+            Region.Yakutia,
+            "ЯХК",
+            "Тестовый шоколад",
+            "Шоколад",
+            100,
+            250m,
+            isTemperatureSensitive,
+            180,
+            null,
+            null,
+            ShippingDirection.YakutiaToDonbass);
 }

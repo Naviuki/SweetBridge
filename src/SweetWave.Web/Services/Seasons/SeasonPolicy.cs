@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
-using SweetWave.Web.Domain.Entities;
 using SweetWave.Web.Options;
+using SweetWave.Web.Services.Catalog;
 
 namespace SweetWave.Web.Services.Seasons;
 
@@ -23,7 +23,7 @@ public sealed class SeasonPolicy : ISeasonPolicy
     }
 
     /// <inheritdoc />
-    public bool IsThermoPackRequired(IEnumerable<Product> products, DateOnly shipDate)
+    public bool IsThermoPackRequired(IEnumerable<ProductSummary> products, DateOnly shipDate)
     {
         ArgumentNullException.ThrowIfNull(products);
 
@@ -32,7 +32,7 @@ public sealed class SeasonPolicy : ISeasonPolicy
             return false;
         }
 
-        return products.Any(product => product is { IsTemperatureSensitive: true });
+        return products.Any(product => product.IsTemperatureSensitive);
     }
 
     /// <inheritdoc />
