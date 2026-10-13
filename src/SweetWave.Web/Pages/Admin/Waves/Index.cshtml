@@ -1,0 +1,79 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Волны";
+}
+
+<h1 class="h3 mb-3">Волны</h1>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <h2 class="h5">Создать волну</h2>
+        <form method="post" asp-page-handler="Create" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label" asp-for="Input.Direction"></label>
+                <select class="form-select" asp-for="Input.Direction" asp-items="Html.GetEnumSelectList<ShippingDirection>()"></select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label" asp-for="Input.ShipDate"></label>
+                <input class="form-control" asp-for="Input.ShipDate" type="date" />
+                <span class="form-text">Дедлайн приёма заказов рассчитывается автоматически.</span>
+                <span class="text-danger small" asp-validation-for="Input.ShipDate"></span>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary w-100">Создать</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Направление</th>
+                <th>Отправка</th>
+                <th>Приём заказов до</th>
+                <th class="text-end">Загружено</th>
+                <th class="text-end">Заполнение</th>
+                <th>Статус</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (WaveSummary wave in Model.Waves)
+            {
+                <tr>
+                    <td>@wave.Direction.ToShortName()</td>
+                    <td>@wave.ShipDate.FormatDate()</td>
+                    <td>@wave.OrderCutoffDate.FormatDate()</td>
+                    <td class="text-end">@wave.LoadedGrams.FormatWeight() / @wave.CapacityGrams.FormatWeight()</td>
+                    <td class="text-end">@wave.FillPercent.FormatPercent()</td>
+                    <td>
+                        <span class="badge bg-light text-dark border">@wave.Status.ToDisplayName()</span>
+                        @if (wave.IsReadyToDispatch)
+                        {
+                            <span class="badge bg-success text-white">готова к отправке</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        @if (wave.Status == WaveStatus.Planned)
+                        {
+                            <form method="post" asp-page-handler="Dispatch" class="d-inline">
+                                <input type="hidden" name="waveId" value="@wave.WaveId" />
+                                <button class="btn btn-sm btn-outline-danger" type="submit" @(wave.IsReadyToDispatch ? null : "disabled")>
+                                    Отправить волну
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<p class="text-secondary small">
+    Отправить волну можно только при загрузке не меньше минимальной: иначе кнопка недоступна,
+    а сервер вернёт понятную ошибку.
+</p>

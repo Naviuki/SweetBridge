@@ -17,6 +17,7 @@ namespace SweetWave.Web.Services.Catalog;
 /// <param name="Photo">Photo file name or <see langword="null"/>.</param>
 /// <param name="Description">Product description or <see langword="null"/>.</param>
 /// <param name="ShippingDirection">Delivery direction of the product.</param>
+/// <param name="IsActive">Indicates that the product is visible in the catalogue.</param>
 public sealed record ProductSummary(
     string Id,
     Region Region,
@@ -29,7 +30,8 @@ public sealed record ProductSummary(
     int ShelfLifeDays,
     string? Photo,
     string? Description,
-    ShippingDirection ShippingDirection)
+    ShippingDirection ShippingDirection,
+    bool IsActive)
 {
     /// <summary>
     /// Creates a read model from a domain product.
@@ -52,6 +54,7 @@ public sealed record ProductSummary(
             product.ShelfLifeDays,
             product.Photo,
             product.Description,
-            product.ShippingDirection);
+            product.ShippingDirection,
+            product.IsActive);
     }
 }

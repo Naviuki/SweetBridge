@@ -1,4 +1,4 @@
-﻿@inject SweetWave.Web.Services.Cart.ICartService CartService
+@inject SweetWave.Web.Services.Cart.ICartService CartService
 @{
     int cartItemCount = CartService.GetItemCount();
 }
@@ -33,7 +33,7 @@
                                 Корзина
                                 @if (cartItemCount > 0)
                                 {
-                                    <span class="badge text-bg-warning">@cartItemCount</span>
+                                    <span class="badge bg-warning text-dark">@cartItemCount</span>
                                 }
                             </a>
                         </li>

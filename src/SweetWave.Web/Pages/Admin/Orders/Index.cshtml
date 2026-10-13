@@ -1,0 +1,109 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Заказы";
+}
+
+<h1 class="h3 mb-3">Заказы</h1>
+
+<form method="get" class="row g-2 align-items-end mb-4">
+    <div class="col-md-3">
+        <label class="form-label" for="status">Статус</label>
+        <select class="form-select" id="status" name="Status">
+            <option value="">Все статусы</option>
+            @foreach (OrderStatus status in Enum.GetValues<OrderStatus>())
+            {
+                <option value="@status" selected="@(Model.Status == status)">@status.ToDisplayTitle()</option>
+            }
+        </select>
+    </div>
+    <div class="col-md-4">
+        <label class="form-label" for="waveId">Волна</label>
+        <select class="form-select" id="waveId" name="WaveId">
+            <option value="">Все волны</option>
+            @foreach (WaveSummary wave in Model.Waves)
+            {
+                <option value="@wave.WaveId" selected="@(Model.WaveId == wave.WaveId)">
+                    @wave.Direction.ToShortName() — @wave.ShipDate.FormatDate()
+                </option>
+            }
+        </select>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary w-100">Фильтровать</button>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Номер</th>
+                <th>Покупатель</th>
+                <th>Получатель</th>
+                <th>Волна</th>
+                <th class="text-end">Вес</th>
+                <th class="text-end">Сумма</th>
+                <th>Статус</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (OrderSummary order in Model.Orders)
+            {
+                <tr>
+                    <td class="text-nowrap">
+                        <div class="fw-semibold">@order.Number</div>
+                        <div class="small text-secondary">@order.CreatedAtUtc.FormatDateTime()</div>
+                    </td>
+                    <td>
+                        <div>@order.BuyerName</div>
+                        <div class="small text-secondary">@order.BuyerPhone</div>
+                    </td>
+                    <td>
+                        <div>
+                            @order.RecipientName
+                            @if (order.IsGift)
+                            {
+                                <span class="badge bg-info text-dark">подарок</span>
+                            }
+                        </div>
+                        <div class="small text-secondary">@order.RecipientCity · @order.RecipientPhone</div>
+                        @if (order.IsGift && !string.IsNullOrWhiteSpace(order.GiftMessage))
+                        {
+                            <div class="small text-secondary fst-italic">«@order.GiftMessage»</div>
+                        }
+                    </td>
+                    <td class="text-nowrap">@order.WaveShipDate.FormatDate()</td>
+                    <td class="text-end">@order.TotalWeightGrams.FormatWeight()</td>
+                    <td class="text-end">
+                        @order.TotalCost.FormatPrice()
+                        @if (order.HasThermoPack)
+                        {
+                            <div class="small text-secondary">термо @order.ThermoPackCost.FormatPrice()</div>
+                        }
+                        @if (order.AppliedDiscountPercent > 0)
+                        {
+                            <div class="small text-success">скидка @order.AppliedDiscountPercent.FormatPercent()</div>
+                        }
+                    </td>
+                    <td class="text-nowrap">@order.Status.ToDisplayTitle()</td>
+                    <td class="text-end">
+                        @if (order.Status != OrderStatus.Received)
+                        {
+                            <form method="post" asp-page-handler="Advance" class="d-inline">
+                                <input type="hidden" name="orderId" value="@order.Id" />
+                                <button class="btn btn-sm btn-outline-primary" type="submit">Следующий статус</button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.Orders.Count == 0)
+{
+    <div class="alert alert-info">Заказов по выбранному фильтру нет.</div>
+}

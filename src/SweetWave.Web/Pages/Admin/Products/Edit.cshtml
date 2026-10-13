@@ -1,0 +1,79 @@
+@page
+@model EditModel
+@{
+    ViewData["Title"] = $"Товар {Model.Id}";
+}
+
+<h1 class="h3 mb-3">Товар @Model.Id</h1>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label" asp-for="Input.Region"></label>
+                    <select class="form-select" asp-for="Input.Region" asp-items="Html.GetEnumSelectList<Region>()"></select>
+                    <span class="form-text">Товар едет в противоположный регион.</span>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" asp-for="Input.Manufacturer"></label>
+                    <input class="form-control" asp-for="Input.Manufacturer" />
+                    <span class="text-danger small" asp-validation-for="Input.Manufacturer"></span>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" asp-for="Input.Category"></label>
+                    <input class="form-control" asp-for="Input.Category" />
+                    <span class="text-danger small" asp-validation-for="Input.Category"></span>
+                </div>
+
+                <div class="col-md-8">
+                    <label class="form-label" asp-for="Input.Name"></label>
+                    <input class="form-control" asp-for="Input.Name" />
+                    <span class="text-danger small" asp-validation-for="Input.Name"></span>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <div class="form-check">
+                        <input class="form-check-input" asp-for="Input.IsTemperatureSensitive" />
+                        <label class="form-check-label" asp-for="Input.IsTemperatureSensitive"></label>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label" asp-for="Input.WeightGrams"></label>
+                    <input class="form-control" asp-for="Input.WeightGrams" />
+                    <span class="text-danger small" asp-validation-for="Input.WeightGrams"></span>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" asp-for="Input.Price"></label>
+                    <input class="form-control" asp-for="Input.Price" />
+                    <span class="text-danger small" asp-validation-for="Input.Price"></span>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" asp-for="Input.ShelfLifeDays"></label>
+                    <input class="form-control" asp-for="Input.ShelfLifeDays" />
+                    <span class="text-danger small" asp-validation-for="Input.ShelfLifeDays"></span>
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label" asp-for="Input.Photo"></label>
+                    <input class="form-control" asp-for="Input.Photo" />
+                    <span class="form-text">Пусто — будет заглушка.</span>
+                    <span class="text-danger small" asp-validation-for="Input.Photo"></span>
+                </div>
+                <div class="col-md-8">
+                    <label class="form-label" asp-for="Input.Description"></label>
+                    <textarea class="form-control" rows="2" asp-for="Input.Description"></textarea>
+                    <span class="text-danger small" asp-validation-for="Input.Description"></span>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <a class="btn btn-outline-secondary" asp-page="/Admin/Products/Index">Отмена</a>
+            </div>
+        </form>
+    </div>
+</div>

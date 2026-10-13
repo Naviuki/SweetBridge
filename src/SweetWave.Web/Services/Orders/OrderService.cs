@@ -154,6 +154,7 @@ public sealed class OrderService : IOrderService
 
         IQueryable<Order> orders = _dbContext.Orders
             .AsNoTracking()
+            .AsSplitQuery()
             .Include(order => order.Items)
             .Include(order => order.History);
 
@@ -204,6 +205,7 @@ public sealed class OrderService : IOrderService
 
         return _dbContext.Orders
             .AsNoTracking()
+            .AsSplitQuery()
             .Include(order => order.Items)
             .Include(order => order.History)
             .FirstOrDefaultAsync(order => order.Number == normalizedNumber, cancellationToken);
