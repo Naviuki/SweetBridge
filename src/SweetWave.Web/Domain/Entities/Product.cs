@@ -22,7 +22,7 @@ public sealed class Product
         decimal price,
         bool isTemperatureSensitive,
         int shelfLifeDays,
-        string? photoFileName,
+        string? photo,
         string? description)
     {
         Id = id;
@@ -34,7 +34,7 @@ public sealed class Product
         Price = price;
         IsTemperatureSensitive = isTemperatureSensitive;
         ShelfLifeDays = shelfLifeDays;
-        PhotoFileName = photoFileName;
+        Photo = photo;
         Description = description;
         IsActive = true;
     }
@@ -87,7 +87,7 @@ public sealed class Product
     /// <summary>
     /// Photo file name inside <c>wwwroot/images</c>, or <see langword="null"/> to use the placeholder.
     /// </summary>
-    public string? PhotoFileName { get; private set; }
+    public string? Photo { get; private set; }
 
     /// <summary>
     /// Product description shown on the card.
@@ -118,7 +118,7 @@ public sealed class Product
     /// <param name="price">Price of a single unit, in rubles.</param>
     /// <param name="isTemperatureSensitive">Temperature sensitive flag.</param>
     /// <param name="shelfLifeDays">Shelf life, in days.</param>
-    /// <param name="photoFileName">Photo file name or <see langword="null"/>.</param>
+    /// <param name="photo">Photo file name or <see langword="null"/>.</param>
     /// <param name="description">Product description or <see langword="null"/>.</param>
     /// <returns>Created product.</returns>
     /// <exception cref="DomainException">Product data is not valid.</exception>
@@ -132,7 +132,7 @@ public sealed class Product
         decimal price,
         bool isTemperatureSensitive,
         int shelfLifeDays,
-        string? photoFileName,
+        string? photo,
         string? description)
     {
         Validate(id, manufacturer, name, category, weightGrams, price, shelfLifeDays);
@@ -147,7 +147,7 @@ public sealed class Product
             price,
             isTemperatureSensitive,
             shelfLifeDays,
-            photoFileName,
+            photo,
             description);
     }
 
@@ -161,7 +161,7 @@ public sealed class Product
     /// <param name="price">Price of a single unit, in rubles.</param>
     /// <param name="isTemperatureSensitive">Temperature sensitive flag.</param>
     /// <param name="shelfLifeDays">Shelf life, in days.</param>
-    /// <param name="photoFileName">Photo file name or <see langword="null"/>.</param>
+    /// <param name="photo">Photo file name or <see langword="null"/>.</param>
     /// <param name="description">Product description or <see langword="null"/>.</param>
     /// <exception cref="DomainException">Product data is not valid.</exception>
     public void Update(
@@ -172,7 +172,7 @@ public sealed class Product
         decimal price,
         bool isTemperatureSensitive,
         int shelfLifeDays,
-        string? photoFileName,
+        string? photo,
         string? description)
     {
         Validate(Id, manufacturer, name, category, weightGrams, price, shelfLifeDays);
@@ -184,7 +184,7 @@ public sealed class Product
         Price = price;
         IsTemperatureSensitive = isTemperatureSensitive;
         ShelfLifeDays = shelfLifeDays;
-        PhotoFileName = photoFileName;
+        Photo = photo;
         Description = description;
     }
 

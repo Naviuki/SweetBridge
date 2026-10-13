@@ -21,6 +21,16 @@ public sealed class OrderItem
     }
 
     /// <summary>
+    /// Position identifier.
+    /// </summary>
+    public int Id { get; private set; }
+
+    /// <summary>
+    /// Identifier of the order the position belongs to.
+    /// </summary>
+    public int OrderId { get; private set; }
+
+    /// <summary>
     /// Catalogue identifier of the product.
     /// </summary>
     public string ProductId { get; private set; } = string.Empty;

@@ -23,6 +23,11 @@ public sealed class OrderStatusHistoryEntry
     public int Id { get; private set; }
 
     /// <summary>
+    /// Identifier of the order the entry belongs to.
+    /// </summary>
+    public int OrderId { get; private set; }
+
+    /// <summary>
     /// Status the order moved to.
     /// </summary>
     public OrderStatus Status { get; private set; }
