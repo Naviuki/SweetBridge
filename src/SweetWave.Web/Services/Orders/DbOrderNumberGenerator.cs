@@ -5,7 +5,7 @@ using SweetWave.Web.Infrastructure.Persistence;
 namespace SweetWave.Web.Services.Orders;
 
 /// <summary>
-/// Order number generator that combines a cryptographic random suffix with a uniqueness check.
+/// Генератор номеров заказов: криптографически случайный суффикс и проверка уникальности.
 /// </summary>
 public sealed class DbOrderNumberGenerator : IOrderNumberGenerator
 {
@@ -17,9 +17,9 @@ public sealed class DbOrderNumberGenerator : IOrderNumberGenerator
     private readonly AppDbContext _dbContext;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DbOrderNumberGenerator"/> class.
+    /// Создаёт новый экземпляр класса <see cref="DbOrderNumberGenerator"/>.
     /// </summary>
-    /// <param name="dbContext">Database context.</param>
+    /// <param name="dbContext">Контекст базы данных.</param>
     public DbOrderNumberGenerator(AppDbContext dbContext)
     {
         ArgumentNullException.ThrowIfNull(dbContext);

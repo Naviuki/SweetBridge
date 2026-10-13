@@ -8,7 +8,7 @@ using SweetWave.Web.Options;
 namespace SweetWave.Web.Infrastructure.Seeding;
 
 /// <summary>
-/// Creates the planned waves for both directions when the database has none.
+/// Создаёт запланированные волны обоих направлений, если в базе их нет.
 /// </summary>
 public sealed class WaveSeeder
 {
@@ -20,11 +20,11 @@ public sealed class WaveSeeder
     private readonly TimeProvider _timeProvider;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="WaveSeeder"/> class.
+    /// Создаёт новый экземпляр класса <see cref="WaveSeeder"/>.
     /// </summary>
-    /// <param name="dbContext">Database context.</param>
-    /// <param name="options">Logistics parameters.</param>
-    /// <param name="timeProvider">Time provider.</param>
+    /// <param name="dbContext">Контекст базы данных.</param>
+    /// <param name="options">Логистические параметры.</param>
+    /// <param name="timeProvider">Провайдер времени.</param>
     public WaveSeeder(AppDbContext dbContext, IOptions<LogisticsOptions> options, TimeProvider timeProvider)
     {
         ArgumentNullException.ThrowIfNull(dbContext);
@@ -37,10 +37,10 @@ public sealed class WaveSeeder
     }
 
     /// <summary>
-    /// Adds the planned waves when the database has none.
+    /// Добавляет запланированные волны, если в базе их нет.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Number of created waves.</returns>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Количество созданных волн.</returns>
     public async Task<int> SeedAsync(CancellationToken cancellationToken)
     {
         if (await _dbContext.Waves.AnyAsync(cancellationToken))

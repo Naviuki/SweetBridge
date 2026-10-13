@@ -10,8 +10,8 @@ using SweetWave.Web.Services.Seasons;
 namespace SweetWave.Web.Services.Orders;
 
 /// <summary>
-/// Order service: places orders with server side recalculation of prices, weights and capacity,
-/// finds orders for tracking and moves them through the status lifecycle.
+/// Сервис заказов: размещает заказы с пересчётом цен, веса и вместимости на сервере,
+/// находит заказы для отслеживания и переводит их по статусам.
 /// </summary>
 public sealed class OrderService : IOrderService
 {
@@ -22,13 +22,13 @@ public sealed class OrderService : IOrderService
     private readonly TimeProvider _timeProvider;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="OrderService"/> class.
+    /// Создаёт новый экземпляр класса <see cref="OrderService"/>.
     /// </summary>
-    /// <param name="dbContext">Database context.</param>
-    /// <param name="deliveryCostCalculator">Delivery cost calculator.</param>
-    /// <param name="seasonPolicy">Seasonal rules.</param>
-    /// <param name="orderNumberGenerator">Order number generator.</param>
-    /// <param name="timeProvider">Time provider.</param>
+    /// <param name="dbContext">Контекст базы данных.</param>
+    /// <param name="deliveryCostCalculator">Калькулятор стоимости доставки.</param>
+    /// <param name="seasonPolicy">Сезонные правила.</param>
+    /// <param name="orderNumberGenerator">Генератор номеров заказов.</param>
+    /// <param name="timeProvider">Провайдер времени.</param>
     public OrderService(
         AppDbContext dbContext,
         IDeliveryCostCalculator deliveryCostCalculator,

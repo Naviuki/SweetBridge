@@ -3,29 +3,29 @@ using SweetWave.Web.Domain.Enums;
 namespace SweetWave.Web.Services.Orders;
 
 /// <summary>
-/// Read model of an order for the confirmation, tracking and admin pages.
+/// Модель чтения заказа для страниц подтверждения, отслеживания и админки.
 /// </summary>
-/// <param name="Id">Order identifier.</param>
-/// <param name="Number">Order number.</param>
-/// <param name="CreatedAtUtc">Creation moment, in UTC.</param>
-/// <param name="Status">Current status.</param>
-/// <param name="IsGift">Indicates that the order is a gift.</param>
-/// <param name="BuyerName">Buyer name.</param>
-/// <param name="BuyerPhone">Buyer phone number.</param>
-/// <param name="RecipientName">Recipient name.</param>
-/// <param name="RecipientPhone">Recipient phone number.</param>
-/// <param name="RecipientCity">Recipient city.</param>
-/// <param name="RecipientPickupPoint">Pickup point.</param>
-/// <param name="GiftMessage">Greeting card text.</param>
-/// <param name="WaveId">Wave identifier.</param>
-/// <param name="WaveShipDate">Shipment date of the wave.</param>
-/// <param name="TotalWeightGrams">Total weight of the order, in grams.</param>
-/// <param name="GoodsCost">Cost of the goods, in rubles.</param>
-/// <param name="ShippingCost">Delivery cost, in rubles.</param>
-/// <param name="ThermoPackCost">Thermal packaging cost, in rubles.</param>
-/// <param name="AppliedDiscountPercent">Applied delivery discount, in percent.</param>
-/// <param name="Items">Order positions.</param>
-/// <param name="History">Status timeline.</param>
+/// <param name="Id">Идентификатор заказа.</param>
+/// <param name="number">Номер заказа.</param>
+/// <param name="createdAtUtc">Момент создания в UTC.</param>
+/// <param name="Status">Текущий статус.</param>
+/// <param name="isGift">Признак того, что заказ является подарком.</param>
+/// <param name="buyerName">Имя покупателя.</param>
+/// <param name="buyerPhone">Телефон покупателя.</param>
+/// <param name="RecipientName">Имя получателя.</param>
+/// <param name="RecipientPhone">Телефон получателя.</param>
+/// <param name="recipientCity">Город получателя.</param>
+/// <param name="recipientPickupPoint">Пункт выдачи.</param>
+/// <param name="giftMessage">Текст открытки.</param>
+/// <param name="waveId">Идентификатор волны.</param>
+/// <param name="WaveShipDate">Дата отправки волны.</param>
+/// <param name="TotalWeightGrams">Общий вес заказа в граммах.</param>
+/// <param name="GoodsCost">Стоимость товаров в рублях.</param>
+/// <param name="shippingCost">Стоимость доставки в рублях.</param>
+/// <param name="thermoPackCost">Стоимость термоупаковки в рублях.</param>
+/// <param name="appliedDiscountPercent">Применённая скидка на доставку в процентах.</param>
+/// <param name="Items">Позиции заказа.</param>
+/// <param name="History">Лента смены статусов.</param>
 public sealed record OrderSummary(
     int Id,
     string Number,
@@ -50,12 +50,12 @@ public sealed record OrderSummary(
     IReadOnlyList<OrderStatusPoint> History)
 {
     /// <summary>
-    /// Total amount payable, in rubles.
+    /// Итоговая сумма к оплате в рублях.
     /// </summary>
     public decimal TotalCost => GoodsCost + ShippingCost + ThermoPackCost;
 
     /// <summary>
-    /// Indicates that thermal packaging was paid for.
+    /// Признак того, что термоупаковка была оплачена.
     /// </summary>
     public bool HasThermoPack => ThermoPackCost > 0m;
 }

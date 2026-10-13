@@ -4,7 +4,7 @@ using SweetWave.Web.Domain.Exceptions;
 namespace SweetWave.Web.Domain.Entities;
 
 /// <summary>
-/// A confectionery product of one of the two showcases.
+/// Кондитерское изделие одной из двух витрин.
 /// </summary>
 public sealed class Product
 {
@@ -40,88 +40,88 @@ public sealed class Product
     }
 
     /// <summary>
-    /// Product identifier in the catalogue format, for example <c>YKT-001</c>.
+    /// Идентификатор товара в формате каталога, например <c>YKT-001</c>.
     /// </summary>
     public string Id { get; private set; } = string.Empty;
 
     /// <summary>
-    /// Region of the manufacturer.
+    /// Регион производителя.
     /// </summary>
     public Region Region { get; private set; }
 
     /// <summary>
-    /// Manufacturer name.
+    /// Название производителя.
     /// </summary>
     public string Manufacturer { get; private set; } = string.Empty;
 
     /// <summary>
-    /// Product name.
+    /// Наименование товара.
     /// </summary>
     public string Name { get; private set; } = string.Empty;
 
     /// <summary>
-    /// Catalogue category used by the filter.
+    /// Категория каталога, используемая в фильтре.
     /// </summary>
     public string Category { get; private set; } = string.Empty;
 
     /// <summary>
-    /// Weight of a single unit, in grams.
+    /// Вес одной штуки в граммах.
     /// </summary>
     public int WeightGrams { get; private set; }
 
     /// <summary>
-    /// Price of a single unit, in rubles.
+    /// Цена одной штуки в рублях.
     /// </summary>
     public decimal Price { get; private set; }
 
     /// <summary>
-    /// Indicates that the product cannot be shipped without thermal packaging in cold and hot months.
+    /// Признак того, что товар нельзя отправлять без термоупаковки в холодные и жаркие месяцы.
     /// </summary>
     public bool IsTemperatureSensitive { get; private set; }
 
     /// <summary>
-    /// Shelf life, in days.
+    /// Срок годности в днях.
     /// </summary>
     public int ShelfLifeDays { get; private set; }
 
     /// <summary>
-    /// Photo file name inside <c>wwwroot/images</c>, or <see langword="null"/> to use the placeholder.
+    /// Имя файла изображения в каталоге <c>wwwroot/images</c> или <see langword="null"/> для заглушки.
     /// </summary>
     public string? Photo { get; private set; }
 
     /// <summary>
-    /// Product description shown on the card.
+    /// Описание товара, показываемое на карточке.
     /// </summary>
     public string? Description { get; private set; }
 
     /// <summary>
-    /// Soft deletion flag: hidden products stay in past orders but disappear from the catalogue.
+    /// Признак мягкого удаления: скрытые товары остаются в прошлых заказах, но исчезают из каталога.
     /// </summary>
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// Delivery direction: goods of a region always travel to the opposite region.
+    /// Направление доставки: товары региона всегда едут в противоположный регион.
     /// </summary>
     public ShippingDirection ShippingDirection => Region == Region.Yakutia
         ? ShippingDirection.YakutiaToDonbass
         : ShippingDirection.DonbassToYakutia;
 
     /// <summary>
-    /// Creates a new active product.
+    /// Создаёт новый активный товар.
     /// </summary>
-    /// <param name="id">Unique product identifier.</param>
-    /// <param name="region">Region of the manufacturer.</param>
-    /// <param name="manufacturer">Manufacturer name.</param>
-    /// <param name="name">Product name.</param>
-    /// <param name="category">Catalogue category.</param>
-    /// <param name="weightGrams">Weight of a single unit, in grams.</param>
-    /// <param name="price">Price of a single unit, in rubles.</param>
-    /// <param name="isTemperatureSensitive">Temperature sensitive flag.</param>
-    /// <param name="shelfLifeDays">Shelf life, in days.</param>
-    /// <param name="photo">Photo file name or <see langword="null"/>.</param>
-    /// <param name="description">Product description or <see langword="null"/>.</param>
-    /// <returns>Created product.</returns>
-    /// <exception cref="DomainException">Product data is not valid.</exception>
+    /// <param name="id">Уникальный идентификатор товара.</param>
+    /// <param name="region">Регион производителя.</param>
+    /// <param name="manufacturer">Название производителя.</param>
+    /// <param name="name">Наименование товара.</param>
+    /// <param name="category">Категория в каталоге.</param>
+    /// <param name="weightGrams">Вес одной штуки в граммах.</param>
+    /// <param name="price">Цена одной штуки в рублях.</param>
+    /// <param name="isTemperatureSensitive">Признак температурной чувствительности.</param>
+    /// <param name="shelfLifeDays">Срок годности в днях.</param>
+    /// <param name="photo">Имя файла изображения или <see langword="null"/>.</param>
+    /// <param name="description">Описание товара или <see langword="null"/>.</param>
+    /// <returns>Созданный товар.</returns>
+    /// <exception cref="DomainException">Данные товара некорректны.</exception>
     public static Product Create(
         string id,
         Region region,
@@ -152,18 +152,18 @@ public sealed class Product
     }
 
     /// <summary>
-    /// Updates the editable product data.
+    /// Обновляет изменяемые данные товара.
     /// </summary>
-    /// <param name="manufacturer">Manufacturer name.</param>
-    /// <param name="name">Product name.</param>
-    /// <param name="category">Catalogue category.</param>
-    /// <param name="weightGrams">Weight of a single unit, in grams.</param>
-    /// <param name="price">Price of a single unit, in rubles.</param>
-    /// <param name="isTemperatureSensitive">Temperature sensitive flag.</param>
-    /// <param name="shelfLifeDays">Shelf life, in days.</param>
-    /// <param name="photo">Photo file name or <see langword="null"/>.</param>
-    /// <param name="description">Product description or <see langword="null"/>.</param>
-    /// <exception cref="DomainException">Product data is not valid.</exception>
+    /// <param name="manufacturer">Название производителя.</param>
+    /// <param name="name">Наименование товара.</param>
+    /// <param name="category">Категория в каталоге.</param>
+    /// <param name="weightGrams">Вес одной штуки в граммах.</param>
+    /// <param name="price">Цена одной штуки в рублях.</param>
+    /// <param name="isTemperatureSensitive">Признак температурной чувствительности.</param>
+    /// <param name="shelfLifeDays">Срок годности в днях.</param>
+    /// <param name="photo">Имя файла изображения или <see langword="null"/>.</param>
+    /// <param name="description">Описание товара или <see langword="null"/>.</param>
+    /// <exception cref="DomainException">Данные товара некорректны.</exception>
     public void Update(
         string manufacturer,
         string name,
@@ -189,12 +189,12 @@ public sealed class Product
     }
 
     /// <summary>
-    /// Hides the product from the catalogue (soft deletion).
+    /// Скрывает товар из каталога (мягкое удаление).
     /// </summary>
     public void Hide() => IsActive = false;
 
     /// <summary>
-    /// Returns the product to the catalogue.
+    /// Возвращает товар в каталог.
     /// </summary>
     public void Show() => IsActive = true;
 

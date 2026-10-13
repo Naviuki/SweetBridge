@@ -3,49 +3,49 @@ using SweetWave.Web.Domain.Enums;
 namespace SweetWave.Web.Services.Orders;
 
 /// <summary>
-/// Order lifecycle: checkout, tracking and administration.
+/// Жизненный цикл заказа: оформление, отслеживание и администрирование.
 /// </summary>
 public interface IOrderService
 {
     /// <summary>
-    /// Places an order into a wave: prices, weights and capacity are recalculated on the server.
+    /// Размещает заказ в волне: цены, вес и вместимость пересчитываются на сервере.
     /// </summary>
-    /// <param name="command">Checkout data.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Created order.</returns>
+    /// <param name="command">Данные оформления заказа.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Созданный заказ.</returns>
     Task<OrderSummary> PlaceAsync(PlaceOrderCommand command, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Finds an order by its number and a phone number of the buyer or the recipient.
+    /// Находит заказ по номеру и телефону покупателя или получателя.
     /// </summary>
-    /// <param name="number">Order number.</param>
-    /// <param name="phone">Phone number.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Order or <see langword="null"/> when nothing is found.</returns>
+    /// <param name="number">Номер заказа.</param>
+    /// <param name="phone">Номер телефона.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Заказ или <see langword="null"/>, если ничего не найдено.</returns>
     Task<OrderSummary?> FindAsync(string number, string phone, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Finds an order by its number without checking the phone: used on the confirmation page
-    /// right after the buyer places the order.
+    /// Находит заказ по номеру без проверки телефона: используется на странице подтверждения
+    /// сразу после оформления заказа покупателем.
     /// </summary>
-    /// <param name="number">Order number.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Order or <see langword="null"/> when nothing is found.</returns>
+    /// <param name="number">Номер заказа.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Заказ или <see langword="null"/>, если ничего не найдено.</returns>
     Task<OrderSummary?> FindByNumberAsync(string number, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Returns the orders that match the filter for the admin list.
+    /// Возвращает заказы, подходящие под фильтр списка админки.
     /// </summary>
-    /// <param name="filter">Status and wave filter.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Matching orders.</returns>
+    /// <param name="filter">Фильтр по статусу и волне.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Подходящие заказы.</returns>
     Task<IReadOnlyList<OrderSummary>> GetOrdersAsync(OrderFilter filter, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Moves the order to the next status of the lifecycle.
+    /// Переводит заказ на следующий статус жизненного цикла.
     /// </summary>
-    /// <param name="orderId">Order identifier.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Updated order.</returns>
+    /// <param name="orderId">Идентификатор заказа.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Обновлённый заказ.</returns>
     Task<OrderSummary> AdvanceStatusAsync(int orderId, CancellationToken cancellationToken);
 }

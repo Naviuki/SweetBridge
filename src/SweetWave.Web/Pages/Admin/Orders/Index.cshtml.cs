@@ -9,39 +9,39 @@ using SweetWave.Web.Services.Waves;
 namespace SweetWave.Web.Pages.Admin.Orders;
 
 /// <summary>
-/// Order list with the status and wave filters and the button for the next status.
+/// Список заказов с фильтрами по статусу и волне и кнопкой перехода к следующему статусу.
 /// </summary>
-/// <param name="orderService">Order service.</param>
-/// <param name="waveService">Wave service.</param>
+/// <param name="orderService">Сервис заказов.</param>
+/// <param name="waveService">Сервис волн.</param>
 public sealed class IndexModel(IOrderService orderService, IWaveService waveService) : PageModel
 {
     /// <summary>
-    /// Selected status filter.
+    /// Выбранный фильтр по статусу.
     /// </summary>
     [BindProperty(SupportsGet = true)]
     public OrderStatus? Status { get; set; }
 
     /// <summary>
-    /// Selected wave filter.
+    /// Выбранный фильтр по волне.
     /// </summary>
     [BindProperty(SupportsGet = true)]
     public int? WaveId { get; set; }
 
     /// <summary>
-    /// Orders that match the filter.
+    /// Заказы, подходящие под фильтр.
     /// </summary>
     public IReadOnlyList<OrderSummary> Orders { get; private set; } = [];
 
     /// <summary>
-    /// Waves available in the filter.
+    /// Волны, доступные в фильтре.
     /// </summary>
     public IReadOnlyList<WaveSummary> Waves { get; private set; } = [];
 
     /// <summary>
-    /// Loads the orders and the filter data.
+    /// Загружает заказы и данные фильтра.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Task representing the operation.</returns>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Задача, отражающая выполнение операции.</returns>
     public async Task OnGetAsync(CancellationToken cancellationToken)
     {
         Orders = await orderService.GetOrdersAsync(new OrderFilter(Status, WaveId), cancellationToken);
@@ -49,11 +49,11 @@ public sealed class IndexModel(IOrderService orderService, IWaveService waveServ
     }
 
     /// <summary>
-    /// Moves the order to the next status.
+    /// Переводит заказ на следующий статус.
     /// </summary>
-    /// <param name="orderId">Order identifier.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Redirect back to the list.</returns>
+    /// <param name="orderId">Идентификатор заказа.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Возврат к списку.</returns>
     public async Task<IActionResult> OnPostAdvanceAsync(int orderId, CancellationToken cancellationToken)
     {
         try

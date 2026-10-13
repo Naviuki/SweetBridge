@@ -6,33 +6,33 @@ using SweetWave.Web.Services.Cart;
 namespace SweetWave.Web.Pages;
 
 /// <summary>
-/// Shopping cart: quantity changes, removal and the totals.
+/// Корзина покупок: изменение количества, удаление и итоги.
 /// </summary>
-/// <param name="cartService">Cart service.</param>
+/// <param name="cartService">Сервис корзины.</param>
 public sealed class CartModel(ICartService cartService) : PageModel
 {
     /// <summary>
-    /// Current cart.
+    /// Текущая корзина.
     /// </summary>
     public CartView Cart { get; private set; } = new([]);
 
     /// <summary>
-    /// Loads the cart.
+    /// Загружает корзину.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Task representing the operation.</returns>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Задача, отражающая выполнение операции.</returns>
     public async Task OnGetAsync(CancellationToken cancellationToken)
     {
         Cart = await cartService.GetCartAsync(cancellationToken);
     }
 
     /// <summary>
-    /// Sets the quantity of a line and returns to the cart.
+    /// Задаёт количество в позиции и возвращает к корзине.
     /// </summary>
-    /// <param name="productId">Product identifier.</param>
-    /// <param name="quantity">New quantity.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Redirect back to the cart.</returns>
+    /// <param name="productId">Идентификатор товара.</param>
+    /// <param name="quantity">Новое количество.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Возврат к корзине.</returns>
     public async Task<IActionResult> OnPostUpdateAsync(string productId, int quantity, CancellationToken cancellationToken)
     {
         await ChangeCartAsync(() => cartService.SetQuantityAsync(productId, quantity, cancellationToken));
@@ -41,11 +41,11 @@ public sealed class CartModel(ICartService cartService) : PageModel
     }
 
     /// <summary>
-    /// Removes a line and returns to the cart.
+    /// Удаляет позицию и возвращает к корзине.
     /// </summary>
-    /// <param name="productId">Product identifier.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Redirect back to the cart.</returns>
+    /// <param name="productId">Идентификатор товара.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Возврат к корзине.</returns>
     public async Task<IActionResult> OnPostRemoveAsync(string productId, CancellationToken cancellationToken)
     {
         await ChangeCartAsync(() => cartService.RemoveItemAsync(productId, cancellationToken));
@@ -54,9 +54,9 @@ public sealed class CartModel(ICartService cartService) : PageModel
     }
 
     /// <summary>
-    /// Removes all lines and returns to the cart.
+    /// Удаляет все позиции и возвращает к корзине.
     /// </summary>
-    /// <returns>Redirect back to the cart.</returns>
+    /// <returns>Возврат к корзине.</returns>
     public IActionResult OnPostClear()
     {
         cartService.Clear();

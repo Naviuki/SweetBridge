@@ -9,37 +9,37 @@ using SweetWave.Web.Services.Waves;
 namespace SweetWave.Web.Pages.Admin.Waves;
 
 /// <summary>
-/// Wave schedule: list with fill, creation of a wave and dispatching.
+/// Расписание волн: список с заполнением, создание волны и отправка.
 /// </summary>
-/// <param name="waveService">Wave service.</param>
+/// <param name="waveService">Сервис волн.</param>
 public sealed class IndexModel(IWaveService waveService) : PageModel
 {
     /// <summary>
-    /// Data of the wave creation form.
+    /// Данные формы создания волны.
     /// </summary>
     [BindProperty]
     public InputModel Input { get; set; } = new();
 
     /// <summary>
-    /// All waves of both directions.
+    /// Все волны обоих направлений.
     /// </summary>
     public IReadOnlyList<WaveSummary> Waves { get; private set; } = [];
 
     /// <summary>
-    /// Loads the wave schedule.
+    /// Загружает расписание волн.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Task representing the operation.</returns>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Задача, отражающая выполнение операции.</returns>
     public async Task OnGetAsync(CancellationToken cancellationToken)
     {
         Waves = await waveService.GetAllAsync(cancellationToken);
     }
 
     /// <summary>
-    /// Creates a planned wave with an automatically calculated order cutoff date.
+    /// Создаёт запланированную волну с автоматически рассчитанным дедлайном приёма заказов.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Redirect back to the list.</returns>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Возврат к списку.</returns>
     public async Task<IActionResult> OnPostCreateAsync(CancellationToken cancellationToken)
     {
         if (ModelState.IsValid && Input.ShipDate is DateOnly shipDate)
@@ -64,11 +64,11 @@ public sealed class IndexModel(IWaveService waveService) : PageModel
     }
 
     /// <summary>
-    /// Dispatches the wave and moves its orders to the in transit status.
+    /// Отправляет волну и переводит её заказы в статус «в пути».
     /// </summary>
-    /// <param name="waveId">Wave identifier.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Redirect back to the list.</returns>
+    /// <param name="waveId">Идентификатор волны.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Возврат к списку.</returns>
     public async Task<IActionResult> OnPostDispatchAsync(int waveId, CancellationToken cancellationToken)
     {
         try
@@ -85,18 +85,18 @@ public sealed class IndexModel(IWaveService waveService) : PageModel
     }
 
     /// <summary>
-    /// Data of the wave creation form.
+    /// Данные формы создания волны.
     /// </summary>
     public sealed class InputModel
     {
         /// <summary>
-        /// Delivery direction.
+        /// Направление доставки.
         /// </summary>
         [Display(Name = "Направление")]
         public ShippingDirection Direction { get; set; } = ShippingDirection.YakutiaToDonbass;
 
         /// <summary>
-        /// Planned shipment date.
+        /// Запланированная дата отправки.
         /// </summary>
         [Required(ErrorMessage = "Укажите дату отправки.")]
         [Display(Name = "Дата отправки")]

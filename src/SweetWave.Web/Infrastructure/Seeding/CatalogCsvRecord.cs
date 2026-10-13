@@ -3,72 +3,72 @@ using CsvHelper.Configuration.Attributes;
 namespace SweetWave.Web.Infrastructure.Seeding;
 
 /// <summary>
-/// One row of the catalogue CSV file.
+/// Одна строка CSV-файла каталога.
 /// </summary>
 public sealed class CatalogCsvRecord
 {
     /// <summary>
-    /// Product identifier.
+    /// Идентификатор товара.
     /// </summary>
     [Name("id")]
     public string Id { get; set; } = string.Empty;
 
     /// <summary>
-    /// Region of the manufacturer: <c>Якутия</c> or <c>ДНР</c>.
+    /// Регион производителя: <c>Якутия</c> или <c>ДНР</c>.
     /// </summary>
     [Name("region")]
     public string Region { get; set; } = string.Empty;
 
     /// <summary>
-    /// Manufacturer name.
+    /// Название производителя.
     /// </summary>
     [Name("manufacturer")]
     public string Manufacturer { get; set; } = string.Empty;
 
     /// <summary>
-    /// Product name.
+    /// Наименование товара.
     /// </summary>
     [Name("name")]
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// Catalogue category.
+    /// Категория в каталоге.
     /// </summary>
     [Name("category")]
     public string Category { get; set; } = string.Empty;
 
     /// <summary>
-    /// Weight of a single unit, in grams.
+    /// Вес одной штуки в граммах.
     /// </summary>
     [Name("weight_g")]
     public int WeightGrams { get; set; }
 
     /// <summary>
-    /// Price of a single unit, in rubles.
+    /// Цена одной штуки в рублях.
     /// </summary>
     [Name("price_rub")]
     public decimal Price { get; set; }
 
     /// <summary>
-    /// Temperature sensitive flag: <c>да</c> or <c>нет</c>.
+    /// Признак температурной чувствительности: <c>да</c> или <c>нет</c>.
     /// </summary>
     [Name("temp_sensitive")]
     public string TempSensitive { get; set; } = string.Empty;
 
     /// <summary>
-    /// Shelf life, in days.
+    /// Срок годности в днях.
     /// </summary>
     [Name("shelf_life_days")]
     public int ShelfLifeDays { get; set; }
 
     /// <summary>
-    /// Photo file name inside <c>wwwroot/images</c>.
+    /// Имя файла изображения в каталоге <c>wwwroot/images</c>.
     /// </summary>
     [Name("photo")]
     public string? Photo { get; set; }
 
     /// <summary>
-    /// Product description.
+    /// Описание товара.
     /// </summary>
     [Name("description")]
     public string? Description { get; set; }

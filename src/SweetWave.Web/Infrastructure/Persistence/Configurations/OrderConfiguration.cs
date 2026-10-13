@@ -5,7 +5,7 @@ using SweetWave.Web.Domain.Entities;
 namespace SweetWave.Web.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// Mapping of <see cref="Order"/>.
+/// Сопоставление для <see cref="Order"/>.
 /// </summary>
 public sealed class OrderConfiguration : IEntityTypeConfiguration<Order>
 {

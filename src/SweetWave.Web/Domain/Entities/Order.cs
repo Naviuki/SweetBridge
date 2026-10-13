@@ -4,7 +4,7 @@ using SweetWave.Web.Domain.Exceptions;
 namespace SweetWave.Web.Domain.Entities;
 
 /// <summary>
-/// A customer order placed into one of the waves.
+/// Заказ покупателя, размещённый в одной из волн.
 /// </summary>
 public sealed class Order
 {
@@ -46,126 +46,126 @@ public sealed class Order
     }
 
     /// <summary>
-    /// Order identifier.
+    /// Идентификатор заказа.
     /// </summary>
     public int Id { get; private set; }
 
     /// <summary>
-    /// Human friendly order number, for example <c>SW-7K4M2P</c>.
+    /// Понятный человеку номер заказа, например <c>SW-7K4M2P</c>.
     /// </summary>
     public string Number { get; private set; } = string.Empty;
 
     /// <summary>
-    /// Creation moment, in UTC.
+    /// Момент создания в UTC.
     /// </summary>
     public DateTime CreatedAtUtc { get; private set; }
 
     /// <summary>
-    /// Buyer name.
+    /// Имя покупателя.
     /// </summary>
     public string BuyerName { get; private set; } = string.Empty;
 
     /// <summary>
-    /// Buyer phone number.
+    /// Телефон покупателя.
     /// </summary>
     public string BuyerPhone { get; private set; } = string.Empty;
 
     /// <summary>
-    /// Indicates that the order is a gift for another person.
+    /// Признак того, что заказ является подарком для другого человека.
     /// </summary>
     public bool IsGift { get; private set; }
 
     /// <summary>
-    /// Recipient name: the buyer himself for a personal order.
+    /// Имя получателя: для личного заказа это сам покупатель.
     /// </summary>
     public string RecipientName { get; private set; } = string.Empty;
 
     /// <summary>
-    /// Recipient phone number: the buyer phone for a personal order.
+    /// Телефон получателя: для личного заказа это телефон покупателя.
     /// </summary>
     public string RecipientPhone { get; private set; } = string.Empty;
 
     /// <summary>
-    /// Recipient city.
+    /// Город получателя.
     /// </summary>
     public string RecipientCity { get; private set; } = string.Empty;
 
     /// <summary>
-    /// Pickup point of the delivery company.
+    /// Пункт выдачи службы доставки.
     /// </summary>
     public string RecipientPickupPoint { get; private set; } = string.Empty;
 
     /// <summary>
-    /// Text of the greeting card, available for gifts only.
+    /// Текст открытки, доступен только для подарков.
     /// </summary>
     public string? GiftMessage { get; private set; }
 
     /// <summary>
-    /// Identifier of the wave the order travels in.
+    /// Идентификатор волны, в которой едет заказ.
     /// </summary>
     public int WaveId { get; private set; }
 
     /// <summary>
-    /// Current order status.
+    /// Текущий статус заказа.
     /// </summary>
     public OrderStatus Status { get; private set; }
 
     /// <summary>
-    /// Total weight of the order, in grams.
+    /// Общий вес заказа в граммах.
     /// </summary>
     public int TotalWeightGrams { get; private set; }
 
     /// <summary>
-    /// Cost of the goods, in rubles.
+    /// Стоимость товаров в рублях.
     /// </summary>
     public decimal GoodsCost { get; private set; }
 
     /// <summary>
-    /// Delivery cost, in rubles.
+    /// Стоимость доставки в рублях.
     /// </summary>
     public decimal ShippingCost { get; private set; }
 
     /// <summary>
-    /// Thermal packaging cost, in rubles.
+    /// Стоимость термоупаковки в рублях.
     /// </summary>
     public decimal ThermoPackCost { get; private set; }
 
     /// <summary>
-    /// Discount applied to the delivery cost because of the wave fill, in percent.
+    /// Скидка на доставку за заполнение волны в процентах.
     /// </summary>
     public decimal AppliedDiscountPercent { get; private set; }
 
     /// <summary>
-    /// Order positions.
+    /// Позиции заказа.
     /// </summary>
     public IReadOnlyList<OrderItem> Items => _items;
 
     /// <summary>
-    /// Status change timeline.
+    /// Лента смены статусов.
     /// </summary>
     public IReadOnlyList<OrderStatusHistoryEntry> History => _history;
 
     /// <summary>
-    /// Total amount payable, in rubles.
+    /// Итоговая сумма к оплате в рублях.
     /// </summary>
     public decimal TotalCost => GoodsCost + ShippingCost + ThermoPackCost;
 
     /// <summary>
-    /// Creates an order in the <see cref="OrderStatus.Accepted"/> status with a first history entry.
+    /// Создаёт заказ в статусе <see cref="OrderStatus.Accepted"/> с первой записью истории.
     /// </summary>
-    /// <param name="waveId">Identifier of the chosen wave.</param>
-    /// <param name="number">Unique order number.</param>
-    /// <param name="createdAtUtc">Creation moment, in UTC.</param>
-    /// <param name="buyerName">Buyer name.</param>
-    /// <param name="buyerPhone">Buyer phone number.</param>
-    /// <param name="isGift">Indicates that the order is a gift.</param>
-    /// <param name="recipientName">Recipient name, required for gifts.</param>
-    /// <param name="recipientPhone">Recipient phone number, required for gifts.</param>
-    /// <param name="recipientCity">Recipient city.</param>
-    /// <param name="recipientPickupPoint">Pickup point.</param>
-    /// <param name="giftMessage">Greeting card text, available for gifts only.</param>
-    /// <returns>Created order.</returns>
-    /// <exception cref="DomainException">Order data is not valid.</exception>
+    /// <param name="waveId">Идентификатор выбранной волны.</param>
+    /// <param name="number">Уникальный номер заказа.</param>
+    /// <param name="createdAtUtc">Момент создания в UTC.</param>
+    /// <param name="buyerName">Имя покупателя.</param>
+    /// <param name="buyerPhone">Телефон покупателя.</param>
+    /// <param name="isGift">Признак того, что заказ является подарком.</param>
+    /// <param name="recipientName">Имя получателя, обязательно для подарка.</param>
+    /// <param name="recipientPhone">Телефон получателя, обязательно для подарка.</param>
+    /// <param name="recipientCity">Город получателя.</param>
+    /// <param name="recipientPickupPoint">Пункт выдачи.</param>
+    /// <param name="giftMessage">Текст открытки, доступен только для подарка.</param>
+    /// <returns>Созданный заказ.</returns>
+    /// <exception cref="DomainException">Данные заказа некорректны.</exception>
     public static Order Create(
         int waveId,
         string number,
@@ -192,10 +192,10 @@ public sealed class Order
             giftMessage);
 
     /// <summary>
-    /// Adds a position and keeps the order weight and goods cost up to date.
+    /// Добавляет позицию и поддерживает вес и стоимость товаров заказа в актуальном состоянии.
     /// </summary>
-    /// <param name="item">Position to add.</param>
-    /// <exception cref="DomainException">Position data is not valid.</exception>
+    /// <param name="item">Добавляемая позиция.</param>
+    /// <exception cref="DomainException">Данные позиции заказа некорректны.</exception>
     public void AddItem(OrderItem item)
     {
         ArgumentNullException.ThrowIfNull(item);
@@ -211,12 +211,12 @@ public sealed class Order
     }
 
     /// <summary>
-    /// Fixes the delivery cost calculated for the order at the moment of ordering.
+    /// Фиксирует рассчитанную для заказа стоимость доставки.
     /// </summary>
-    /// <param name="shippingCost">Delivery cost, in rubles.</param>
-    /// <param name="thermoPackCost">Thermal packaging cost, in rubles.</param>
-    /// <param name="appliedDiscountPercent">Applied delivery discount, in percent.</param>
-    /// <exception cref="DomainException">Cost values are not valid.</exception>
+    /// <param name="shippingCost">Стоимость доставки в рублях.</param>
+    /// <param name="thermoPackCost">Стоимость термоупаковки в рублях.</param>
+    /// <param name="appliedDiscountPercent">Применённая скидка на доставку в процентах.</param>
+    /// <exception cref="DomainException">Значения стоимости некорректны.</exception>
     public void ApplyShippingCosts(decimal shippingCost, decimal thermoPackCost, decimal appliedDiscountPercent)
     {
         if (_items.Count == 0)
@@ -245,10 +245,10 @@ public sealed class Order
     }
 
     /// <summary>
-    /// Moves the order to the next status of the lifecycle and records the change in the history.
+    /// Переводит заказ на следующий статус жизненного цикла и записывает изменение в историю.
     /// </summary>
-    /// <param name="nowUtc">Moment of the change, in UTC.</param>
-    /// <exception cref="DomainException">The order is already in the final status.</exception>
+    /// <param name="nowUtc">Момент изменения в UTC.</param>
+    /// <exception cref="DomainException">Заказ уже в финальном статусе.</exception>
     public void AdvanceStatus(DateTime nowUtc)
     {
         OrderStatus? next = Status switch
@@ -269,10 +269,10 @@ public sealed class Order
     }
 
     /// <summary>
-    /// Moves the order to <see cref="OrderStatus.InTransit"/> when its wave is dispatched.
+    /// Переводит заказ в <see cref="OrderStatus.InTransit"/> при отправке его волны.
     /// </summary>
-    /// <param name="nowUtc">Moment of the change, in UTC.</param>
-    /// <exception cref="DomainException">The order cannot be shipped in its current status.</exception>
+    /// <param name="nowUtc">Момент изменения в UTC.</param>
+    /// <exception cref="DomainException">Заказ нельзя отправить в его текущем статусе.</exception>
     public void Ship(DateTime nowUtc)
     {
         if (Status is not (OrderStatus.Accepted or OrderStatus.Assembling))

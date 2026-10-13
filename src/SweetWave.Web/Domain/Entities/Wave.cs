@@ -5,7 +5,7 @@ using SweetWave.Web.Domain.Exceptions;
 namespace SweetWave.Web.Domain.Entities;
 
 /// <summary>
-/// A consolidated delivery of orders travelling in one direction.
+/// Сборная доставка заказов, едущих в одном направлении.
 /// </summary>
 public sealed class Wave
 {
@@ -31,50 +31,50 @@ public sealed class Wave
     }
 
     /// <summary>
-    /// Wave identifier.
+    /// Идентификатор волны.
     /// </summary>
     public int Id { get; private set; }
 
     /// <summary>
-    /// Delivery direction of the wave.
+    /// Направление доставки волны.
     /// </summary>
     public ShippingDirection Direction { get; private set; }
 
     /// <summary>
-    /// Planned shipment date.
+    /// Запланированная дата отправки.
     /// </summary>
     public DateOnly ShipDate { get; private set; }
 
     /// <summary>
-    /// Last day when orders are accepted (inclusive).
+    /// Последний день приёма заказов включительно.
     /// </summary>
     public DateOnly OrderCutoffDate { get; private set; }
 
     /// <summary>
-    /// Maximal weight of the wave, in grams. Fixed when the wave is created.
+    /// Максимальный вес волны в граммах. Фиксируется при создании волны.
     /// </summary>
     public int CapacityGrams { get; private set; }
 
     /// <summary>
-    /// Minimal weight required to dispatch the wave, in grams. Fixed when the wave is created.
+    /// Минимальный вес для отправки волны в граммах. Фиксируется при создании волны.
     /// </summary>
     public int MinLoadGrams { get; private set; }
 
     /// <summary>
-    /// Wave state.
+    /// Состояние волны.
     /// </summary>
     public WaveStatus Status { get; private set; }
 
     /// <summary>
-    /// Creates a planned wave.
+    /// Создаёт запланированную волну.
     /// </summary>
-    /// <param name="direction">Delivery direction.</param>
-    /// <param name="shipDate">Planned shipment date.</param>
-    /// <param name="orderCutoffDate">Last day when orders are accepted.</param>
-    /// <param name="capacityGrams">Maximal weight of the wave, in grams.</param>
-    /// <param name="minLoadGrams">Minimal weight required to dispatch, in grams.</param>
-    /// <returns>Created wave.</returns>
-    /// <exception cref="DomainException">Wave parameters are not valid.</exception>
+    /// <param name="direction">Направление доставки.</param>
+    /// <param name="shipDate">Запланированная дата отправки.</param>
+    /// <param name="orderCutoffDate">Последний день приёма заказов.</param>
+    /// <param name="capacityGrams">Максимальный вес волны в граммах.</param>
+    /// <param name="minLoadGrams">Минимальный вес для отправки в граммах.</param>
+    /// <returns>Созданная волна.</returns>
+    /// <exception cref="DomainException">Параметры волны некорректны.</exception>
     public static Wave Create(
         ShippingDirection direction,
         DateOnly shipDate,
@@ -106,43 +106,43 @@ public sealed class Wave
     }
 
     /// <summary>
-    /// Checks whether the wave still accepts orders on the given day.
+    /// Проверяет, принимает ли волна заказы в указанный день.
     /// </summary>
-    /// <param name="today">Current date.</param>
-    /// <returns><see langword="true"/> when the wave is planned and the cutoff date is not reached.</returns>
+    /// <param name="today">Текущая дата.</param>
+    /// <returns><see langword="true"/>, если волна запланирована и дата дедлайна ещё не наступила.</returns>
     public bool IsOpenForOrders(DateOnly today) =>
         Status == WaveStatus.Planned && today <= OrderCutoffDate;
 
     /// <summary>
-    /// Checks whether the wave has enough free capacity for the order.
+    /// Проверяет, достаточно ли свободной вместимости волны для заказа.
     /// </summary>
-    /// <param name="loadedGrams">Weight already loaded into the wave, in grams.</param>
-    /// <param name="orderGrams">Weight of the order being placed, in grams.</param>
-    /// <returns><see langword="true"/> when the order fits into the remaining capacity.</returns>
+    /// <param name="loadedGrams">Вес, уже набранный в волне, в граммах.</param>
+    /// <param name="orderGrams">Вес оформляемого заказа в граммах.</param>
+    /// <returns><see langword="true"/>, если заказ помещается в оставшуюся вместимость.</returns>
     public bool CanAccept(int loadedGrams, int orderGrams) =>
         loadedGrams >= 0 && orderGrams > 0 && loadedGrams + orderGrams <= CapacityGrams;
 
     /// <summary>
-    /// Calculates the fill percentage of the wave.
+    /// Рассчитывает заполнение волны в процентах.
     /// </summary>
-    /// <param name="loadedGrams">Weight already loaded into the wave, in grams.</param>
-    /// <returns>Fill percentage in percent.</returns>
+    /// <param name="loadedGrams">Вес, уже набранный в волне, в граммах.</param>
+    /// <returns>Заполнение волны в процентах.</returns>
     public decimal GetFillPercent(int loadedGrams) =>
         CapacityGrams == 0 ? 0m : (decimal)loadedGrams * 100m / CapacityGrams;
 
     /// <summary>
-    /// Checks whether the wave can be dispatched right now.
+    /// Проверяет, можно ли отправить волну прямо сейчас.
     /// </summary>
-    /// <param name="loadedGrams">Weight already loaded into the wave, in grams.</param>
-    /// <returns><see langword="true"/> when the wave is planned and holds the minimal load.</returns>
+    /// <param name="loadedGrams">Вес, уже набранный в волне, в граммах.</param>
+    /// <returns><see langword="true"/>, если волна запланирована и набрана минимальная загрузка.</returns>
     public bool IsReadyToDispatch(int loadedGrams) =>
         Status == WaveStatus.Planned && loadedGrams >= MinLoadGrams;
 
     /// <summary>
-    /// Marks the wave as dispatched.
+    /// Помечает волну отправленной.
     /// </summary>
-    /// <param name="loadedGrams">Weight loaded into the wave, in grams.</param>
-    /// <exception cref="DomainException">Wave is already dispatched or holds less than the minimal load.</exception>
+    /// <param name="loadedGrams">Вес, набранный в волне, в граммах.</param>
+    /// <exception cref="DomainException">Волна уже отправлена или набрано меньше минимальной загрузки.</exception>
     public void MarkDispatched(int loadedGrams)
     {
         if (Status == WaveStatus.Dispatched)

@@ -4,33 +4,33 @@ using SweetWave.Web.Domain.Entities;
 namespace SweetWave.Web.Infrastructure.Persistence;
 
 /// <summary>
-/// Database context of the platform. Acts as the unit of work for all services.
+/// Контекст базы данных платформы. Выступает единицей работы для всех сервисов.
 /// </summary>
-/// <param name="options">Context options.</param>
+/// <param name="options">Параметры контекста.</param>
 public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     /// <summary>
-    /// Catalogue products.
+    /// Товары каталога.
     /// </summary>
     public DbSet<Product> Products => Set<Product>();
 
     /// <summary>
-    /// Consolidated delivery waves.
+    /// Сборные волны доставки.
     /// </summary>
     public DbSet<Wave> Waves => Set<Wave>();
 
     /// <summary>
-    /// Customer orders.
+    /// Заказы покупателей.
     /// </summary>
     public DbSet<Order> Orders => Set<Order>();
 
     /// <summary>
-    /// Order positions.
+    /// Позиции заказа.
     /// </summary>
     public DbSet<OrderItem> OrderItems => Set<OrderItem>();
 
     /// <summary>
-    /// Order status timeline entries.
+    /// Записи ленты смены статусов заказа.
     /// </summary>
     public DbSet<OrderStatusHistoryEntry> OrderStatusHistoryEntries => Set<OrderStatusHistoryEntry>();
 

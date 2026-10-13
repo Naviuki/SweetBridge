@@ -6,16 +6,16 @@ using SweetWave.Web.Infrastructure.Persistence;
 namespace SweetWave.Web.Services.Catalog;
 
 /// <summary>
-/// Admin operations over the catalogue.
+/// Операции админки над каталогом.
 /// </summary>
 public sealed class ProductManagementService : IProductManagementService
 {
     private readonly AppDbContext _dbContext;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ProductManagementService"/> class.
+    /// Создаёт новый экземпляр класса <see cref="ProductManagementService"/>.
     /// </summary>
-    /// <param name="dbContext">Database context.</param>
+    /// <param name="dbContext">Контекст базы данных.</param>
     public ProductManagementService(AppDbContext dbContext)
     {
         ArgumentNullException.ThrowIfNull(dbContext);

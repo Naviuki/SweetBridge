@@ -8,15 +8,15 @@ using SweetWave.Web.Services.Waves;
 namespace SweetWave.Web.Services;
 
 /// <summary>
-/// Registration of the application services.
+/// Регистрация сервисов приложения.
 /// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers all services of the platform.
+    /// Регистрирует все сервисы платформы.
     /// </summary>
-    /// <param name="services">Service collection.</param>
-    /// <returns>The same service collection.</returns>
+    /// <param name="services">Коллекция сервисов.</param>
+    /// <returns>Та же коллекция сервисов.</returns>
     public static IServiceCollection AddSweetWaveServices(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);

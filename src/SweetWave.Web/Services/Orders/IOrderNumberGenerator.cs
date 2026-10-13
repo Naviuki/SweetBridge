@@ -1,14 +1,14 @@
 namespace SweetWave.Web.Services.Orders;
 
 /// <summary>
-/// Generates unique order numbers in the <c>SW-XXXXXX</c> format.
+/// Генерирует уникальные номера заказов в формате <c>SW-XXXXXX</c>.
 /// </summary>
 public interface IOrderNumberGenerator
 {
     /// <summary>
-    /// Generates an order number that is not used yet.
+    /// Генерирует номер заказа, который ещё не используется.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Unique order number.</returns>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Уникальный номер заказа.</returns>
     Task<string> GenerateAsync(CancellationToken cancellationToken);
 }

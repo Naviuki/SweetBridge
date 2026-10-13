@@ -4,23 +4,23 @@ using SweetWave.Web.Services.Delivery;
 namespace SweetWave.Web.Services.Waves;
 
 /// <summary>
-/// Offer of a wave for the current cart: dates, fill, delivery cost and delivery period.
+/// Предложение волны для текущей корзины: даты, заполнение, стоимость доставки и срок.
 /// </summary>
-/// <param name="WaveId">Wave identifier.</param>
-/// <param name="Direction">Delivery direction.</param>
-/// <param name="ShipDate">Planned shipment date.</param>
-/// <param name="OrderCutoffDate">Last day when orders are accepted.</param>
-/// <param name="CapacityGrams">Maximal weight of the wave, in grams.</param>
-/// <param name="LoadedGrams">Weight already loaded into the wave, in grams.</param>
-/// <param name="FillPercentBefore">Fill percentage before the order, in percent.</param>
-/// <param name="FillPercentAfter">Fill percentage after the order, in percent.</param>
-/// <param name="CanAcceptOrder">Indicates that the order fits into the remaining capacity.</param>
-/// <param name="DeliveryCost">Calculated delivery cost.</param>
-/// <param name="ThermoPackRequired">Indicates that thermal packaging cannot be declined.</param>
-/// <param name="DeliveryDaysMin">Minimal delivery duration, in days.</param>
-/// <param name="DeliveryDaysMax">Maximal delivery duration, in days.</param>
-/// <param name="EstimatedDeliveryFrom">Earliest estimated delivery date.</param>
-/// <param name="EstimatedDeliveryTo">Latest estimated delivery date.</param>
+/// <param name="waveId">Идентификатор волны.</param>
+/// <param name="direction">Направление доставки.</param>
+/// <param name="shipDate">Запланированная дата отправки.</param>
+/// <param name="orderCutoffDate">Последний день приёма заказов.</param>
+/// <param name="capacityGrams">Максимальный вес волны в граммах.</param>
+/// <param name="loadedGrams">Вес, уже набранный в волне, в граммах.</param>
+/// <param name="FillPercentBefore">Заполнение волны до заказа в процентах.</param>
+/// <param name="FillPercentAfter">Заполнение волны после заказа в процентах.</param>
+/// <param name="CanAcceptOrder">Признак того, что заказ помещается в оставшуюся вместимость.</param>
+/// <param name="DeliveryCost">Рассчитанная стоимость доставки.</param>
+/// <param name="ThermoPackRequired">Признак того, что термоупаковку нельзя отключить.</param>
+/// <param name="DeliveryDaysMin">Минимальный срок доставки в днях.</param>
+/// <param name="DeliveryDaysMax">Максимальный срок доставки в днях.</param>
+/// <param name="EstimatedDeliveryFrom">Самая ранняя расчётная дата доставки.</param>
+/// <param name="EstimatedDeliveryTo">Самая поздняя расчётная дата доставки.</param>
 public sealed record WaveOffer(
     int WaveId,
     ShippingDirection Direction,
@@ -39,7 +39,7 @@ public sealed record WaveOffer(
     DateOnly EstimatedDeliveryTo)
 {
     /// <summary>
-    /// Free capacity of the wave after the order, in grams.
+    /// Свободная вместимость волны после заказа в граммах.
     /// </summary>
     public int RemainingGrams => CapacityGrams - LoadedGrams;
 }

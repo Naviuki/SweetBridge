@@ -1,32 +1,32 @@
 namespace SweetWave.Web.Domain.Enums;
 
 /// <summary>
-/// Order lifecycle. Status can only move forward, one step at a time.
+/// Жизненный цикл заказа. Статус движется только вперёд, по одному шагу.
 /// </summary>
 public enum OrderStatus
 {
     /// <summary>
-    /// Order is accepted and waiting for the wave to be assembled.
+    /// Заказ принят и ждёт сборки волны.
     /// </summary>
     Accepted = 0,
 
     /// <summary>
-    /// Order is being packed into the wave.
+    /// Заказ упаковывается в волну.
     /// </summary>
     Assembling = 1,
 
     /// <summary>
-    /// Wave is on the way.
+    /// Волна в пути.
     /// </summary>
     InTransit = 2,
 
     /// <summary>
-    /// Order arrived at the pickup point.
+    /// Заказ прибыл в пункт выдачи.
     /// </summary>
     ReadyForPickup = 3,
 
     /// <summary>
-    /// Order is received by the buyer or the gift recipient.
+    /// Заказ получен покупателем или получателем подарка.
     /// </summary>
     Received = 4
 }

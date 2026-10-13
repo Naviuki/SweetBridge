@@ -5,7 +5,7 @@ using SweetWave.Web.Domain.Exceptions;
 namespace SweetWave.Tests.Domain;
 
 /// <summary>
-/// Tests of the <see cref="Order"/> status lifecycle.
+/// Тесты жизненного цикла статусов <see cref="Order"/>.
 /// </summary>
 public sealed class OrderTests
 {

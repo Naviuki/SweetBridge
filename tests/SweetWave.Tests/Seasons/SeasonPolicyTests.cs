@@ -6,7 +6,7 @@ using SweetWave.Web.Services.Seasons;
 namespace SweetWave.Tests.Seasons;
 
 /// <summary>
-/// Tests of <see cref="SeasonPolicy"/>: all months of the year are covered.
+/// Тесты <see cref="SeasonPolicy"/>: покрыты все месяцы года.
 /// </summary>
 public sealed class SeasonPolicyTests
 {

@@ -5,7 +5,7 @@ using SweetWave.Web.Domain.Entities;
 namespace SweetWave.Web.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// Mapping of <see cref="Product"/>.
+/// Сопоставление для <see cref="Product"/>.
 /// </summary>
 public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
 {

@@ -8,8 +8,8 @@ using SweetWave.Web.Services.Catalog;
 namespace SweetWave.Web.Services.Cart;
 
 /// <summary>
-/// Cart implementation that keeps only product identifiers and quantities in the session
-/// and always reads the actual prices and weights from the database.
+/// Реализация корзины, которая хранит в сессии только идентификаторы товаров и количества,
+/// а актуальные цены и веса всегда читает из базы данных.
 /// </summary>
 public sealed class SessionCartService : ICartService
 {
@@ -20,10 +20,10 @@ public sealed class SessionCartService : ICartService
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SessionCartService"/> class.
+    /// Создаёт новый экземпляр класса <see cref="SessionCartService"/>.
     /// </summary>
-    /// <param name="dbContext">Database context.</param>
-    /// <param name="httpContextAccessor">Accessor of the current HTTP context.</param>
+    /// <param name="dbContext">Контекст базы данных.</param>
+    /// <param name="httpContextAccessor">Аксессор текущего HTTP-контекста.</param>
     public SessionCartService(AppDbContext dbContext, IHttpContextAccessor httpContextAccessor)
     {
         ArgumentNullException.ThrowIfNull(dbContext);

@@ -4,7 +4,7 @@ using SweetWave.Web.Services.Delivery;
 namespace SweetWave.Tests.Delivery;
 
 /// <summary>
-/// Tests of <see cref="DeliveryCostCalculator"/>.
+/// Тесты <see cref="DeliveryCostCalculator"/>.
 /// </summary>
 public sealed class DeliveryCostCalculatorTests
 {

@@ -13,34 +13,34 @@ using SweetWave.Web.Options;
 namespace SweetWave.Web.Pages.Admin;
 
 /// <summary>
-/// Sign in page of the administrator. Credentials come from the configuration and are compared
-/// in constant time.
+/// Страница входа администратора. Учётные данные берутся из конфигурации и сравниваются
+/// за постоянное время.
 /// </summary>
-/// <param name="options">Administrator credentials.</param>
+/// <param name="options">Учётные данные администратора.</param>
 [AllowAnonymous]
 public sealed class LoginModel(IOptions<AdminOptions> options) : PageModel
 {
     private readonly AdminOptions _adminOptions = options.Value;
 
     /// <summary>
-    /// Data of the login form.
+    /// Данные формы входа.
     /// </summary>
     [BindProperty]
     public InputModel Input { get; set; } = new();
 
     /// <summary>
-    /// Redirect target after a successful sign in.
+    /// Адрес перенаправления после успешного входа.
     /// </summary>
     [BindProperty(SupportsGet = true)]
     public string? ReturnUrl { get; set; }
 
     /// <summary>
-    /// Data of the login form.
+    /// Данные формы входа.
     /// </summary>
     public sealed class InputModel
     {
         /// <summary>
-        /// Administrator login.
+        /// Логин администратора.
         /// </summary>
         [Required(ErrorMessage = "Укажите логин.")]
         [StringLength(100, ErrorMessage = "Логин слишком длинный.")]
@@ -48,7 +48,7 @@ public sealed class LoginModel(IOptions<AdminOptions> options) : PageModel
         public string UserName { get; set; } = string.Empty;
 
         /// <summary>
-        /// Administrator password.
+        /// Пароль администратора.
         /// </summary>
         [Required(ErrorMessage = "Укажите пароль.")]
         [StringLength(200, ErrorMessage = "Пароль слишком длинный.")]
@@ -57,17 +57,17 @@ public sealed class LoginModel(IOptions<AdminOptions> options) : PageModel
     }
 
     /// <summary>
-    /// Validates empty input.
+    /// Проверяет корректность входных данных.
     /// </summary>
-    /// <returns>Task representing the operation.</returns>
+    /// <returns>Задача, отражающая выполнение операции.</returns>
     public void OnGet()
     {
     }
 
     /// <summary>
-    /// Checks the credentials and issues the authentication cookie.
+    /// Проверяет учётные данные и выдаёт cookie аутентификации.
     /// </summary>
-    /// <returns>Redirect to the admin products page or back to the form.</returns>
+    /// <returns>Перенаправление на страницу товаров админки или обратно на форму.</returns>
     public async Task<IActionResult> OnPostAsync()
     {
         if (!ModelState.IsValid)

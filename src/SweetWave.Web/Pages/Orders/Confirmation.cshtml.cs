@@ -5,22 +5,22 @@ using SweetWave.Web.Services.Orders;
 namespace SweetWave.Web.Pages.Orders;
 
 /// <summary>
-/// Order confirmation page with the order number.
+/// Страница подтверждения заказа с его номером.
 /// </summary>
-/// <param name="orderService">Order service.</param>
+/// <param name="orderService">Сервис заказов.</param>
 public sealed class ConfirmationModel(IOrderService orderService) : PageModel
 {
     /// <summary>
-    /// Placed order.
+    /// Размещённый заказ.
     /// </summary>
     public OrderSummary? Order { get; private set; }
 
     /// <summary>
-    /// Loads the order by its number.
+    /// Загружает заказ по его номеру.
     /// </summary>
-    /// <param name="number">Order number.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Task representing the operation.</returns>
+    /// <param name="number">Номер заказа.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Задача, отражающая выполнение операции.</returns>
     public async Task<IActionResult> OnGetAsync(string? number, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(number))

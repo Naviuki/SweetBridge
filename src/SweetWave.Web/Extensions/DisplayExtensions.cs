@@ -4,7 +4,7 @@ using SweetWave.Web.Domain.Enums;
 namespace SweetWave.Web.Extensions;
 
 /// <summary>
-/// Russian labels and formats used by the Razor views.
+/// Русские подписи и форматы, используемые в представлениях Razor.
 /// </summary>
 public static class DisplayExtensions
 {
@@ -13,10 +13,10 @@ public static class DisplayExtensions
     private static readonly CultureInfo RussianCulture = CultureInfo.GetCultureInfo("ru-RU");
 
     /// <summary>
-    /// Returns the Russian name of the region.
+    /// Возвращает русское название региона.
     /// </summary>
-    /// <param name="region">Region of a manufacturer.</param>
-    /// <returns>Russian name of the region.</returns>
+    /// <param name="region">Регион производителя.</param>
+    /// <returns>Русское название региона.</returns>
     public static string ToDisplayName(this Region region) => region switch
     {
         Region.Yakutia => "Якутия",
@@ -25,10 +25,10 @@ public static class DisplayExtensions
     };
 
     /// <summary>
-    /// Returns the Russian name of the showcase.
+    /// Возвращает русское название витрины.
     /// </summary>
-    /// <param name="direction">Shipping direction.</param>
-    /// <returns>Showcase name.</returns>
+    /// <param name="direction">Направление перевозки.</param>
+    /// <returns>Название витрины.</returns>
     public static string ToDisplayName(this ShippingDirection direction) => direction switch
     {
         ShippingDirection.YakutiaToDonbass => "Сладости Якутии",
@@ -37,10 +37,10 @@ public static class DisplayExtensions
     };
 
     /// <summary>
-    /// Returns the short name of the showcase used in titles and buttons.
+    /// Возвращает короткое название витрины для заголовков и кнопок.
     /// </summary>
-    /// <param name="direction">Shipping direction.</param>
-    /// <returns>Showcase name.</returns>
+    /// <param name="direction">Направление перевозки.</param>
+    /// <returns>Название витрины.</returns>
     public static string ToShortName(this ShippingDirection direction) => direction switch
     {
         ShippingDirection.YakutiaToDonbass => "Якутия → ДНР",
@@ -49,10 +49,10 @@ public static class DisplayExtensions
     };
 
     /// <summary>
-    /// Returns the destination region of the direction.
+    /// Возвращает регион назначения для направления.
     /// </summary>
-    /// <param name="direction">Shipping direction.</param>
-    /// <returns>Russian name of the destination region.</returns>
+    /// <param name="direction">Направление перевозки.</param>
+    /// <returns>Русское название региона назначения.</returns>
     public static string GetDestinationName(this ShippingDirection direction) => direction switch
     {
         ShippingDirection.YakutiaToDonbass => "Донецкая Народная Республика",
@@ -61,10 +61,10 @@ public static class DisplayExtensions
     };
 
     /// <summary>
-    /// Returns the Russian name of the order status.
+    /// Возвращает русское название статуса заказа.
     /// </summary>
-    /// <param name="status">Order status.</param>
-    /// <returns>Russian name of the status.</returns>
+    /// <param name="status">Статус заказа.</param>
+    /// <returns>Русское название статуса.</returns>
     public static string ToDisplayName(this OrderStatus status) => status switch
     {
         OrderStatus.Accepted => "принят",
@@ -76,10 +76,10 @@ public static class DisplayExtensions
     };
 
     /// <summary>
-    /// Returns the Russian name of the order status starting with a capital letter.
+    /// Возвращает русское название статуса заказа с заглавной буквы.
     /// </summary>
-    /// <param name="status">Order status.</param>
-    /// <returns>Russian name of the status.</returns>
+    /// <param name="status">Статус заказа.</param>
+    /// <returns>Русское название статуса.</returns>
     public static string ToDisplayTitle(this OrderStatus status) => status switch
     {
         OrderStatus.Accepted => "Принят",
@@ -91,10 +91,10 @@ public static class DisplayExtensions
     };
 
     /// <summary>
-    /// Returns the Russian name of the wave status.
+    /// Возвращает русское название статуса волны.
     /// </summary>
-    /// <param name="status">Wave status.</param>
-    /// <returns>Russian name of the status.</returns>
+    /// <param name="status">Статус волны.</param>
+    /// <returns>Русское название статуса.</returns>
     public static string ToDisplayName(this WaveStatus status) => status switch
     {
         WaveStatus.Planned => "Планируется",
@@ -103,18 +103,18 @@ public static class DisplayExtensions
     };
 
     /// <summary>
-    /// Formats an amount of money in rubles.
+    /// Форматирует сумму денег в рублях.
     /// </summary>
-    /// <param name="value">Amount in rubles.</param>
-    /// <returns>Formatted amount, for example <c>1 250 ₽</c>.</returns>
+    /// <param name="value">Сумма в рублях.</param>
+    /// <returns>Отформатированная сумма, например <c>1 250 ₽</c>.</returns>
     public static string FormatPrice(this decimal value) =>
         string.Concat(value.ToString("N0", RussianCulture), " ₽");
 
     /// <summary>
-    /// Formats a weight in kilograms with grams.
+    /// Форматирует вес в килограммах и граммах.
     /// </summary>
-    /// <param name="grams">Weight in grams.</param>
-    /// <returns>Formatted weight, for example <c>1,25 кг</c> or <c>450 г</c>.</returns>
+    /// <param name="grams">Вес в граммах.</param>
+    /// <returns>Отформатированный вес, например <c>1,25 кг</c> или <c>450 г</c>.</returns>
     public static string FormatWeight(this int grams)
     {
         if (grams < GramsPerKilogram)
@@ -128,26 +128,26 @@ public static class DisplayExtensions
     }
 
     /// <summary>
-    /// Formats a percentage with one decimal when needed.
+    /// Форматирует процент с одним знаком после запятой при необходимости.
     /// </summary>
-    /// <param name="value">Percentage value.</param>
-    /// <returns>Formatted percentage, for example <c>50,1 %</c>.</returns>
+    /// <param name="value">Значение в процентах.</param>
+    /// <returns>Отформатированный процент, например <c>50,1 %</c>.</returns>
     public static string FormatPercent(this decimal value) =>
         string.Concat(value.ToString("0.#", RussianCulture), " %");
 
     /// <summary>
-    /// Formats a date in the Russian format.
+    /// Форматирует дату в русском формате.
     /// </summary>
-    /// <param name="date">Date to format.</param>
-    /// <returns>Formatted date, for example <c>20.03.2025</c>.</returns>
+    /// <param name="date">Форматируемая дата.</param>
+    /// <returns>Отформатированная дата, например <c>20.03.2025</c>.</returns>
     public static string FormatDate(this DateOnly date) =>
         date.ToString("dd.MM.yyyy", RussianCulture);
 
     /// <summary>
-    /// Formats a UTC moment in the local time of the server.
+    /// Форматирует момент времени UTC в локальном времени сервера.
     /// </summary>
-    /// <param name="dateTimeUtc">Moment in UTC.</param>
-    /// <returns>Formatted date and time.</returns>
+    /// <param name="dateTimeUtc">Момент времени в UTC.</param>
+    /// <returns>Отформатированные дата и время.</returns>
     public static string FormatDateTime(this DateTime dateTimeUtc) =>
         dateTimeUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm", RussianCulture);
 }

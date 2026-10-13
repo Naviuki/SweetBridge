@@ -1,9 +1,9 @@
 namespace SweetWave.Web.Services.Cart;
 
 /// <summary>
-/// Cart line stored in the session: only the identifier and the quantity are kept,
-/// prices and weights are always read from the database.
+/// Позиция корзины, хранящаяся в сессии: сохраняются только идентификатор и количество,
+/// а цены и веса всегда читаются из базы данных.
 /// </summary>
-/// <param name="ProductId">Product identifier.</param>
-/// <param name="Quantity">Ordered quantity.</param>
+/// <param name="productId">Идентификатор товара.</param>
+/// <param name="quantity">Заказанное количество.</param>
 public sealed record CartLineState(string ProductId, int Quantity);

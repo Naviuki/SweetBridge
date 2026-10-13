@@ -3,19 +3,19 @@ using SweetWave.Web.Domain.Enums;
 namespace SweetWave.Web.Services.Catalog;
 
 /// <summary>
-/// Data of a product created or edited in the admin section.
+/// Данные товара, создаваемого или редактируемого в админке.
 /// </summary>
-/// <param name="Id">Product identifier used on creation and ignored on editing.</param>
-/// <param name="Region">Region of the manufacturer.</param>
-/// <param name="Manufacturer">Manufacturer name.</param>
-/// <param name="Name">Product name.</param>
-/// <param name="Category">Catalogue category.</param>
-/// <param name="WeightGrams">Weight of a single unit, in grams.</param>
-/// <param name="Price">Price of a single unit, in rubles.</param>
-/// <param name="IsTemperatureSensitive">Temperature sensitive flag.</param>
-/// <param name="ShelfLifeDays">Shelf life, in days.</param>
-/// <param name="Photo">Photo file name or <see langword="null"/>.</param>
-/// <param name="Description">Product description or <see langword="null"/>.</param>
+/// <param name="Id">Идентификатор товара при создании, игнорируется при правке.</param>
+/// <param name="region">Регион производителя.</param>
+/// <param name="manufacturer">Название производителя.</param>
+/// <param name="name">Наименование товара.</param>
+/// <param name="category">Категория в каталоге.</param>
+/// <param name="weightGrams">Вес одной штуки в граммах.</param>
+/// <param name="price">Цена одной штуки в рублях.</param>
+/// <param name="isTemperatureSensitive">Признак температурной чувствительности.</param>
+/// <param name="shelfLifeDays">Срок годности в днях.</param>
+/// <param name="photo">Имя файла изображения или <see langword="null"/>.</param>
+/// <param name="description">Описание товара или <see langword="null"/>.</param>
 public sealed record ProductInput(
     string Id,
     Region Region,

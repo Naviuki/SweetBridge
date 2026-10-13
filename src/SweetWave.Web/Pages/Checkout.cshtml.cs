@@ -10,37 +10,37 @@ using SweetWave.Web.Services.Waves;
 namespace SweetWave.Web.Pages;
 
 /// <summary>
-/// Checkout: buyer and recipient data, wave selection with a visible delivery calculation.
+/// Оформление: данные покупателя и получателя, выбор волны с прозрачным расчётом доставки.
 /// </summary>
-/// <param name="cartService">Cart service.</param>
-/// <param name="waveService">Wave service.</param>
-/// <param name="orderService">Order service.</param>
+/// <param name="cartService">Сервис корзины.</param>
+/// <param name="waveService">Сервис волн.</param>
+/// <param name="orderService">Сервис заказов.</param>
 public sealed class CheckoutModel(
     ICartService cartService,
     IWaveService waveService,
     IOrderService orderService) : PageModel
 {
     /// <summary>
-    /// Data of the checkout form.
+    /// Данные формы оформления заказа.
     /// </summary>
     [BindProperty]
     public InputModel Input { get; set; } = new();
 
     /// <summary>
-    /// Current cart.
+    /// Текущая корзина.
     /// </summary>
     public CartView Cart { get; private set; } = new([]);
 
     /// <summary>
-    /// Waves that still accept orders for the cart.
+    /// Волны, которые ещё принимают заказы для корзины.
     /// </summary>
     public IReadOnlyList<WaveOffer> Offers { get; private set; } = [];
 
     /// <summary>
-    /// Loads the cart and calculates the offers of the open waves.
+    /// Загружает корзину и рассчитывает предложения открытых волн.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Task representing the operation.</returns>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Задача, отражающая выполнение операции.</returns>
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
     {
         Cart = await cartService.GetCartAsync(cancellationToken);
@@ -56,10 +56,10 @@ public sealed class CheckoutModel(
     }
 
     /// <summary>
-    /// Places the order and redirects to the confirmation page.
+    /// Размещает заказ и перенаправляет на страницу подтверждения.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Redirect to the confirmation page.</returns>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Перенаправление на страницу подтверждения.</returns>
     public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
         Cart = await cartService.GetCartAsync(cancellationToken);
@@ -125,12 +125,12 @@ public sealed class CheckoutModel(
     }
 
     /// <summary>
-    /// Checkout form with Russian validation messages.
+    /// Форма оформления с русскими сообщениями валидации.
     /// </summary>
     public sealed class InputModel
     {
         /// <summary>
-        /// Buyer name.
+        /// Имя покупателя.
         /// </summary>
         [Required(ErrorMessage = "Укажите имя покупателя.")]
         [StringLength(200, MinimumLength = 2, ErrorMessage = "Имя покупателя должно быть от 2 до 200 символов.")]
@@ -138,7 +138,7 @@ public sealed class CheckoutModel(
         public string BuyerName { get; set; } = string.Empty;
 
         /// <summary>
-        /// Buyer phone number.
+        /// Телефон покупателя.
         /// </summary>
         [Required(ErrorMessage = "Укажите телефон покупателя.")]
         [StringLength(40, ErrorMessage = "Телефон не должен быть длиннее 40 символов.")]
@@ -146,27 +146,27 @@ public sealed class CheckoutModel(
         public string BuyerPhone { get; set; } = string.Empty;
 
         /// <summary>
-        /// Indicates that the order is a gift.
+        /// Признак того, что заказ является подарком.
         /// </summary>
         [Display(Name = "Это подарок")]
         public bool IsGift { get; set; }
 
         /// <summary>
-        /// Recipient name for a gift.
+        /// Имя получателя для подарка.
         /// </summary>
         [Display(Name = "Имя получателя")]
         [StringLength(200, ErrorMessage = "Имя получателя должно быть короче 200 символов.")]
         public string? RecipientName { get; set; }
 
         /// <summary>
-        /// Recipient phone number for a gift.
+        /// Телефон получателя для подарка.
         /// </summary>
         [Display(Name = "Телефон получателя")]
         [StringLength(40, ErrorMessage = "Телефон получателя не должен быть длиннее 40 символов.")]
         public string? RecipientPhone { get; set; }
 
         /// <summary>
-        /// Recipient city.
+        /// Город получателя.
         /// </summary>
         [Required(ErrorMessage = "Укажите город получателя.")]
         [StringLength(200, ErrorMessage = "Название города слишком длинное.")]
@@ -174,27 +174,27 @@ public sealed class CheckoutModel(
         public string RecipientCity { get; set; } = string.Empty;
 
         /// <summary>
-        /// Pickup point of the delivery company.
+        /// Пункт выдачи службы доставки.
         /// </summary>
         [StringLength(200, ErrorMessage = "Название пункта выдачи слишком длинное.")]
         [Display(Name = "Пункт выдачи")]
         public string? RecipientPickupPoint { get; set; }
 
         /// <summary>
-        /// Greeting card text.
+        /// Текст открытки.
         /// </summary>
         [StringLength(1000, ErrorMessage = "Текст открытки не должен быть длиннее 1000 символов.")]
         [Display(Name = "Текст открытки")]
         public string? GiftMessage { get; set; }
 
         /// <summary>
-        /// Chosen wave.
+        /// Выбранная волна.
         /// </summary>
         [Display(Name = "Волна доставки")]
         public int WaveId { get; set; }
 
         /// <summary>
-        /// Thermal packaging chosen by the buyer.
+        /// Термоупаковка, выбранная покупателем.
         /// </summary>
         [Display(Name = "Термоупаковка")]
         public bool ThermoPackRequested { get; set; }

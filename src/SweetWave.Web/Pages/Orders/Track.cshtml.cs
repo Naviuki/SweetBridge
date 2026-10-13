@@ -6,32 +6,32 @@ using SweetWave.Web.Services.Orders;
 namespace SweetWave.Web.Pages.Orders;
 
 /// <summary>
-/// Order tracking by the order number and a phone number of the buyer or the recipient.
+/// Отслеживание заказа по номеру и телефону покупателя или получателя.
 /// </summary>
-/// <param name="orderService">Order service.</param>
+/// <param name="orderService">Сервис заказов.</param>
 public sealed class TrackModel(IOrderService orderService) : PageModel
 {
     /// <summary>
-    /// Search form.
+    /// Форма поиска.
     /// </summary>
     [BindProperty]
     public InputModel Input { get; set; } = new();
 
     /// <summary>
-    /// Found order.
+    /// Найденный заказ.
     /// </summary>
     public OrderSummary? Order { get; private set; }
 
     /// <summary>
-    /// Indicates that the search did not find anything.
+    /// Признак того, что поиск ничего не нашёл.
     /// </summary>
     public bool IsNotFound { get; private set; }
 
     /// <summary>
-    /// Searches the order.
+    /// Ищет заказ.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Task representing the operation.</returns>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Задача, отражающая выполнение операции.</returns>
     public async Task OnPostAsync(CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
@@ -44,12 +44,12 @@ public sealed class TrackModel(IOrderService orderService) : PageModel
     }
 
     /// <summary>
-    /// Data of the tracking form.
+    /// Данные формы отслеживания.
     /// </summary>
     public sealed class InputModel
     {
         /// <summary>
-        /// Order number.
+        /// Номер заказа.
         /// </summary>
         [Required(ErrorMessage = "Укажите номер заказа.")]
         [StringLength(16, ErrorMessage = "Номер заказа выглядит неверно.")]
@@ -57,7 +57,7 @@ public sealed class TrackModel(IOrderService orderService) : PageModel
         public string Number { get; set; } = string.Empty;
 
         /// <summary>
-        /// Phone number of the buyer or the recipient.
+        /// Телефон покупателя или получателя.
         /// </summary>
         [Required(ErrorMessage = "Укажите телефон покупателя или получателя.")]
         [StringLength(40, ErrorMessage = "Телефон не должен быть длиннее 40 символов.")]

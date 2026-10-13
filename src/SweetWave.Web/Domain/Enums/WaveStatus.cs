@@ -1,17 +1,17 @@
 namespace SweetWave.Web.Domain.Enums;
 
 /// <summary>
-/// State of a consolidated delivery wave.
+/// Состояние сборной волны доставки.
 /// </summary>
 public enum WaveStatus
 {
     /// <summary>
-    /// Wave accepts orders.
+    /// Волна принимает заказы.
     /// </summary>
     Planned = 0,
 
     /// <summary>
-    /// Wave has been dispatched and no longer accepts orders.
+    /// Волна отправлена и больше не принимает заказы.
     /// </summary>
     Dispatched = 1
 }

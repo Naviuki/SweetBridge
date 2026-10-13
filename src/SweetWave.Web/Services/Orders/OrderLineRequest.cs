@@ -1,8 +1,8 @@
 namespace SweetWave.Web.Services.Orders;
 
 /// <summary>
-/// Single position of an order requested by the buyer.
+/// Одна позиция заказа, запрошенная покупателем.
 /// </summary>
-/// <param name="ProductId">Product identifier.</param>
-/// <param name="Quantity">Requested quantity.</param>
+/// <param name="productId">Идентификатор товара.</param>
+/// <param name="Quantity">Запрошенное количество.</param>
 public sealed record OrderLineRequest(string ProductId, int Quantity);

@@ -3,21 +3,21 @@ using SweetWave.Web.Domain.Enums;
 namespace SweetWave.Web.Services.Catalog;
 
 /// <summary>
-/// Read model of a catalogue product.
+/// Модель чтения товара каталога.
 /// </summary>
-/// <param name="Id">Product identifier.</param>
-/// <param name="Region">Region of the manufacturer.</param>
-/// <param name="Manufacturer">Manufacturer name.</param>
-/// <param name="Name">Product name.</param>
-/// <param name="Category">Catalogue category.</param>
-/// <param name="WeightGrams">Weight of a single unit, in grams.</param>
-/// <param name="Price">Price of a single unit, in rubles.</param>
-/// <param name="IsTemperatureSensitive">Temperature sensitive flag.</param>
-/// <param name="ShelfLifeDays">Shelf life, in days.</param>
-/// <param name="Photo">Photo file name or <see langword="null"/>.</param>
-/// <param name="Description">Product description or <see langword="null"/>.</param>
-/// <param name="ShippingDirection">Delivery direction of the product.</param>
-/// <param name="IsActive">Indicates that the product is visible in the catalogue.</param>
+/// <param name="Id">Идентификатор товара.</param>
+/// <param name="region">Регион производителя.</param>
+/// <param name="manufacturer">Название производителя.</param>
+/// <param name="name">Наименование товара.</param>
+/// <param name="category">Категория в каталоге.</param>
+/// <param name="weightGrams">Вес одной штуки в граммах.</param>
+/// <param name="price">Цена одной штуки в рублях.</param>
+/// <param name="isTemperatureSensitive">Признак температурной чувствительности.</param>
+/// <param name="shelfLifeDays">Срок годности в днях.</param>
+/// <param name="photo">Имя файла изображения или <see langword="null"/>.</param>
+/// <param name="description">Описание товара или <see langword="null"/>.</param>
+/// <param name="ShippingDirection">Направление доставки товара.</param>
+/// <param name="IsActive">Признак того, что товар виден в каталоге.</param>
 public sealed record ProductSummary(
     string Id,
     Region Region,
@@ -34,10 +34,10 @@ public sealed record ProductSummary(
     bool IsActive)
 {
     /// <summary>
-    /// Creates a read model from a domain product.
+    /// Создаёт модель чтения из товара предметной области.
     /// </summary>
-    /// <param name="product">Domain product.</param>
-    /// <returns>Read model of the product.</returns>
+    /// <param name="product">Товар предметной области.</param>
+    /// <returns>Модель чтения товара.</returns>
     public static ProductSummary FromProduct(Domain.Entities.Product product)
     {
         ArgumentNullException.ThrowIfNull(product);

@@ -4,19 +4,19 @@ using SweetWave.Web.Services.Catalog;
 namespace SweetWave.Web.Services.Waves;
 
 /// <summary>
-/// Waves: open offers for the checkout page and administration of the wave schedule.
+/// Волны: открытые предложения для страницы оформления и управление расписанием волн.
 /// </summary>
 public interface IWaveService
 {
     /// <summary>
-    /// Calculates the offers of all waves that still accept orders in the given direction.
+    /// Рассчитывает предложения всех волн указанного направления, которые ещё принимают заказы.
     /// </summary>
-    /// <param name="direction">Delivery direction of the cart.</param>
-    /// <param name="products">Products of the cart.</param>
-    /// <param name="orderWeightGrams">Weight of the cart, in grams.</param>
-    /// <param name="thermoPackRequested">Thermal packaging chosen by the buyer.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Offers sorted by the shipment date.</returns>
+    /// <param name="direction">Направление доставки корзины.</param>
+    /// <param name="products">Товары корзины.</param>
+    /// <param name="orderWeightGrams">Вес корзины в граммах.</param>
+    /// <param name="thermoPackRequested">Термоупаковка, выбранная покупателем.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Предложения, отсортированные по дате отправки.</returns>
     Task<IReadOnlyList<WaveOffer>> GetOpenOffersAsync(
         ShippingDirection direction,
         IReadOnlyList<ProductSummary> products,
@@ -25,37 +25,37 @@ public interface IWaveService
         CancellationToken cancellationToken);
 
     /// <summary>
-    /// Returns the nearest waves that still accept orders, without delivery calculation.
+    /// Возвращает ближайшие волны, которые ещё принимают заказы, без расчёта доставки.
     /// </summary>
-    /// <param name="direction">Delivery direction.</param>
-    /// <param name="count">Maximum number of waves to return.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Nearest waves sorted by the shipment date.</returns>
+    /// <param name="direction">Направление доставки.</param>
+    /// <param name="count">Максимальное количество возвращаемых волн.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Ближайшие волны, отсортированные по дате отправки.</returns>
     Task<IReadOnlyList<WaveSummary>> GetUpcomingAsync(
         ShippingDirection direction,
         int count,
         CancellationToken cancellationToken);
 
     /// <summary>
-    /// Returns all waves with their fill for the admin list.
+    /// Возвращает все волны с заполнением для списка админки.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>All waves sorted by shipment date.</returns>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Все волны, отсортированные по дате отправки.</returns>
     Task<IReadOnlyList<WaveSummary>> GetAllAsync(CancellationToken cancellationToken);
 
     /// <summary>
-    /// Creates a planned wave: the order cutoff date and the load limits come from the configuration.
+    /// Создаёт запланированную волну: дедлайн приёма заказов и ограничения загрузки берутся из конфигурации.
     /// </summary>
-    /// <param name="command">Direction and shipment date.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Created wave.</returns>
+    /// <param name="command">Направление и дата отправки.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Созданная волна.</returns>
     Task<WaveSummary> CreateAsync(CreateWaveCommand command, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Dispatches the wave and moves all its orders to the in transit status.
+    /// Отправляет волну и переводит все её заказы в статус «в пути».
     /// </summary>
-    /// <param name="waveId">Wave identifier.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Task representing the operation.</returns>
+    /// <param name="waveId">Идентификатор волны.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Задача, отражающая выполнение операции.</returns>
     Task DispatchAsync(int waveId, CancellationToken cancellationToken);
 }

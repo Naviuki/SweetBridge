@@ -3,18 +3,18 @@ using System.ComponentModel.DataAnnotations;
 namespace SweetWave.Web.Options;
 
 /// <summary>
-/// Shipping discount applied when the wave fill percentage is strictly greater than the threshold.
+/// Скидка на доставку, применяемая, когда заполнение волны строго больше порога.
 /// </summary>
 public sealed class FillDiscountOption
 {
     /// <summary>
-    /// Fill percentage threshold, in percent.
+    /// Порог заполнения волны в процентах.
     /// </summary>
     [Range(0, 100)]
     public decimal FillAbovePercent { get; set; }
 
     /// <summary>
-    /// Discount applied to the delivery cost, in percent.
+    /// Скидка на стоимость доставки в процентах.
     /// </summary>
     [Range(0, 100)]
     public decimal DiscountPercent { get; set; }

@@ -3,8 +3,8 @@ using SweetWave.Web.Domain.Enums;
 namespace SweetWave.Web.Services.Waves;
 
 /// <summary>
-/// Data of a wave created in the admin section. Capacity and minimal load come from the configuration.
+/// Данные волны, создаваемой в админке. Вместимость и минимальная загрузка берутся из конфигурации.
 /// </summary>
-/// <param name="Direction">Delivery direction.</param>
-/// <param name="ShipDate">Planned shipment date.</param>
+/// <param name="direction">Направление доставки.</param>
+/// <param name="shipDate">Запланированная дата отправки.</param>
 public sealed record CreateWaveCommand(ShippingDirection Direction, DateOnly ShipDate);

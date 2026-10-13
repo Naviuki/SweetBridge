@@ -5,7 +5,7 @@ using SweetWave.Web.Domain.Entities;
 namespace SweetWave.Web.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// Mapping of <see cref="Wave"/>.
+/// Сопоставление для <see cref="Wave"/>.
 /// </summary>
 public sealed class WaveConfiguration : IEntityTypeConfiguration<Wave>
 {

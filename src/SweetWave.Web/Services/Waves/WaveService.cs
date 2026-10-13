@@ -12,7 +12,7 @@ using SweetWave.Web.Services.Seasons;
 namespace SweetWave.Web.Services.Waves;
 
 /// <summary>
-/// Wave calculations and administration on top of EF Core and the logistics configuration.
+/// Расчёты и администрирование волн поверх EF Core и логистической конфигурации.
 /// </summary>
 public sealed class WaveService : IWaveService
 {
@@ -25,13 +25,13 @@ public sealed class WaveService : IWaveService
     private readonly TimeProvider _timeProvider;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="WaveService"/> class.
+    /// Создаёт новый экземпляр класса <see cref="WaveService"/>.
     /// </summary>
-    /// <param name="dbContext">Database context.</param>
-    /// <param name="deliveryCostCalculator">Delivery cost calculator.</param>
-    /// <param name="seasonPolicy">Seasonal rules.</param>
-    /// <param name="options">Logistics parameters.</param>
-    /// <param name="timeProvider">Time provider.</param>
+    /// <param name="dbContext">Контекст базы данных.</param>
+    /// <param name="deliveryCostCalculator">Калькулятор стоимости доставки.</param>
+    /// <param name="seasonPolicy">Сезонные правила.</param>
+    /// <param name="options">Логистические параметры.</param>
+    /// <param name="timeProvider">Провайдер времени.</param>
     public WaveService(
         AppDbContext dbContext,
         IDeliveryCostCalculator deliveryCostCalculator,

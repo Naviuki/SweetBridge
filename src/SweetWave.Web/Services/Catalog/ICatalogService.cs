@@ -3,23 +3,23 @@ using SweetWave.Web.Domain.Enums;
 namespace SweetWave.Web.Services.Catalog;
 
 /// <summary>
-/// Read access to the catalogue.
+/// Доступ на чтение каталога.
 /// </summary>
 public interface ICatalogService
 {
     /// <summary>
-    /// Returns the active products of one showcase that match the filter.
+    /// Возвращает активные товары витрины, подходящие под фильтр.
     /// </summary>
-    /// <param name="query">Showcase, category and search text.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Matching products.</returns>
+    /// <param name="query">Витрина, категория и поисковый запрос.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Подходящие товары.</returns>
     Task<IReadOnlyList<ProductSummary>> GetProductsAsync(CatalogQuery query, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Returns the categories that are used by the products of the showcase.
+    /// Возвращает категории, используемые товарами витрины.
     /// </summary>
-    /// <param name="direction">Showcase the products travel from.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Category names in alphabetical order.</returns>
+    /// <param name="Direction">Витрина, из которой отправляются товары.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Названия категорий в алфавитном порядке.</returns>
     Task<IReadOnlyList<string>> GetCategoriesAsync(ShippingDirection direction, CancellationToken cancellationToken);
 }

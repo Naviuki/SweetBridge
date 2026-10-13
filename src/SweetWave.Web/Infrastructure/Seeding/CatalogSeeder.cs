@@ -11,7 +11,7 @@ using SweetWave.Web.Infrastructure.Persistence;
 namespace SweetWave.Web.Infrastructure.Seeding;
 
 /// <summary>
-/// Imports the catalogue from the CSV file shipped with the application.
+/// Импортирует каталог из CSV-файла, поставляемого с приложением.
 /// </summary>
 public sealed class CatalogSeeder
 {
@@ -25,9 +25,9 @@ public sealed class CatalogSeeder
     private readonly AppDbContext _dbContext;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CatalogSeeder"/> class.
+    /// Создаёт новый экземпляр класса <see cref="CatalogSeeder"/>.
     /// </summary>
-    /// <param name="dbContext">Database context.</param>
+    /// <param name="dbContext">Контекст базы данных.</param>
     public CatalogSeeder(AppDbContext dbContext)
     {
         ArgumentNullException.ThrowIfNull(dbContext);
@@ -36,10 +36,10 @@ public sealed class CatalogSeeder
     }
 
     /// <summary>
-    /// Adds all products of the CSV file that are missing in the database.
+    /// Добавляет в базу все товары из CSV-файла, которых ещё нет.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Number of imported products.</returns>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Количество импортированных товаров.</returns>
     public async Task<int> SeedAsync(CancellationToken cancellationToken)
     {
         IReadOnlyList<Product> products = ReadCatalog();

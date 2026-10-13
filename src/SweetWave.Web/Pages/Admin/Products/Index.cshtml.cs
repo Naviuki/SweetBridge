@@ -6,33 +6,33 @@ using SweetWave.Web.Services.Catalog;
 namespace SweetWave.Web.Pages.Admin.Products;
 
 /// <summary>
-/// Catalogue management: list of all products including the hidden ones.
+/// Управление каталогом: список всех товаров, включая скрытые.
 /// </summary>
-/// <param name="productManagementService">Product management service.</param>
+/// <param name="productManagementService">Сервис управления товарами.</param>
 public sealed class IndexModel(IProductManagementService productManagementService) : PageModel
 {
     /// <summary>
-    /// All products of the catalogue.
+    /// Все товары каталога.
     /// </summary>
     public IReadOnlyList<ProductSummary> Products { get; private set; } = [];
 
     /// <summary>
-    /// Loads all products.
+    /// Загружает все товары.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Task representing the operation.</returns>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Задача, отражающая выполнение операции.</returns>
     public async Task OnGetAsync(CancellationToken cancellationToken)
     {
         Products = await productManagementService.GetAllAsync(cancellationToken);
     }
 
     /// <summary>
-    /// Hides a product or returns it to the catalogue.
+    /// Скрывает товар или возвращает его в каталог.
     /// </summary>
-    /// <param name="id">Product identifier.</param>
-    /// <param name="isVisible">Target visibility.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Redirect back to the list.</returns>
+    /// <param name="Id">Идентификатор товара.</param>
+    /// <param name="isVisible">Требуемая видимость.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Возврат к списку.</returns>
     public async Task<IActionResult> OnPostVisibilityAsync(string id, bool isVisible, CancellationToken cancellationToken)
     {
         try

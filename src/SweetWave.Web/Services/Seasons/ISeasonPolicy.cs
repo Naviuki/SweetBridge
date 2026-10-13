@@ -3,22 +3,22 @@ using SweetWave.Web.Services.Catalog;
 namespace SweetWave.Web.Services.Seasons;
 
 /// <summary>
-/// Seasonal rules: thermal packaging and delivery duration.
+/// Сезонные правила: термоупаковка и срок доставки.
 /// </summary>
 public interface ISeasonPolicy
 {
     /// <summary>
-    /// Checks whether thermal packaging is mandatory for the given goods and shipment date.
+    /// Проверяет, обязательна ли термоупаковка для указанных товаров и даты отправки.
     /// </summary>
-    /// <param name="products">Products of the order.</param>
-    /// <param name="shipDate">Planned shipment date.</param>
-    /// <returns><see langword="true"/> when thermal packaging cannot be declined.</returns>
+    /// <param name="products">Товары заказа.</param>
+    /// <param name="shipDate">Запланированная дата отправки.</param>
+    /// <returns><see langword="true"/>, если термоупаковку нельзя отключить.</returns>
     bool IsThermoPackRequired(IEnumerable<ProductSummary> products, DateOnly shipDate);
 
     /// <summary>
-    /// Returns the number of days added to the delivery duration in the off-season months.
+    /// Возвращает количество дней, добавляемых к сроку доставки в межсезонье.
     /// </summary>
-    /// <param name="shipDate">Planned shipment date.</param>
-    /// <returns>Number of extra days.</returns>
+    /// <param name="shipDate">Запланированная дата отправки.</param>
+    /// <returns>Количество дополнительных дней.</returns>
     int GetExtraDeliveryDays(DateOnly shipDate);
 }

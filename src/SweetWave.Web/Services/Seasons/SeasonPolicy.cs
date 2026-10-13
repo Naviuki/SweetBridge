@@ -5,16 +5,16 @@ using SweetWave.Web.Services.Catalog;
 namespace SweetWave.Web.Services.Seasons;
 
 /// <summary>
-/// Seasonal rules driven by the configured month lists.
+/// Сезонные правила на основе настроенных списков месяцев.
 /// </summary>
 public sealed class SeasonPolicy : ISeasonPolicy
 {
     private readonly LogisticsOptions _options;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SeasonPolicy"/> class.
+    /// Создаёт новый экземпляр класса <see cref="SeasonPolicy"/>.
     /// </summary>
-    /// <param name="options">Logistics parameters with the month lists.</param>
+    /// <param name="options">Логистические параметры со списками месяцев.</param>
     public SeasonPolicy(IOptions<LogisticsOptions> options)
     {
         ArgumentNullException.ThrowIfNull(options);

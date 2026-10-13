@@ -3,18 +3,18 @@ using SweetWave.Web.Domain.Enums;
 namespace SweetWave.Web.Services.Waves;
 
 /// <summary>
-/// Read model of a wave for the admin list.
+/// Модель чтения волны для списка админки.
 /// </summary>
-/// <param name="WaveId">Wave identifier.</param>
-/// <param name="Direction">Delivery direction.</param>
-/// <param name="ShipDate">Planned shipment date.</param>
-/// <param name="OrderCutoffDate">Last day when orders are accepted.</param>
-/// <param name="CapacityGrams">Maximal weight of the wave, in grams.</param>
-/// <param name="MinLoadGrams">Minimal weight required to dispatch, in grams.</param>
-/// <param name="LoadedGrams">Weight already loaded into the wave, in grams.</param>
-/// <param name="FillPercent">Fill percentage of the wave, in percent.</param>
-/// <param name="Status">Wave status.</param>
-/// <param name="IsReadyToDispatch">Indicates that the wave holds the minimal load and can be dispatched.</param>
+/// <param name="waveId">Идентификатор волны.</param>
+/// <param name="direction">Направление доставки.</param>
+/// <param name="shipDate">Запланированная дата отправки.</param>
+/// <param name="orderCutoffDate">Последний день приёма заказов.</param>
+/// <param name="capacityGrams">Максимальный вес волны в граммах.</param>
+/// <param name="minLoadGrams">Минимальный вес для отправки в граммах.</param>
+/// <param name="loadedGrams">Вес, уже набранный в волне, в граммах.</param>
+/// <param name="FillPercent">Заполнение волны в процентах.</param>
+/// <param name="status">Статус волны.</param>
+/// <param name="IsReadyToDispatch">Признак того, что в волне есть минимальная загрузка и её можно отправить.</param>
 public sealed record WaveSummary(
     int WaveId,
     ShippingDirection Direction,

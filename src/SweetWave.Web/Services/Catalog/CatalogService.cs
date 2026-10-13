@@ -6,16 +6,16 @@ using SweetWave.Web.Infrastructure.Persistence;
 namespace SweetWave.Web.Services.Catalog;
 
 /// <summary>
-/// Catalogue queries for the public showcase.
+/// Запросы каталога для публичной витрины.
 /// </summary>
 public sealed class CatalogService : ICatalogService
 {
     private readonly AppDbContext _dbContext;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CatalogService"/> class.
+    /// Создаёт новый экземпляр класса <see cref="CatalogService"/>.
     /// </summary>
-    /// <param name="dbContext">Database context.</param>
+    /// <param name="dbContext">Контекст базы данных.</param>
     public CatalogService(AppDbContext dbContext)
     {
         ArgumentNullException.ThrowIfNull(dbContext);
@@ -63,8 +63,8 @@ public sealed class CatalogService : ICatalogService
     }
 
     /// <remarks>
-    /// SQLite comparisons are case sensitive for Cyrillic, so the free text search runs in memory
-    /// over the small catalogue of the showcase.
+    /// SQLite сравнивает строки с кириллицей регистрозависимо, поэтому текстовый поиск выполняется в памяти
+    /// по небольшому каталогу витрины.
     /// </remarks>
     private static Region ToRegion(ShippingDirection direction) =>
         direction == ShippingDirection.YakutiaToDonbass ? Region.Yakutia : Region.Donbass;

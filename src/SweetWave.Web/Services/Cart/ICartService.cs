@@ -1,51 +1,51 @@
 namespace SweetWave.Web.Services.Cart;
 
 /// <summary>
-/// Shopping cart kept in the session.
+/// Корзина покупок, хранящаяся в сессии.
 /// </summary>
 public interface ICartService
 {
     /// <summary>
-    /// Returns the number of goods in the cart without accessing the database.
+    /// Возвращает количество товаров в корзине без обращения к базе данных.
     /// </summary>
-    /// <returns>Total quantity of the cart.</returns>
+    /// <returns>Общее количество товаров в корзине.</returns>
     int GetItemCount();
 
     /// <summary>
-    /// Returns the cart with the actual prices and weights.
+    /// Возвращает корзину с актуальными ценами и весами.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Current cart.</returns>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Текущая корзина.</returns>
     Task<CartView> GetCartAsync(CancellationToken cancellationToken);
 
     /// <summary>
-    /// Adds a product to the cart.
+    /// Добавляет товар в корзину.
     /// </summary>
-    /// <param name="productId">Product identifier.</param>
-    /// <param name="quantity">Quantity to add.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Updated cart.</returns>
+    /// <param name="productId">Идентификатор товара.</param>
+    /// <param name="quantity">Количество для добавления.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Обновлённая корзина.</returns>
     Task<CartView> AddItemAsync(string productId, int quantity, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Sets the quantity of a line: a quantity below one removes the line.
+    /// Задаёт количество в позиции: количество меньше одного удаляет позицию.
     /// </summary>
-    /// <param name="productId">Product identifier.</param>
-    /// <param name="quantity">New quantity.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Updated cart.</returns>
+    /// <param name="productId">Идентификатор товара.</param>
+    /// <param name="quantity">Новое количество.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Обновлённая корзина.</returns>
     Task<CartView> SetQuantityAsync(string productId, int quantity, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Removes a line from the cart.
+    /// Удаляет позицию из корзины.
     /// </summary>
-    /// <param name="productId">Product identifier.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Updated cart.</returns>
+    /// <param name="productId">Идентификатор товара.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Обновлённая корзина.</returns>
     Task<CartView> RemoveItemAsync(string productId, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Removes all lines from the cart.
+    /// Удаляет все позиции из корзины.
     /// </summary>
     void Clear();
 }

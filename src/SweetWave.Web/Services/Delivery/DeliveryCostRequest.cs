@@ -1,9 +1,9 @@
 namespace SweetWave.Web.Services.Delivery;
 
 /// <summary>
-/// Input of the delivery cost calculation.
+/// Входные данные для расчёта стоимости доставки.
 /// </summary>
-/// <param name="WeightGrams">Weight of the order, in grams.</param>
-/// <param name="WaveFillPercent">Fill percentage of the wave after adding the order, in percent.</param>
-/// <param name="ThermoPackRequired">Indicates that thermal packaging has to be paid for.</param>
+/// <param name="WeightGrams">Вес заказа в граммах.</param>
+/// <param name="WaveFillPercent">Заполнение волны после добавления заказа в процентах.</param>
+/// <param name="ThermoPackRequired">Признак того, что термоупаковку нужно оплатить.</param>
 public sealed record DeliveryCostRequest(int WeightGrams, decimal WaveFillPercent, bool ThermoPackRequired);

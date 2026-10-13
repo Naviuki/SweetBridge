@@ -5,7 +5,7 @@ using SweetWave.Web.Domain.Exceptions;
 namespace SweetWave.Tests.Domain;
 
 /// <summary>
-/// Tests of <see cref="Wave"/>: order intake dates and capacity rules.
+/// Тесты <see cref="Wave"/>: даты приёма заказов и правила вместимости.
 /// </summary>
 public sealed class WaveTests
 {

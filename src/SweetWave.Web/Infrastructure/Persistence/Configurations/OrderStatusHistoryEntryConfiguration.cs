@@ -5,7 +5,7 @@ using SweetWave.Web.Domain.Entities;
 namespace SweetWave.Web.Infrastructure.Persistence.Configurations;
 
 /// <summary>
-/// Mapping of <see cref="OrderStatusHistoryEntry"/>.
+/// Сопоставление для <see cref="OrderStatusHistoryEntry"/>.
 /// </summary>
 public sealed class OrderStatusHistoryEntryConfiguration : IEntityTypeConfiguration<OrderStatusHistoryEntry>
 {

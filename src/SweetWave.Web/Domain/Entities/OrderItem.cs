@@ -3,7 +3,7 @@ using SweetWave.Web.Domain.Exceptions;
 namespace SweetWave.Web.Domain.Entities;
 
 /// <summary>
-/// A single position of an order. Product data is captured at the moment of ordering.
+/// Одна позиция заказа. Данные товара фиксируются на момент оформления.
 /// </summary>
 public sealed class OrderItem
 {
@@ -21,60 +21,60 @@ public sealed class OrderItem
     }
 
     /// <summary>
-    /// Position identifier.
+    /// Идентификатор позиции.
     /// </summary>
     public int Id { get; private set; }
 
     /// <summary>
-    /// Identifier of the order the position belongs to.
+    /// Идентификатор заказа, которому принадлежит позиция.
     /// </summary>
     public int OrderId { get; private set; }
 
     /// <summary>
-    /// Catalogue identifier of the product.
+    /// Идентификатор товара в каталоге.
     /// </summary>
     public string ProductId { get; private set; } = string.Empty;
 
     /// <summary>
-    /// Product name at the moment of ordering.
+    /// Наименование товара на момент заказа.
     /// </summary>
     public string ProductName { get; private set; } = string.Empty;
 
     /// <summary>
-    /// Price of a single unit at the moment of ordering, in rubles.
+    /// Цена одной штуки на момент заказа в рублях.
     /// </summary>
     public decimal UnitPrice { get; private set; }
 
     /// <summary>
-    /// Weight of a single unit at the moment of ordering, in grams.
+    /// Вес одной штуки на момент заказа в граммах.
     /// </summary>
     public int WeightGrams { get; private set; }
 
     /// <summary>
-    /// Ordered quantity.
+    /// Заказанное количество.
     /// </summary>
     public int Quantity { get; private set; }
 
     /// <summary>
-    /// Total weight of the position, in grams.
+    /// Общий вес позиции в граммах.
     /// </summary>
     public int LineWeightGrams => WeightGrams * Quantity;
 
     /// <summary>
-    /// Total cost of the position, in rubles.
+    /// Итоговая стоимость позиции в рублях.
     /// </summary>
     public decimal LineTotal => UnitPrice * Quantity;
 
     /// <summary>
-    /// Creates an order position.
+    /// Создаёт позицию заказа.
     /// </summary>
-    /// <param name="productId">Catalogue identifier of the product.</param>
-    /// <param name="productName">Product name.</param>
-    /// <param name="unitPrice">Price of a single unit, in rubles.</param>
-    /// <param name="weightGrams">Weight of a single unit, in grams.</param>
-    /// <param name="quantity">Ordered quantity.</param>
-    /// <returns>Created position.</returns>
-    /// <exception cref="DomainException">Position data is not valid.</exception>
+    /// <param name="productId">Идентификатор товара в каталоге.</param>
+    /// <param name="productName">Наименование товара.</param>
+    /// <param name="unitPrice">Цена одной штуки в рублях.</param>
+    /// <param name="weightGrams">Вес одной штуки в граммах.</param>
+    /// <param name="quantity">Заказанное количество.</param>
+    /// <returns>Созданная позиция.</returns>
+    /// <exception cref="DomainException">Данные позиции заказа некорректны.</exception>
     public static OrderItem Create(string productId, string productName, decimal unitPrice, int weightGrams, int quantity)
     {
         if (string.IsNullOrWhiteSpace(productId))

@@ -5,28 +5,28 @@ using SweetWave.Web.Services.Waves;
 namespace SweetWave.Web.Pages;
 
 /// <summary>
-/// Home page: both showcases, nearest waves and a short description of the mechanics.
+/// Главная страница: обе витрины, ближайшие волны и краткое описание механики.
 /// </summary>
-/// <param name="waveService">Wave service.</param>
+/// <param name="waveService">Сервис волн.</param>
 public sealed class IndexModel(IWaveService waveService) : PageModel
 {
     private const int NearestWavesCount = 2;
 
     /// <summary>
-    /// Nearest waves with the Yakutia confectionery.
+    /// Ближайшие волны со сладостями Якутии.
     /// </summary>
     public IReadOnlyList<WaveSummary> WavesToDonbass { get; private set; } = [];
 
     /// <summary>
-    /// Nearest waves with the Donbass confectionery.
+    /// Ближайшие волны со сладостями Донбасса.
     /// </summary>
     public IReadOnlyList<WaveSummary> WavesToYakutia { get; private set; } = [];
 
     /// <summary>
-    /// Loads the nearest waves of both directions.
+    /// Загружает ближайшие волны обоих направлений.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Task representing the operation.</returns>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Задача, отражающая выполнение операции.</returns>
     public async Task OnGetAsync(CancellationToken cancellationToken)
     {
         WavesToDonbass = await waveService.GetUpcomingAsync(

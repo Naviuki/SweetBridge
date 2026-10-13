@@ -4,18 +4,18 @@ using SweetWave.Web.Infrastructure.Persistence;
 namespace SweetWave.Web.Infrastructure.Persistence;
 
 /// <summary>
-/// Single place where the weight loaded into waves is calculated: SQLite sums integer grams,
-/// money is never aggregated in SQL.
+/// Единственное место, где считается загруженный вес волн: SQLite суммирует целые граммы,
+/// а деньги в SQL не агрегируются.
 /// </summary>
 public static class WaveLoadQueries
 {
     /// <summary>
-    /// Returns the weight of the orders of every wave.
+    /// Возвращает вес заказов каждой волны.
     /// </summary>
-    /// <param name="dbContext">Database context.</param>
-    /// <param name="waveIds">Identifiers of the waves.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Dictionary with the loaded weight in grams for each wave that has orders.</returns>
+    /// <param name="dbContext">Контекст базы данных.</param>
+    /// <param name="waveIds">Идентификаторы волн.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Словарь с загруженным весом в граммах для каждой волны, где есть заказы.</returns>
     public static async Task<Dictionary<int, int>> GetLoadedGramsAsync(
         AppDbContext dbContext,
         IReadOnlyCollection<int> waveIds,
@@ -44,12 +44,12 @@ public static class WaveLoadQueries
     }
 
     /// <summary>
-    /// Returns the weight of the orders of a single wave.
+    /// Возвращает вес заказов одной волны.
     /// </summary>
-    /// <param name="dbContext">Database context.</param>
-    /// <param name="waveId">Identifier of the wave.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Loaded weight in grams.</returns>
+    /// <param name="dbContext">Контекст базы данных.</param>
+    /// <param name="waveId">Идентификатор волны.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Загруженный вес в граммах.</returns>
     public static async Task<int> GetLoadedGramsAsync(
         AppDbContext dbContext,
         int waveId,

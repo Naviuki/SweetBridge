@@ -9,46 +9,46 @@ using SweetWave.Web.Services.Catalog;
 namespace SweetWave.Web.Pages;
 
 /// <summary>
-/// Catalogue of one showcase with the category filter and the search by name.
+/// Каталог одной витрины с фильтром по категории и поиском по названию.
 /// </summary>
-/// <param name="catalogService">Catalogue service.</param>
-/// <param name="cartService">Cart service.</param>
+/// <param name="catalogService">Сервис каталога.</param>
+/// <param name="cartService">Сервис корзины.</param>
 public sealed class CatalogModel(ICatalogService catalogService, ICartService cartService) : PageModel
 {
     /// <summary>
-    /// Showcase the products travel from.
+    /// Витрина, из которой отправляются товары.
     /// </summary>
     [BindProperty(SupportsGet = true)]
     public ShippingDirection Direction { get; set; } = ShippingDirection.YakutiaToDonbass;
 
     /// <summary>
-    /// Selected category, empty for all categories.
+    /// Выбранная категория, пусто — все категории.
     /// </summary>
     [BindProperty(SupportsGet = true)]
     public string? Category { get; set; }
 
     /// <summary>
-    /// Search text for the product name and manufacturer.
+    /// Поисковый запрос по наименованию товара и производителю.
     /// </summary>
     [BindProperty(SupportsGet = true)]
     [StringLength(100, ErrorMessage = "Слишком длинный поисковый запрос.")]
     public string? SearchText { get; set; }
 
     /// <summary>
-    /// Categories of the showcase.
+    /// Категории витрины.
     /// </summary>
     public IReadOnlyList<string> Categories { get; private set; } = [];
 
     /// <summary>
-    /// Products that match the filter.
+    /// Товары, подходящие под фильтр.
     /// </summary>
     public IReadOnlyList<ProductSummary> Products { get; private set; } = [];
 
     /// <summary>
-    /// Loads the categories and the products of the showcase.
+    /// Загружает категории и товары витрины.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Task representing the operation.</returns>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Задача, отражающая выполнение операции.</returns>
     public async Task OnGetAsync(CancellationToken cancellationToken)
     {
         Categories = await catalogService.GetCategoriesAsync(Direction, cancellationToken);
@@ -59,12 +59,12 @@ public sealed class CatalogModel(ICatalogService catalogService, ICartService ca
     }
 
     /// <summary>
-    /// Adds a product to the cart and returns to the catalogue with a flash message.
+    /// Добавляет товар в корзину и возвращает в каталог с flash-сообщением.
     /// </summary>
-    /// <param name="productId">Product identifier.</param>
-    /// <param name="quantity">Quantity to add.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Redirect back to the catalogue.</returns>
+    /// <param name="productId">Идентификатор товара.</param>
+    /// <param name="quantity">Количество для добавления.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Возврат в каталог.</returns>
     public async Task<IActionResult> OnPostAddToCartAsync(string productId, int quantity, CancellationToken cancellationToken)
     {
         try

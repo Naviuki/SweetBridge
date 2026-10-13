@@ -4,7 +4,7 @@ using SweetWave.Web.Infrastructure.Persistence;
 namespace SweetWave.Web.Infrastructure.Seeding;
 
 /// <summary>
-/// Applies migrations and fills the database with the initial catalogue and waves on startup.
+/// Применяет миграции и заполняет базу начальным каталогом и волнами при старте.
 /// </summary>
 public sealed partial class DatabaseInitializer
 {
@@ -14,12 +14,12 @@ public sealed partial class DatabaseInitializer
     private readonly ILogger<DatabaseInitializer> _logger;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DatabaseInitializer"/> class.
+    /// Создаёт новый экземпляр класса <see cref="DatabaseInitializer"/>.
     /// </summary>
-    /// <param name="dbContext">Database context.</param>
-    /// <param name="catalogSeeder">Catalogue seeder.</param>
-    /// <param name="waveSeeder">Wave seeder.</param>
-    /// <param name="logger">Logger.</param>
+    /// <param name="dbContext">Контекст базы данных.</param>
+    /// <param name="catalogSeeder">Сидер каталога.</param>
+    /// <param name="waveSeeder">Сидер волн.</param>
+    /// <param name="logger">Логгер.</param>
     public DatabaseInitializer(
         AppDbContext dbContext,
         CatalogSeeder catalogSeeder,
@@ -38,10 +38,10 @@ public sealed partial class DatabaseInitializer
     }
 
     /// <summary>
-    /// Creates the database if needed and seeds empty tables.
+    /// Создаёт базу при необходимости и заполняет пустые таблицы.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Task representing the initialization.</returns>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Задача, отражающая выполнение инициализации.</returns>
     public async Task InitializeAsync(CancellationToken cancellationToken)
     {
         await _dbContext.Database.MigrateAsync(cancellationToken);

@@ -1,14 +1,14 @@
 namespace SweetWave.Web.Services.Delivery;
 
 /// <summary>
-/// Calculates the cost of a consolidated delivery.
+/// Рассчитывает стоимость сборной доставки.
 /// </summary>
 public interface IDeliveryCostCalculator
 {
     /// <summary>
-    /// Calculates the delivery cost for an order.
+    /// Рассчитывает стоимость доставки заказа.
     /// </summary>
-    /// <param name="request">Weight, wave fill and thermal packaging requirement.</param>
-    /// <returns>Calculated costs.</returns>
+    /// <param name="request">Вес, заполнение волны и необходимость термоупаковки.</param>
+    /// <returns>Рассчитанные стоимости.</returns>
     DeliveryCostResult Calculate(DeliveryCostRequest request);
 }

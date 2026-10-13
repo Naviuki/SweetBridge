@@ -1,17 +1,17 @@
 namespace SweetWave.Web.Domain.Enums;
 
 /// <summary>
-/// Region where a confectionery product is manufactured.
+/// Регион производства кондитерского изделия.
 /// </summary>
 public enum Region
 {
     /// <summary>
-    /// Republic of Sakha (Yakutia).
+    /// Республика Саха (Якутия).
     /// </summary>
     Yakutia = 0,
 
     /// <summary>
-    /// Donetsk People's Republic.
+    /// Донецкая Народная Республика.
     /// </summary>
     Donbass = 1
 }

@@ -3,7 +3,7 @@ using SweetWave.Web.Domain.Enums;
 namespace SweetWave.Web.Domain.Entities;
 
 /// <summary>
-/// One entry of the order status timeline.
+/// Одна запись ленты смены статусов заказа.
 /// </summary>
 public sealed class OrderStatusHistoryEntry
 {
@@ -18,31 +18,31 @@ public sealed class OrderStatusHistoryEntry
     }
 
     /// <summary>
-    /// Entry identifier.
+    /// Идентификатор записи.
     /// </summary>
     public int Id { get; private set; }
 
     /// <summary>
-    /// Identifier of the order the entry belongs to.
+    /// Идентификатор заказа, которому принадлежит запись.
     /// </summary>
     public int OrderId { get; private set; }
 
     /// <summary>
-    /// Status the order moved to.
+    /// Статус, в который перешёл заказ.
     /// </summary>
     public OrderStatus Status { get; private set; }
 
     /// <summary>
-    /// Moment of the change, in UTC.
+    /// Момент изменения в UTC.
     /// </summary>
     public DateTime ChangedAtUtc { get; private set; }
 
     /// <summary>
-    /// Creates a history entry.
+    /// Создаёт запись истории.
     /// </summary>
-    /// <param name="status">Status the order moved to.</param>
-    /// <param name="changedAtUtc">Moment of the change, in UTC.</param>
-    /// <returns>Created history entry.</returns>
+    /// <param name="status">Статус, в который перешёл заказ.</param>
+    /// <param name="changedAtUtc">Момент изменения в UTC.</param>
+    /// <returns>Созданная запись истории.</returns>
     public static OrderStatusHistoryEntry Create(OrderStatus status, DateTime changedAtUtc) =>
         new(status, changedAtUtc);
 }

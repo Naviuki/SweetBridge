@@ -4,7 +4,7 @@ using SweetWave.Web.Options;
 namespace SweetWave.Web.Services.Delivery;
 
 /// <summary>
-/// Delivery cost calculation based on the configured tariff, wave fill discounts and thermal packaging.
+/// Расчёт стоимости доставки по настроенному тарифу, скидкам за заполнение волны и термоупаковке.
 /// </summary>
 public sealed class DeliveryCostCalculator : IDeliveryCostCalculator
 {
@@ -15,9 +15,9 @@ public sealed class DeliveryCostCalculator : IDeliveryCostCalculator
     private readonly LogisticsOptions _options;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="DeliveryCostCalculator"/> class.
+    /// Создаёт новый экземпляр класса <see cref="DeliveryCostCalculator"/>.
     /// </summary>
-    /// <param name="options">Logistics parameters.</param>
+    /// <param name="options">Логистические параметры.</param>
     public DeliveryCostCalculator(IOptions<LogisticsOptions> options)
     {
         ArgumentNullException.ThrowIfNull(options);

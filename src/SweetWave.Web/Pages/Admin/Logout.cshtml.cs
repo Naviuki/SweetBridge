@@ -7,15 +7,15 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace SweetWave.Web.Pages.Admin;
 
 /// <summary>
-/// Sign out handler of the administrator.
+/// Обработчик выхода администратора.
 /// </summary>
 [AllowAnonymous]
 public sealed class LogoutModel : PageModel
 {
     /// <summary>
-    /// Deletes the authentication cookie.
+    /// Удаляет cookie аутентификации.
     /// </summary>
-    /// <returns>Redirect to the home page.</returns>
+    /// <returns>Возврат на главную страницу.</returns>
     public async Task<IActionResult> OnPostLogoutAsync()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -24,8 +24,8 @@ public sealed class LogoutModel : PageModel
     }
 
     /// <summary>
-    /// Only the POST handler is allowed to sign out.
+    /// Выйти разрешено только обработчику POST.
     /// </summary>
-    /// <returns>Redirect to the home page.</returns>
+    /// <returns>Возврат на главную страницу.</returns>
     public IActionResult OnGet() => RedirectToPage("/Index");
 }

@@ -3,23 +3,23 @@ using System.ComponentModel.DataAnnotations;
 namespace SweetWave.Web.Options;
 
 /// <summary>
-/// Credentials of the administrator account used by the admin section.
+/// Учётные данные администратора, используемые в админке.
 /// </summary>
 public sealed class AdminOptions
 {
     /// <summary>
-    /// Name of the configuration section.
+    /// Имя секции конфигурации.
     /// </summary>
     public const string SectionName = "Admin";
 
     /// <summary>
-    /// Administrator login.
+    /// Логин администратора.
     /// </summary>
     [Required]
     public string UserName { get; set; } = string.Empty;
 
     /// <summary>
-    /// Administrator password.
+    /// Пароль администратора.
     /// </summary>
     [Required]
     public string Password { get; set; } = string.Empty;

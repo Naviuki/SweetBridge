@@ -1,17 +1,17 @@
 namespace SweetWave.Web.Domain.Enums;
 
 /// <summary>
-/// Direction of a consolidated delivery ("wave"): products always travel to the opposite region.
+/// Направление сборной доставки («волны»): товары всегда едут в противоположный регион.
 /// </summary>
 public enum ShippingDirection
 {
     /// <summary>
-    /// Confectionery from Yakutia to Donbass.
+    /// Кондитерские изделия из Якутии в ДНР.
     /// </summary>
     YakutiaToDonbass = 0,
 
     /// <summary>
-    /// Confectionery from Donbass to Yakutia.
+    /// Кондитерские изделия из Донбасса в Якутию.
     /// </summary>
     DonbassToYakutia = 1
 }

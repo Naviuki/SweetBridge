@@ -8,28 +8,28 @@ using SweetWave.Web.Services.Catalog;
 namespace SweetWave.Web.Pages.Admin.Products;
 
 /// <summary>
-/// Editing of a catalogue product.
+/// Правка товара каталога.
 /// </summary>
-/// <param name="productManagementService">Product management service.</param>
+/// <param name="productManagementService">Сервис управления товарами.</param>
 public sealed class EditModel(IProductManagementService productManagementService) : PageModel
 {
     /// <summary>
-    /// Edited product identifier.
+    /// Идентификатор редактируемого товара.
     /// </summary>
     [BindProperty(SupportsGet = true)]
     public string Id { get; set; } = string.Empty;
 
     /// <summary>
-    /// Data of the product form.
+    /// Данные формы товара.
     /// </summary>
     [BindProperty]
     public InputModel Input { get; set; } = new();
 
     /// <summary>
-    /// Loads the product into the form.
+    /// Загружает товар в форму.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Task representing the operation.</returns>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Задача, отражающая выполнение операции.</returns>
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
     {
         ProductSummary? product = await FindProductAsync(cancellationToken);
@@ -45,10 +45,10 @@ public sealed class EditModel(IProductManagementService productManagementService
     }
 
     /// <summary>
-    /// Updates the product and returns to the list.
+    /// Обновляет товар и возвращает к списку.
     /// </summary>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Redirect to the product list.</returns>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Возврат к списку товаров.</returns>
     public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
@@ -78,18 +78,18 @@ public sealed class EditModel(IProductManagementService productManagementService
     }
 
     /// <summary>
-    /// Data of the product form with Russian validation messages.
+    /// Данные формы товара с русскими сообщениями валидации.
     /// </summary>
     public sealed class InputModel
     {
         /// <summary>
-        /// Region of the manufacturer.
+        /// Регион производителя.
         /// </summary>
         [Display(Name = "Регион производителя")]
         public Region Region { get; set; } = Region.Yakutia;
 
         /// <summary>
-        /// Manufacturer name.
+        /// Название производителя.
         /// </summary>
         [Required(ErrorMessage = "Укажите производителя.")]
         [StringLength(200, ErrorMessage = "Название производителя слишком длинное.")]
@@ -97,7 +97,7 @@ public sealed class EditModel(IProductManagementService productManagementService
         public string Manufacturer { get; set; } = string.Empty;
 
         /// <summary>
-        /// Product name.
+        /// Наименование товара.
         /// </summary>
         [Required(ErrorMessage = "Укажите наименование товара.")]
         [StringLength(200, ErrorMessage = "Наименование товара слишком длинное.")]
@@ -105,7 +105,7 @@ public sealed class EditModel(IProductManagementService productManagementService
         public string Name { get; set; } = string.Empty;
 
         /// <summary>
-        /// Catalogue category.
+        /// Категория в каталоге.
         /// </summary>
         [Required(ErrorMessage = "Укажите категорию.")]
         [StringLength(100, ErrorMessage = "Название категории слишком длинное.")]
@@ -113,51 +113,51 @@ public sealed class EditModel(IProductManagementService productManagementService
         public string Category { get; set; } = string.Empty;
 
         /// <summary>
-        /// Weight of a single unit, in grams.
+        /// Вес одной штуки в граммах.
         /// </summary>
         [Range(1, 100_000, ErrorMessage = "Вес должен быть от 1 до 100 000 граммов.")]
         [Display(Name = "Вес, г")]
         public int WeightGrams { get; set; }
 
         /// <summary>
-        /// Price of a single unit, in rubles.
+        /// Цена одной штуки в рублях.
         /// </summary>
         [Range(0, 1_000_000, ErrorMessage = "Цена должна быть от 0 до 1 000 000 рублей.")]
         [Display(Name = "Цена, ₽")]
         public decimal Price { get; set; }
 
         /// <summary>
-        /// Temperature sensitive flag.
+        /// Признак температурной чувствительности.
         /// </summary>
         [Display(Name = "Боится мороза и жары")]
         public bool IsTemperatureSensitive { get; set; }
 
         /// <summary>
-        /// Shelf life, in days.
+        /// Срок годности в днях.
         /// </summary>
         [Range(1, 3650, ErrorMessage = "Срок годности должен быть от 1 до 3650 дней.")]
         [Display(Name = "Срок годности, дней")]
         public int ShelfLifeDays { get; set; }
 
         /// <summary>
-        /// Photo file name inside <c>wwwroot/images</c>.
+        /// Имя файла изображения в каталоге <c>wwwroot/images</c>.
         /// </summary>
         [StringLength(200, ErrorMessage = "Имя файла слишком длинное.")]
         [Display(Name = "Файл изображения")]
         public string? Photo { get; set; }
 
         /// <summary>
-        /// Product description.
+        /// Описание товара.
         /// </summary>
         [StringLength(1000, ErrorMessage = "Описание не должно быть длиннее 1000 символов.")]
         [Display(Name = "Описание")]
         public string? Description { get; set; }
 
         /// <summary>
-        /// Fills the form with the product data.
+        /// Заполняет форму данными товара.
         /// </summary>
-        /// <param name="product">Product to edit.</param>
-        /// <returns>Form data.</returns>
+        /// <param name="product">Редактируемый товар.</param>
+        /// <returns>Данные формы.</returns>
         public static InputModel FromProduct(ProductSummary product)
         {
             ArgumentNullException.ThrowIfNull(product);
@@ -178,10 +178,10 @@ public sealed class EditModel(IProductManagementService productManagementService
         }
 
         /// <summary>
-        /// Converts the form data into a service command.
+        /// Преобразует данные формы в команду сервиса.
         /// </summary>
-        /// <param name="id">Product identifier.</param>
-        /// <returns>Command for the product management service.</returns>
+        /// <param name="Id">Идентификатор товара.</param>
+        /// <returns>Команда для сервиса управления товарами.</returns>
         public ProductInput ToProductInput(string id) =>
             new(id, Region, Manufacturer, Name, Category, WeightGrams, Price, IsTemperatureSensitive, ShelfLifeDays, Photo, Description);
     }
