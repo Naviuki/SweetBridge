@@ -1,0 +1,88 @@
+@page
+@model SweetBridge.Web.Pages.Admin.Dashboard.IndexModel
+@using SweetBridge.Web.Extensions
+@using SweetBridge.Web.Services.Waves
+@{
+    ViewData["Title"] = "Сводка";
+}
+<section class="page">
+    <div class="admin-layout">
+        <partial name="_AdminNav" />
+
+        <div class="admin-content">
+            <h1 class="page__title">Сводка по платформе</h1>
+
+            <div class="kpi-grid">
+                <article class="card kpi">
+                    <span class="kpi__value">@Model.OrdersCount</span>
+                    <span class="kpi__label">всего заказов</span>
+                </article>
+                <article class="card kpi">
+                    <span class="kpi__value">@Model.UnpaidCount</span>
+                    <span class="kpi__label">ожидают оплаты</span>
+                </article>
+                <article class="card kpi">
+                    <span class="kpi__value">@Model.InTransitCount</span>
+                    <span class="kpi__label">в пути</span>
+                </article>
+                <article class="card kpi">
+                    <span class="kpi__value">@Model.PaidTotal.ToString("N0") ₽</span>
+                    <span class="kpi__label">оплачено заказов</span>
+                </article>
+            </div>
+
+            <div class="card card-pad">
+                <h2>Каталог и волны</h2>
+                <dl class="summary-list">
+                    <div class="summary-row"><dt>Активных товаров</dt><dd>@Model.ProductsCount</dd></div>
+                    <div class="summary-row"><dt>Активных промокодов</dt><dd>@Model.PromoCodesCount</dd></div>
+                    <div class="summary-row"><dt>Новых обращений</dt><dd>@Model.NewSupportRequests</dd></div>
+                    <div class="summary-row"><dt>Новых корпоративных заявок</dt><dd>@Model.NewCorporateRequests</dd></div>
+                    <div class="summary-row"><dt>Подписчиков рассылки</dt><dd>@Model.Subscribers</dd></div>
+                </dl>
+                <div class="row gap-8 mt-16">
+                    <a class="btn btn--outline btn--sm" asp-page="/Admin/Orders">Заказы</a>
+                    <a class="btn btn--outline btn--sm" asp-page="/Admin/Waves">Волны</a>
+                    <a class="btn btn--outline btn--sm" asp-page="/Admin/Forms">Обращения</a>
+                </div>
+            </div>
+
+            <div class="card card-pad">
+                <h2>Волны</h2>
+                <div class="table-scroll">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Волна</th>
+                                <th>Направление</th>
+                                <th>Отправка</th>
+                                <th>Приём до</th>
+                                <th>Заполнено</th>
+                                <th>Статус</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (WaveSummary wave in Model.Waves)
+                            {
+                                <tr>
+                                    <td>№@wave.Number</td>
+                                    <td>@wave.Direction.ToShortName()</td>
+                                    <td class="nowrap">@wave.ShipDate.FormatDate()</td>
+                                    <td class="nowrap">@wave.OrderCutoffDate.FormatDate()</td>
+                                    <td class="nowrap">@wave.FillPercent.FormatPercent() (@wave.LoadedGrams.FormatWeight())</td>
+                                    <td>
+                                        <span class="chip">@wave.Status.ToDisplayName()</span>
+                                        @if (wave.IsReadyToDispatch && wave.Status == WaveStatus.Planned)
+                                        {
+                                            <span class="chip chip--success">готова к отправке</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -5,10 +5,11 @@ namespace SweetBridge.Web.Services.Orders;
 /// <summary>
 /// Модель чтения позиции заказа.
 /// </summary>
+/// <param name="ProductId">Идентификатор товара.</param>
 /// <param name="ProductName">Наименование товара на момент заказа.</param>
 /// <param name="unitPrice">Цена одной штуки в рублях.</param>
 /// <param name="quantity">Заказанное количество.</param>
-public sealed record OrderLineSummary(string ProductName, decimal UnitPrice, int Quantity)
+public sealed record OrderLineSummary(string ProductId, string ProductName, decimal UnitPrice, int Quantity)
 {
     /// <summary>
     /// Итоговая стоимость позиции в рублях.

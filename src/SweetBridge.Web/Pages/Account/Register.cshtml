@@ -1,0 +1,59 @@
+@page
+@model SweetBridge.Web.Pages.Account.RegisterModel
+@{
+    ViewData["Title"] = "Регистрация";
+}
+<section class="page">
+    <div class="card auth-card card-pad">
+        <h1 class="page__title">Регистрация</h1>
+        <p class="page__lead">Аккаунт нужен, чтобы следить за заказами и хранить избранное.</p>
+
+        <form method="post" class="mt-16">
+            <div asp-validation-summary="ModelOnly" class="form-errors"></div>
+
+            <label class="field">
+                <span class="field__label">Имя и фамилия</span>
+                <input class="field__control" asp-for="Input.Name" data-field-control autocomplete="name" autofocus />
+                <span class="field__error" asp-validation-for="Input.Name"></span>
+            </label>
+
+            <label class="field">
+                <span class="field__label">Электронная почта</span>
+                <input class="field__control" asp-for="Input.Email" data-field-control type="email" autocomplete="username" />
+                <span class="field__error" asp-validation-for="Input.Email"></span>
+            </label>
+
+            <label class="field">
+                <span class="field__label">Телефон</span>
+                <input class="field__control" asp-for="Input.Phone" data-field-control inputmode="tel"
+                       autocomplete="tel" placeholder="+7 999 000-11-22" />
+                <span class="field__hint">Нужен для связи при доставке</span>
+                <span class="field__error" asp-validation-for="Input.Phone"></span>
+            </label>
+
+            <label class="field">
+                <span class="field__label">Пароль</span>
+                <span class="password-wrap">
+                    <input class="field__control" asp-for="Input.Password" data-field-control
+                           autocomplete="new-password" data-password-field />
+                    <button class="btn btn--ghost btn--sm" type="button"
+                            data-password-toggle="Input_Password" aria-label="Показать пароль">Показать</button>
+                </span>
+                <span class="field__hint">Минимум 8 символов, цифра, заглавная буква и спецсимвол</span>
+                <span class="field__error" asp-validation-for="Input.Password"></span>
+            </label>
+
+            <label class="field">
+                <span class="field__label">Повторите пароль</span>
+                <input class="field__control" asp-for="Input.ConfirmPassword" data-field-control autocomplete="new-password" />
+                <span class="field__error" asp-validation-for="Input.ConfirmPassword"></span>
+            </label>
+
+            <button class="btn btn--primary btn--block" type="submit">Создать аккаунт</button>
+        </form>
+
+        <p class="mt-16">
+            Уже есть аккаунт? <a asp-page="/Account/Login">Войти</a>
+        </p>
+    </div>
+</section>

@@ -5,14 +5,13 @@
     int current = Model.CurrentStepIndex;
     int total = steps.Count;
     int percent = total > 0 ? (int)Math.Round((current + 1d) / total * 100) : 0;
-    decimal fillPercent = total > 0 ? (current + 1m) / total * 100m : 0m;
 }
 <div class="tracker" data-tracker data-tracker-current="@current" data-tracker-total="@total">
     <p class="tracker__percent">Трекер статуса · <span data-tracker-percent>@percent%</span></p>
 
     <div class="tracker__track">
         <span class="tracker__bar" aria-hidden="true"></span>
-        <span class="tracker__bar tracker__bar-progress" data-tracker-fill style="width:@fillPercent.ToString("0", System.Globalization.CultureInfo.InvariantCulture)%" aria-hidden="true"></span>
+        <span class="tracker__bar tracker__bar-progress" data-tracker-fill aria-hidden="true"></span>
         @for (var index = 0; index < total; index++)
         {
             <div class="tracker__step" data-tracker-step>

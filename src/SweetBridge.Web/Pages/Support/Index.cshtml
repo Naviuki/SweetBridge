@@ -1,0 +1,50 @@
+@page
+@model SweetBridge.Web.Pages.Support.IndexModel
+@using SweetBridge.Web.Extensions
+@{
+    ViewData["Title"] = "Поддержка";
+}
+<section class="page">
+    <div class="checkout-layout">
+        <form class="card checkout-form" method="post">
+            <h1 class="page__title">Поддержка</h1>
+            <p class="page__lead">Опишите проблему — ответим на почту в течение рабочего дня.</p>
+
+            <div asp-validation-summary="ModelOnly" class="form-errors"></div>
+
+            <div class="grid-2">
+                <label class="field">
+                    <span class="field__label">Имя</span>
+                    <input class="field__control" asp-for="Input.Name" data-field-control autocomplete="name" />
+                    <span class="field__error" asp-validation-for="Input.Name"></span>
+                </label>
+                <label class="field">
+                    <span class="field__label">Электронная почта</span>
+                    <input class="field__control" asp-for="Input.Email" data-field-control type="email" autocomplete="email" />
+                    <span class="field__error" asp-validation-for="Input.Email"></span>
+                </label>
+            </div>
+
+            <label class="field">
+                <span class="field__label">Номер заказа</span>
+                <input class="field__control" asp-for="Input.OrderNumber" data-field-control placeholder="SW-XXXXXX" />
+                <span class="field__error" asp-validation-for="Input.OrderNumber"></span>
+            </label>
+
+            <label class="field">
+                <span class="field__label">Сообщение</span>
+                <textarea class="field__control" asp-for="Input.Message" data-field-control rows="6" maxlength="2000"></textarea>
+                <span class="field__error" asp-validation-for="Input.Message"></span>
+            </label>
+
+            <button class="btn btn--primary" type="submit">@IconRenderer.Render("message") Отправить обращение</button>
+        </form>
+
+        <aside class="card card-pad">
+            <h2>Частые вопросы</h2>
+            <p class="muted">Перед обращением загляните в раздел помощи: там ответы на типовые вопросы о волнах, оплате и доставке.</p>
+            <a class="btn btn--outline btn--block" asp-page="/Info/Article" asp-route-slug="faq">Частые вопросы</a>
+            <a class="btn btn--ghost btn--block" asp-page="/Orders/Track">Отследить заказ</a>
+        </aside>
+    </div>
+</section>

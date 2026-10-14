@@ -1,109 +1,110 @@
 @page
-@model IndexModel
+@model SweetBridge.Web.Pages.Admin.Orders.IndexModel
+@using SweetBridge.Web.Extensions
+@using SweetBridge.Web.Domain.Enums
 @{
     ViewData["Title"] = "Заказы";
 }
+<section class="page">
+    <div class="admin-layout">
+        <partial name="_AdminNav" />
 
-<h1 class="h3 mb-3">Заказы</h1>
+        <div class="admin-content">
+            <h1 class="page__title">Заказы</h1>
 
-<form method="get" class="row g-2 align-items-end mb-4">
-    <div class="col-md-3">
-        <label class="form-label" for="status">Статус</label>
-        <select class="form-select" id="status" name="Status">
-            <option value="">Все статусы</option>
-            @foreach (OrderStatus status in Enum.GetValues<OrderStatus>())
+            <form class="card card-pad admin-toolbar" method="get">
+                <label class="field">
+                    <span class="field__label">Статус</span>
+                    <select class="field__control" name="status">
+                        @foreach (SweetBridge.Web.Pages.Admin.Orders.IndexModel.SelectItem item in Model.Statuses)
+                        {
+                            <option value="@item.Value" selected="@(Model.Status == item.Value)">@item.Title</option>
+                        }
+                    </select>
+                </label>
+
+                <label class="field">
+                    <span class="field__label">Номер заказа</span>
+                    <input class="field__control" name="search" value="@Model.Search" placeholder="SW-XXXXXX" />
+                </label>
+
+                <button class="btn btn--primary" type="submit">Фильтр</button>
+            </form>
+
+            @if (Model.Orders.Count == 0)
             {
-                <option value="@status" selected="@(Model.Status == status)">@status.ToDisplayTitle()</option>
+                <div class="empty">
+                    @IconRenderer.Render("box")
+                    <h2>Заказов нет</h2>
+                    <p class="muted">Измените фильтр или дождитесь первого заказа с витрины.</p>
+                </div>
             }
-        </select>
-    </div>
-    <div class="col-md-4">
-        <label class="form-label" for="waveId">Волна</label>
-        <select class="form-select" id="waveId" name="WaveId">
-            <option value="">Все волны</option>
-            @foreach (WaveSummary wave in Model.Waves)
+            else
             {
-                <option value="@wave.WaveId" selected="@(Model.WaveId == wave.WaveId)">
-                    @wave.Direction.ToShortName() — @wave.ShipDate.FormatDate()
-                </option>
+                <div class="card card-pad">
+                    <div class="table-scroll">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Номер</th>
+                                    <th>Получатель</th>
+                                    <th>Волна</th>
+                                    <th>Статус</th>
+                                    <th>Оплата</th>
+                                    <th class="text-end">Сумма</th>
+                                    <th>Действия</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (SweetBridge.Web.Services.Orders.OrderSummary order in Model.Orders)
+                                {
+                                    <tr>
+                                        <td class="nowrap">
+                                            <a asp-page="/Orders/Details" asp-route-number="@order.Number">@order.Number</a>
+                                        </td>
+                                        <td>
+                                            @order.RecipientName
+                                            <span class="muted">· @order.RecipientCity</span>
+                                            @if (order.IsGift)
+                                            {
+                                                <span class="chip">подарок</span>
+                                            }
+                                        </td>
+                                        <td class="nowrap">№@order.WaveNumber · @order.WaveShipDate.FormatDate()</td>
+                                        <td><span class="chip">@order.Status.ToDisplayTitle()</span></td>
+                                        <td>
+                                            <span class="chip @(order.PaymentStatus == PaymentStatus.Paid ? "chip--success" : "chip--muted")">
+                                                @order.PaymentStatus.ToDisplayName()
+                                            </span>
+                                        </td>
+                                        <td class="text-end nowrap">@order.Total.FormatPrice()</td>
+                                        <td>
+                                            <div class="row gap-6">
+                                                <form method="post" asp-page-handler="Advance">
+                                                    <input type="hidden" name="id" value="@order.Id" />
+                                                    <button class="btn btn--outline btn--sm" type="submit"
+                                                            title="Перевести на следующий статус">
+                                                        @IconRenderer.Render("check")
+                                                    </button>
+                                                </form>
+                                                @if (order.Status is not (OrderStatus.Cancelled or OrderStatus.Received))
+                                                {
+                                                    <form method="post" asp-page-handler="Cancel">
+                                                        <input type="hidden" name="id" value="@order.Id" />
+                                                        <button class="btn btn--ghost btn--sm" type="submit" title="Отменить заказ">
+                                                            @IconRenderer.Render("trash")
+                                                        </button>
+                                                    </form>
+                                                }
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             }
-        </select>
+        </div>
     </div>
-    <div class="col-md-2">
-        <button type="submit" class="btn btn-primary w-100">Фильтровать</button>
-    </div>
-</form>
-
-<div class="table-responsive">
-    <table class="table align-middle">
-        <thead>
-            <tr>
-                <th>Номер</th>
-                <th>Покупатель</th>
-                <th>Получатель</th>
-                <th>Волна</th>
-                <th class="text-end">Вес</th>
-                <th class="text-end">Сумма</th>
-                <th>Статус</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (OrderSummary order in Model.Orders)
-            {
-                <tr>
-                    <td class="text-nowrap">
-                        <div class="fw-semibold">@order.Number</div>
-                        <div class="small text-secondary">@order.CreatedAtUtc.FormatDateTime()</div>
-                    </td>
-                    <td>
-                        <div>@order.BuyerName</div>
-                        <div class="small text-secondary">@order.BuyerPhone</div>
-                    </td>
-                    <td>
-                        <div>
-                            @order.RecipientName
-                            @if (order.IsGift)
-                            {
-                                <span class="badge bg-info text-dark">подарок</span>
-                            }
-                        </div>
-                        <div class="small text-secondary">@order.RecipientCity · @order.RecipientPhone</div>
-                        @if (order.IsGift && !string.IsNullOrWhiteSpace(order.GiftMessage))
-                        {
-                            <div class="small text-secondary fst-italic">«@order.GiftMessage»</div>
-                        }
-                    </td>
-                    <td class="text-nowrap">@order.WaveShipDate.FormatDate()</td>
-                    <td class="text-end">@order.TotalWeightGrams.FormatWeight()</td>
-                    <td class="text-end">
-                        @order.TotalCost.FormatPrice()
-                        @if (order.HasThermoPack)
-                        {
-                            <div class="small text-secondary">термо @order.ThermoPackCost.FormatPrice()</div>
-                        }
-                        @if (order.AppliedDiscountPercent > 0)
-                        {
-                            <div class="small text-success">скидка @order.AppliedDiscountPercent.FormatPercent()</div>
-                        }
-                    </td>
-                    <td class="text-nowrap">@order.Status.ToDisplayTitle()</td>
-                    <td class="text-end">
-                        @if (order.Status != OrderStatus.Received)
-                        {
-                            <form method="post" asp-page-handler="Advance" class="d-inline">
-                                <input type="hidden" name="orderId" value="@order.Id" />
-                                <button class="btn btn-sm btn-outline-primary" type="submit">Следующий статус</button>
-                            </form>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
-
-@if (Model.Orders.Count == 0)
-{
-    <div class="alert alert-info">Заказов по выбранному фильтру нет.</div>
-}
+</section>

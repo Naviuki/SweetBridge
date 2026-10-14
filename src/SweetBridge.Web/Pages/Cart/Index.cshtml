@@ -1,0 +1,87 @@
+@page
+@model SweetBridge.Web.Pages.Cart.IndexModel
+@using SweetBridge.Web.Extensions
+@{
+    ViewData["Title"] = "Корзина";
+}
+<section class="page">
+    <h1 class="page__title">Корзина</h1>
+
+    @if (Model.Cart.IsEmpty)
+    {
+        <div class="empty">
+            @IconRenderer.Render("cart")
+            <h2>В корзине пока пусто</h2>
+            <p class="muted">Загляните в каталог: там сладости обеих витрин.</p>
+            <a class="btn btn--primary" asp-page="/Catalog/Index">Перейти в каталог</a>
+        </div>
+    }
+    else
+    {
+        <div class="cart-layout">
+            <div class="card cart-lines">
+                @foreach (SweetBridge.Web.Services.Cart.CartLineView line in Model.Cart.Lines)
+                {
+                    <article class="cart-line">
+                        <img class="cart-line__photo"
+                             src="@(string.IsNullOrWhiteSpace(line.Product.PhotoPath) ? "/images/placeholders/product.svg" : line.Product.PhotoPath)"
+                             alt="@line.Product.Name" width="96" height="96" loading="lazy" />
+                        <div class="cart-line__info">
+                            <p class="product-card__producer">@line.Product.ProducerName</p>
+                            <h3 class="cart-line__name">
+                                <a asp-page="/Catalog/Product" asp-route-id="@line.Product.Id">@line.Product.Name</a>
+                            </h3>
+                            <p class="muted">@line.Product.Category · @line.Product.WeightGrams.FormatWeight() × @line.Quantity</p>
+                        </div>
+                        <form class="row cart-line__controls" method="post" asp-page-handler="Update">
+                            <input type="hidden" name="productId" value="@line.Product.Id" />
+                            <div class="stepper" data-stepper data-min="1" data-max="99">
+                                <button class="stepper__btn" type="button" data-stepper-step="-1" aria-label="Меньше">−</button>
+                                <input class="stepper__value" type="number" name="quantity" value="@line.Quantity" min="1" max="99"
+                                       data-stepper-input data-field-control aria-label="Количество @line.Product.Name" />
+                                <button class="stepper__btn" type="button" data-stepper-step="1" aria-label="Больше">+</button>
+                            </div>
+                            <button class="btn btn--ghost btn--sm" type="submit">Обновить</button>
+                            <button class="icon-button" type="submit" formaction="@Url.Page("/Cart/Index", "Remove")"
+                                    title="Удалить" aria-label="Удалить @line.Product.Name">
+                                @IconRenderer.Render("trash")
+                            </button>
+                        </form>
+                        <p class="cart-line__total">@line.LineTotal.FormatPrice()</p>
+                    </article>
+                }
+
+                <div class="row row--between cart-lines__footer">
+                    <form method="post" asp-page-handler="Clear">
+                        <button class="btn btn--ghost btn--sm" type="submit">Очистить корзину</button>
+                    </form>
+                    <p class="muted">Всего товаров: @Model.Cart.ItemCount шт., вес @Model.Cart.TotalWeightGrams.FormatWeight()</p>
+                </div>
+            </div>
+
+            <aside class="card cart-summary">
+                <h2>Итог</h2>
+                <dl class="summary-list">
+                    <div><dt>Товары</dt><dd>@Model.Cart.GoodsCost.FormatPrice()</dd></div>
+                    <div><dt>Доставка</dt><dd>рассчитывается при оформлении</dd></div>
+                </dl>
+                <p class="muted">
+                    Стоимость доставки зависит от веса посылки и заполнения волны.
+                    Чем больше заказов в волне, тем больше скидка.
+                </p>
+                @if (Model.Cart.ShippingDirection is null && Model.Cart.Lines.Count > 1)
+                {
+                    <div class="flash flash--error" role="alert">
+                        @IconRenderer.Render("alert")
+                        В корзине товары обеих витрин. Оформите два заказа: один — в Донбасс, другой — в Якутию.
+                    </div>
+                }
+                else
+                {
+                    <a class="btn btn--primary btn--block" asp-page="/Checkout/Index">Оформить заказ</a>
+                }
+                <a class="btn btn--ghost btn--block" asp-page="/Catalog/Index">Продолжить покупки</a>
+            </aside>
+        </div>
+    }
+</section>

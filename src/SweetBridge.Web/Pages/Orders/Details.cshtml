@@ -1,0 +1,126 @@
+@page "{number?}"
+@model SweetBridge.Web.Pages.Orders.DetailsModel
+@using SweetBridge.Web.Extensions
+@using SweetBridge.Web.Domain.Enums
+@{
+    var order = Model.Order!;
+    ViewData["Title"] = $"Заказ {order.Number}";
+    string statusClass = order.Status switch
+    {
+        OrderStatus.Cancelled => "chip--muted",
+        OrderStatus.Received => "chip--success",
+        OrderStatus.InTransit or OrderStatus.ReadyForPickup => "chip--yakutia",
+        _ => "chip--accent"
+    };
+}
+<section class="page">
+    <nav class="breadcrumbs" aria-label="Хлебные крошки">
+        <a asp-page="/Account/Orders">Мои заказы</a>
+        <span>/</span>
+        <span>@order.Number</span>
+    </nav>
+
+    <div class="row row--between">
+        <h1 class="page__title">Заказ @order.Number</h1>
+        <span class="chip @statusClass">@order.Status.ToDisplayTitle()</span>
+    </div>
+
+    <div class="checkout-layout mt-16">
+        <div class="stack gap-16">
+            <div class="card card-pad">
+                <partial name="_OrderTracker" model="order.ToTracker()" />
+
+                <h2 class="mt-16">Лента статусов</h2>
+                <ol class="history-list">
+                    @foreach (SweetBridge.Web.Services.Orders.OrderStatusPoint point in order.History)
+                    {
+                        <li>
+                            <strong>@point.Status.ToDisplayTitle()</strong>
+                            <span class="muted">@point.ChangedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</span>
+                        </li>
+                    }
+                </ol>
+            </div>
+
+            <div class="card card-pad">
+                <h2>Состав заказа</h2>
+                <table class="table mt-8">
+                    <thead>
+                        <tr><th>Товар</th><th class="text-end">Кол-во</th><th class="text-end">Цена</th><th class="text-end">Сумма</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (SweetBridge.Web.Services.Orders.OrderLineSummary line in order.Items)
+                        {
+                            <tr>
+                                <td>@line.ProductName</td>
+                                <td class="text-end">@line.Quantity</td>
+                                <td class="text-end">@line.UnitPrice.FormatPrice()</td>
+                                <td class="text-end">@line.LineTotal.FormatPrice()</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <dl class="summary-list mt-16">
+                    <div class="summary-row"><dt>Товары</dt><dd>@order.GoodsCost.FormatPrice()</dd></div>
+                    @if (order.DiscountAmount > 0m)
+                    {
+                        <div class="summary-row"><dt>Скидка@(string.IsNullOrWhiteSpace(order.PromoCode) ? string.Empty : $" ({order.PromoCode})")</dt><dd class="text-success">−@order.DiscountAmount.FormatPrice()</dd></div>
+                    }
+                    <div class="summary-row"><dt>Доставка</dt><dd>@order.ShippingCost.FormatPrice()</dd></div>
+                    <div class="summary-row"><dt>Термоупаковка</dt><dd>@order.ThermoPackCost.FormatPrice()</dd></div>
+                    <div class="summary-total"><span>Итого</span><span>@order.Total.FormatPrice()</span></div>
+                </dl>
+            </div>
+        </div>
+
+        <aside class="card cart-summary">
+            <h2>Доставка</h2>
+            <dl class="summary-list">
+                <div class="summary-row"><dt>Волна</dt><dd>№@order.WaveNumber</dd></div>
+                <div class="summary-row"><dt>Отправка</dt><dd>@order.WaveShipDate.ToString("dd.MM.yyyy")</dd></div>
+                <div class="summary-row"><dt>Получатель</dt><dd>@order.RecipientName</dd></div>
+                <div class="summary-row"><dt>Город</dt><dd>@order.RecipientCity</dd></div>
+                <div class="summary-row"><dt>Пункт выдачи</dt><dd>@(order.RecipientPickupPoint ?? "не указан")</dd></div>
+                <div class="summary-row"><dt>Оплата</dt><dd>@order.PaymentStatus.ToDisplayName()</dd></div>
+            </dl>
+
+            @if (order.IsGift && !string.IsNullOrWhiteSpace(order.GiftMessage))
+            {
+                <p class="muted">Открытка: «@order.GiftMessage»</p>
+            }
+
+            @if (order.PaymentStatus == PaymentStatus.Pending)
+            {
+                <a class="btn btn--primary btn--block" asp-page="/Checkout/Pay" asp-route-number="@order.Number">Оплатить заказ</a>
+            }
+
+            <a class="btn btn--outline btn--block" asp-page="/Orders/Details" asp-route-number="@order.Number" asp-page-handler="Receipt">
+                @IconRenderer.Render("download")
+                Накладная (PDF)
+            </a>
+
+            @if (order.Status is not (OrderStatus.Cancelled or OrderStatus.Received))
+            {
+                <form method="post" asp-page-handler="Repeat">
+                    <input type="hidden" name="number" value="@order.Number" />
+                    <button class="btn btn--ghost btn--block" type="submit">
+                        @IconRenderer.Render("reload")
+                        Повторить заказ
+                    </button>
+                </form>
+            }
+
+            @if (Model.CanCancel)
+            {
+                <form method="post" asp-page-handler="Cancel">
+                    <input type="hidden" name="number" value="@order.Number" />
+                    <button class="btn btn--ghost btn--block" type="submit">
+                        @IconRenderer.Render("trash")
+                        Отменить заказ
+                    </button>
+                </form>
+            }
+        </aside>
+    </div>
+</section>

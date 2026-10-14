@@ -1,0 +1,55 @@
+@page
+@model SweetBridge.Web.Pages.Account.OrdersModel
+@using SweetBridge.Web.Extensions
+@{
+    ViewData["Title"] = "Мои заказы";
+}
+<section class="page">
+    <div class="account-layout">
+        <partial name="_AccountNav" model="@(new[] { ("/Account/Orders", "Мои заказы"), ("/Account/Notifications", "Уведомления"), ("/Account/Favorites", "Избранное"), ("/Account/Profile", "Профиль") })" />
+
+        <div class="admin-content">
+            <h1 class="page__title">Мои заказы</h1>
+
+            @if (Model.Orders.Count == 0)
+            {
+                <div class="empty">
+                    @IconRenderer.Render("box")
+                    <h2>Заказов пока нет</h2>
+                    <p class="muted">Соберите первую волну: добавьте сладости в корзину и оформите заказ.</p>
+                    <a class="btn btn--primary" asp-page="/Catalog/Index">Перейти в каталог</a>
+                </div>
+            }
+            else
+            {
+                <div class="card card-pad">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Номер</th>
+                                <th>Дата</th>
+                                <th>Волна</th>
+                                <th>Получатель</th>
+                                <th>Статус</th>
+                                <th class="text-end">Сумма</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (SweetBridge.Web.Services.Orders.OrderSummary order in Model.Orders)
+                            {
+                                <tr>
+                                    <td><a asp-page="/Orders/Details" asp-route-number="@order.Number">@order.Number</a></td>
+                                    <td class="nowrap">@order.CreatedAtUtc.ToLocalTime().ToString("dd.MM.yyyy")</td>
+                                    <td class="nowrap">№@order.WaveNumber · @order.WaveShipDate.ToString("dd.MM.yyyy")</td>
+                                    <td>@order.RecipientName, @order.RecipientCity</td>
+                                    <td><span class="chip">@order.Status.ToDisplayTitle()</span></td>
+                                    <td class="text-end nowrap">@order.Total.FormatPrice()</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</section>

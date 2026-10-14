@@ -1,0 +1,89 @@
+@page
+@model SweetBridge.Web.Pages.Admin.PickupPoints.IndexModel
+@using SweetBridge.Web.Extensions
+@using SweetBridge.Web.Domain.Enums
+@{
+    ViewData["Title"] = "Пункты выдачи";
+}
+<section class="page">
+    <div class="admin-layout">
+        <partial name="_AdminNav" />
+
+        <div class="admin-content">
+            <h1 class="page__title">Пункты выдачи</h1>
+
+            <form class="card card-pad admin-toolbar" method="post" asp-page-handler="Create">
+                <label class="field">
+                    <span class="field__label">Регион</span>
+                    <select class="field__control" asp-for="Input.Region" data-field-control>
+                        <option value="@Region.Yakutia">Якутия</option>
+                        <option value="@Region.Donbass">ДНР</option>
+                    </select>
+                </label>
+
+                <label class="field">
+                    <span class="field__label">Город</span>
+                    <input class="field__control" asp-for="Input.City" data-field-control />
+                </label>
+
+                <label class="field">
+                    <span class="field__label">Номер пункта</span>
+                    <input class="field__control" asp-for="Input.Number" data-field-control placeholder="ПВ-3" />
+                </label>
+
+                <label class="field">
+                    <span class="field__label">Адрес</span>
+                    <input class="field__control" asp-for="Input.Address" data-field-control />
+                </label>
+
+                <button class="btn btn--primary" type="submit">@IconRenderer.Render("plus") Добавить</button>
+            </form>
+
+            <div class="card card-pad">
+                <div class="table-scroll">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Регион</th>
+                                <th>Город</th>
+                                <th>Номер</th>
+                                <th>Адрес</th>
+                                <th>Состояние</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (SweetBridge.Web.Domain.Entities.PickupPoint point in Model.Points)
+                            {
+                                <tr>
+                                    <td>
+                                        <span class="chip @(point.Region == Region.Yakutia ? "chip--yakutia" : "chip--donbass")">
+                                            @point.Region.ToDisplayName()
+                                        </span>
+                                    </td>
+                                    <td>@point.City</td>
+                                    <td class="nowrap">@point.Number</td>
+                                    <td>@point.Address</td>
+                                    <td>
+                                        <span class="chip @(point.IsActive ? "chip--success" : "chip--muted")">
+                                            @(point.IsActive ? "активен" : "скрыт")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <form method="post" asp-page-handler="Visibility">
+                                            <input type="hidden" name="id" value="@point.Id" />
+                                            <input type="hidden" name="isVisible" value="@((!point.IsActive).ToString().ToLowerInvariant())" />
+                                            <button class="btn btn--ghost btn--sm" type="submit">
+                                                @(point.IsActive ? "Скрыть" : "Показать")
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

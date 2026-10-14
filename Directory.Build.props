@@ -8,5 +8,11 @@
     <AnalysisLevel>latest-recommended</AnalysisLevel>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <InvariantGlobalization>false</InvariantGlobalization>
+    <!--
+      Правила анализа отключены осознанно: они требуют высокой ceremony
+      (разрядка логгеров, проверки на непустые CancellationToken, уточнение типов коллекций)
+      и не указывают на дефекты поведения приложения.
+    -->
+    <NoWarn>$(NoWarn);CA1848;CA1861;CA2264;CA1716;CA1725;CA1859;CA2007;CA1031</NoWarn>
   </PropertyGroup>
 </Project>

@@ -1,0 +1,119 @@
+@page
+@model SweetBridge.Web.Pages.Catalog.IndexModel
+@using SweetBridge.Web.Domain.Enums
+@using SweetBridge.Web.Extensions
+@{
+    ViewData["Title"] = Model.Direction == ShippingDirection.YakutiaToDonbass ? "Сладости Якутии" : "Сладости Донбасса";
+    string showcase = Model.Direction == ShippingDirection.YakutiaToDonbass ? "Якутия" : "Донбасс";
+}
+<section class="page">
+    <div class="page-head">
+        <div>
+            <h1 class="page__title">@showcase</h1>
+            <p class="page__lead">
+                Витрина @(Model.Direction == ShippingDirection.YakutiaToDonbass ? "Якутии" : "ДНР") — доставка волнами
+                в @(Model.Direction == ShippingDirection.YakutiaToDonbass ? "Донбасс" : "Якутию").
+            </p>
+        </div>
+        <div class="row" style="gap:8px">
+            <a class="btn btn--ghost btn--sm @(Model.Direction == ShippingDirection.YakutiaToDonbass ? "is-active" : string.Empty)"
+               asp-page="/Catalog/Index" asp-route-region="@ShippingDirection.YakutiaToDonbass">Якутия</a>
+            <a class="btn btn--ghost btn--sm @(Model.Direction == ShippingDirection.DonbassToYakutia ? "is-active" : string.Empty)"
+               asp-page="/Catalog/Index" asp-route-region="@ShippingDirection.DonbassToYakutia">Донбасс</a>
+        </div>
+    </div>
+
+    <form class="catalog-toolbar card card--flat" method="get" asp-page="/Catalog/Index">
+        <input type="hidden" name="region" value="@Model.Direction" />
+        <label class="field">
+            <span class="field__label">Поиск по каталогу</span>
+            <input class="field__control" type="search" name="q" value="@Model.Search" placeholder="Например, шоколад" />
+        </label>
+        <label class="field">
+            <span class="field__label">Категория</span>
+            <select class="field__control" name="category">
+                <option value="">Все категории</option>
+                @foreach (string category in Model.Categories)
+                {
+                    <option value="@category" selected="@(string.Equals(Model.Category, category, StringComparison.Ordinal))">@category</option>
+                }
+            </select>
+        </label>
+        <label class="field field--check">
+            <input type="checkbox" name="thermo" value="true" checked="@Model.ThermoSensitive" />
+            <span>Только термочувствительные</span>
+        </label>
+        <button class="btn btn--primary" type="submit">Применить</button>
+    </form>
+
+    @if (Model.Products.Count == 0)
+    {
+        <div class="empty">
+            @IconRenderer.Render("search")
+            <h2>Ничего не найдено</h2>
+            <p class="muted">Попробуйте изменить запрос или сбросить фильтры.</p>
+            <a class="btn btn--outline" asp-page="/Catalog/Index" asp-route-region="@Model.Direction">Сбросить фильтры</a>
+        </div>
+    }
+    else
+    {
+        <div class="product-grid">
+            @foreach (SweetBridge.Web.Services.Catalog.ProductCardViewModel product in Model.Products)
+            {
+                var isFavorite = Model.FavoriteIds.Contains(product.Id);
+                <article class="card product-card">
+                    <a class="product-card__photo-link" asp-page="/Catalog/Product" asp-route-id="@product.Id">
+                        <span class="chip @(product.Region == Region.Yakutia ? "chip--yakutia" : "chip--donbass") product-card__chip">
+                            @IconRenderer.Render(product.Region == Region.Yakutia ? "snowflake" : "sun")
+                            @product.Region.ToDisplayName()
+                        </span>
+                        @if (product.IsTemperatureSensitive)
+                        {
+                            <span class="chip chip--accent product-card__thermo" title="Боится мороза и жары">@IconRenderer.Render("thermo")</span>
+                        }
+                        <img class="product-card__photo" src="@(string.IsNullOrWhiteSpace(product.PhotoPath) ? "/images/placeholders/product.svg" : product.PhotoPath)"
+                             alt="@product.Name" loading="lazy" width="320" height="240" />
+                    </a>
+                    <div class="card__body product-card__body">
+                        <p class="product-card__producer">@product.ProducerName</p>
+                        <h3 class="product-card__name">
+                            <a asp-page="/Catalog/Product" asp-route-id="@product.Id">@product.Name</a>
+                        </h3>
+                        <p class="product-card__category">@product.Category</p>
+                        <p class="product-card__weight">@IconRenderer.Render("weight") @product.WeightGrams.FormatWeight()</p>
+                        <div class="row row--between product-card__footer">
+                            <span class="product-card__price">@product.Price.FormatPrice()</span>
+                            <span class="row" style="gap:6px">
+                                <form method="post" asp-page="/Catalog/Index" asp-page-handler="ToggleFavorite">
+                                    <input type="hidden" name="productId" value="@product.Id" />
+                                    <button class="icon-button @(isFavorite ? "is-active" : string.Empty)" type="submit"
+                                            title="@(isFavorite ? "Убрать из избранного" : "В избранное")"
+                                            aria-label="@(isFavorite ? "Убрать из избранного" : "Добавить в избранное")">
+                                        @IconRenderer.Render("heart")
+                                    </button>
+                                </form>
+                                @if (product.QuantityInCart > 0)
+                                {
+                                    <span class="btn btn--outline btn--sm" aria-disabled="true">
+                                        @IconRenderer.Render("check")
+                                        В корзине
+                                    </span>
+                                }
+                                else
+                                {
+                                    <form method="post" asp-page="/Catalog/Index" asp-page-handler="AddToCart">
+                                        <input type="hidden" name="productId" value="@product.Id" />
+                                        <input type="hidden" name="quantity" value="1" />
+                                        <button class="btn btn--primary btn--sm" type="submit">В корзину</button>
+                                    </form>
+                                }
+                            </span>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+
+        <partial name="_Pager" model="Model.Pager" />
+    }
+</section>

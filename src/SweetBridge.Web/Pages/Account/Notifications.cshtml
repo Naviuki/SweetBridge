@@ -1,0 +1,60 @@
+@page
+@model SweetBridge.Web.Pages.Account.NotificationsModel
+@using SweetBridge.Web.Extensions
+@{
+    ViewData["Title"] = "Уведомления";
+}
+<section class="page">
+    <div class="account-layout">
+        <partial name="_AccountNav" model="@(new[] { ("/Account/Orders", "Мои заказы"), ("/Account/Notifications", "Уведомления"), ("/Account/Favorites", "Избранное"), ("/Account/Profile", "Профиль") })" />
+
+        <div class="admin-content">
+            <div class="row row--between">
+                <h1 class="page__title">Уведомления</h1>
+                @if (Model.UnreadCount > 0)
+                {
+                    <form method="post" asp-page-handler="MarkRead">
+                        <button class="btn btn--ghost btn--sm" type="submit">
+                            @IconRenderer.Render("check")
+                            Прочитать все (@Model.UnreadCount)
+                        </button>
+                    </form>
+                }
+            </div>
+
+            @if (Model.Notifications.Count == 0)
+            {
+                <div class="empty">
+                    @IconRenderer.Render("bell")
+                    <h2>Уведомлений пока нет</h2>
+                    <p class="muted">Сообщим, когда заказ соберут, отправят и привезут в пункт выдачи.</p>
+                </div>
+            }
+            else
+            {
+                <div class="stack gap-8">
+                    @foreach (SweetBridge.Web.Services.Notifications.NotificationSummary notification in Model.Notifications)
+                    {
+                        <article class="card card--flat card-pad">
+                            <div class="row row--between">
+                                <strong>@notification.Title</strong>
+                                @if (!notification.IsRead)
+                                {
+                                    <span class="chip chip--accent">новое</span>
+                                }
+                            </div>
+                            <p class="muted">@notification.Body</p>
+                            <p class="muted">
+                                @notification.CreatedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
+                                @if (notification.OrderId is not null)
+                                {
+                                    <span class="nowrap">· <a asp-page="/Account/Orders">все заказы</a></span>
+                                }
+                            </p>
+                        </article>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</section>

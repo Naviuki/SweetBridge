@@ -6,29 +6,29 @@ namespace SweetBridge.Web.Services.Catalog;
 /// Модель чтения товара каталога.
 /// </summary>
 /// <param name="Id">Идентификатор товара.</param>
-/// <param name="region">Регион производителя.</param>
-/// <param name="manufacturer">Название производителя.</param>
-/// <param name="name">Наименование товара.</param>
-/// <param name="category">Категория в каталоге.</param>
-/// <param name="weightGrams">Вес одной штуки в граммах.</param>
-/// <param name="price">Цена одной штуки в рублях.</param>
-/// <param name="isTemperatureSensitive">Признак температурной чувствительности.</param>
-/// <param name="shelfLifeDays">Срок годности в днях.</param>
-/// <param name="photo">Имя файла изображения или <see langword="null"/>.</param>
-/// <param name="description">Описание товара или <see langword="null"/>.</param>
+/// <param name="Region">Регион производителя.</param>
+/// <param name="ProducerName">Название производителя.</param>
+/// <param name="Name">Наименование товара.</param>
+/// <param name="Category">Категория в каталоге.</param>
+/// <param name="WeightGrams">Вес одной штуки в граммах.</param>
+/// <param name="Price">Цена одной штуки в рублях.</param>
+/// <param name="IsTemperatureSensitive">Признак температурной чувствительности.</param>
+/// <param name="ShelfLifeDays">Срок годности в днях.</param>
+/// <param name="PhotoPath">Путь к фотографии или <see langword="null"/>.</param>
+/// <param name="Description">Описание товара или <see langword="null"/>.</param>
 /// <param name="ShippingDirection">Направление доставки товара.</param>
 /// <param name="IsActive">Признак того, что товар виден в каталоге.</param>
 public sealed record ProductSummary(
     string Id,
     Region Region,
-    string Manufacturer,
+    string ProducerName,
     string Name,
     string Category,
     int WeightGrams,
     decimal Price,
     bool IsTemperatureSensitive,
     int ShelfLifeDays,
-    string? Photo,
+    string? PhotoPath,
     string? Description,
     ShippingDirection ShippingDirection,
     bool IsActive)
@@ -45,14 +45,14 @@ public sealed record ProductSummary(
         return new ProductSummary(
             product.Id,
             product.Region,
-            product.Manufacturer,
+            product.Producer?.Name ?? string.Empty,
             product.Name,
             product.Category,
             product.WeightGrams,
             product.Price,
             product.IsTemperatureSensitive,
             product.ShelfLifeDays,
-            product.Photo,
+            product.PhotoPath,
             product.Description,
             product.ShippingDirection,
             product.IsActive);

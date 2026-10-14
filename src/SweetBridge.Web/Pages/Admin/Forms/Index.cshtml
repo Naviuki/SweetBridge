@@ -1,0 +1,118 @@
+@page
+@model SweetBridge.Web.Pages.Admin.Forms.IndexModel
+@using SweetBridge.Web.Extensions
+@using SweetBridge.Web.Domain.Enums
+@{
+    ViewData["Title"] = "Обращения и заявки";
+}
+<section class="page">
+    <div class="admin-layout">
+        <partial name="_AdminNav" />
+
+        <div class="admin-content">
+            <h1 class="page__title">Обращения и заявки</h1>
+
+            <div class="card card-pad">
+                <h2>Обращения в поддержку</h2>
+                @if (Model.SupportRequests.Count == 0)
+                {
+                    <p class="muted">Обращений пока нет.</p>
+                }
+                else
+                {
+                    <div class="table-scroll">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    <th>Кто</th>
+                                    <th>Заказ</th>
+                                    <th>Сообщение</th>
+                                    <th>Статус</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (SweetBridge.Web.Services.Forms.SupportRequestSummary request in Model.SupportRequests)
+                                {
+                                    <tr>
+                                        <td class="nowrap">@request.CreatedAtUtc.ToLocalTime().ToString("dd.MM.yyyy")</td>
+                                        <td>@request.Name<span class="muted"> · @request.Email</span></td>
+                                        <td class="nowrap">@(request.OrderNumber ?? "—")</td>
+                                        <td>@request.Message</td>
+                                        <td><span class="chip">@request.Status</span></td>
+                                        <td>
+                                            <form class="row gap-6" method="post" asp-page-handler="SupportStatus">
+                                                <input type="hidden" name="id" value="@request.Id" />
+                                                <select class="field__control admin-select" name="status">
+                                                    <option value="New" selected="@(request.Status == SupportRequestStatus.New)">Новое</option>
+                                                    <option value="InProgress" selected="@(request.Status == SupportRequestStatus.InProgress)">В работе</option>
+                                                    <option value="Closed" selected="@(request.Status == SupportRequestStatus.Closed)">Закрыто</option>
+                                                </select>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+
+            <div class="card card-pad">
+                <h2>Корпоративные заявки</h2>
+                @if (Model.CorporateRequests.Count == 0)
+                {
+                    <p class="muted">Заявок пока нет.</p>
+                }
+                else
+                {
+                    <div class="table-scroll">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Дата</th>
+                                    <th>Компания</th>
+                                    <th>Контакт</th>
+                                    <th>Объём</th>
+                                    <th>Направление</th>
+                                    <th>Статус</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (SweetBridge.Web.Services.Forms.CorporateRequestSummary request in Model.CorporateRequests)
+                                {
+                                    <tr>
+                                        <td class="nowrap">@request.CreatedAtUtc.ToLocalTime().ToString("dd.MM.yyyy")</td>
+                                        <td>@request.Company</td>
+                                        <td>@request.ContactName<span class="muted"> · @request.Email</span></td>
+                                        <td>@request.Volume</td>
+                                        <td class="nowrap">@request.Direction.ToShortName()</td>
+                                        <td><span class="chip">@request.Status</span></td>
+                                        <td>
+                                            <form method="post" asp-page-handler="CorporateStatus">
+                                                <input type="hidden" name="id" value="@request.Id" />
+                                                <select class="field__control admin-select" name="status">
+                                                    <option value="New" selected="@(request.Status == CorporateRequestStatus.New)">Новая</option>
+                                                    <option value="InProgress" selected="@(request.Status == CorporateRequestStatus.InProgress)">В работе</option>
+                                                    <option value="Closed" selected="@(request.Status == CorporateRequestStatus.Closed)">Закрыта</option>
+                                                </select>
+                                                <button class="btn btn--ghost btn--sm" type="submit">Сохранить</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+
+            <div class="card card-pad">
+                <h2>Подписчики рассылки</h2>
+                <p class="muted">Подписано адресов: @Model.Subscribers</p>
+            </div>
+        </div>
+    </div>
+</section>

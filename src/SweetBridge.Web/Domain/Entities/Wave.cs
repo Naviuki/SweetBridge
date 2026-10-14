@@ -5,7 +5,7 @@ using SweetBridge.Web.Domain.Exceptions;
 namespace SweetBridge.Web.Domain.Entities;
 
 /// <summary>
-/// Сборная доставка заказов, едущих в одном направлении.
+/// Сборная волна доставки в одном направлении.
 /// </summary>
 public sealed class Wave
 {
@@ -16,17 +16,20 @@ public sealed class Wave
     }
 
     private Wave(
+        int number,
         ShippingDirection direction,
         DateOnly shipDate,
         DateOnly orderCutoffDate,
         int capacityGrams,
         int minLoadGrams)
     {
+        Number = number;
         Direction = direction;
         ShipDate = shipDate;
         OrderCutoffDate = orderCutoffDate;
         CapacityGrams = capacityGrams;
         MinLoadGrams = minLoadGrams;
+        LoadedGrams = 0;
         Status = WaveStatus.Planned;
     }
 
@@ -36,65 +39,82 @@ public sealed class Wave
     public int Id { get; private set; }
 
     /// <summary>
-    /// Направление доставки волны.
+    /// Сквозной номер волны для показа пользователю.
+    /// </summary>
+    public int Number { get; private set; }
+
+    /// <summary>
+    /// Направление доставки.
     /// </summary>
     public ShippingDirection Direction { get; private set; }
 
     /// <summary>
-    /// Запланированная дата отправки.
+    /// Дата отправки.
     /// </summary>
     public DateOnly ShipDate { get; private set; }
 
     /// <summary>
-    /// Последний день приёма заказов включительно.
+    /// Последний день приёма заказов включительно (по местному времени региона).
     /// </summary>
     public DateOnly OrderCutoffDate { get; private set; }
 
     /// <summary>
-    /// Максимальный вес волны в граммах. Фиксируется при создании волны.
+    /// Вместимость волны в граммах.
     /// </summary>
     public int CapacityGrams { get; private set; }
 
     /// <summary>
-    /// Минимальный вес для отправки волны в граммах. Фиксируется при создании волны.
+    /// Минимальная загрузка для отправки в граммах.
     /// </summary>
     public int MinLoadGrams { get; private set; }
 
     /// <summary>
-    /// Состояние волны.
+    /// Текущий набранный вес в граммах.
+    /// </summary>
+    public int LoadedGrams { get; private set; }
+
+    /// <summary>
+    /// Статус волны.
     /// </summary>
     public WaveStatus Status { get; private set; }
 
     /// <summary>
+    /// Токен оптимистичной блокировки для защиты от гонок при резервировании веса.
+    /// </summary>
+    public byte[] Version { get; private set; } = [];
+
+    /// <summary>
     /// Создаёт запланированную волну.
     /// </summary>
-    /// <param name="direction">Направление доставки.</param>
-    /// <param name="shipDate">Запланированная дата отправки.</param>
-    /// <param name="orderCutoffDate">Последний день приёма заказов.</param>
-    /// <param name="capacityGrams">Максимальный вес волны в граммах.</param>
-    /// <param name="minLoadGrams">Минимальный вес для отправки в граммах.</param>
-    /// <returns>Созданная волна.</returns>
+    /// <param name="number">Сквозной номер.</param>
+    /// <param name="direction">Направление.</param>
+    /// <param name="shipDate">Дата отправки.</param>
+    /// <param name="orderCutoffDate">Дедлайн приёма заказов.</param>
+    /// <param name="capacityGrams">Вместимость в граммах.</param>
+    /// <param name="minLoadGrams">Минимальная загрузка в граммах.</param>
+    /// <returns>Новая волна.</returns>
     /// <exception cref="DomainException">Параметры волны некорректны.</exception>
     public static Wave Create(
+        int number,
         ShippingDirection direction,
         DateOnly shipDate,
         DateOnly orderCutoffDate,
         int capacityGrams,
         int minLoadGrams)
     {
+        if (number <= 0)
+        {
+            throw new DomainException("Номер волны должен быть положительным.");
+        }
+
         if (capacityGrams <= 0)
         {
             throw new DomainException("Вместимость волны должна быть больше нуля.");
         }
 
-        if (minLoadGrams <= 0)
+        if (minLoadGrams <= 0 || minLoadGrams > capacityGrams)
         {
-            throw new DomainException("Минимальная загрузка волны должна быть больше нуля.");
-        }
-
-        if (minLoadGrams > capacityGrams)
-        {
-            throw new DomainException("Минимальная загрузка волны не может превышать её вместимость.");
+            throw new DomainException("Минимальная загрузка волны должна быть больше нуля и не больше вместимости.");
         }
 
         if (orderCutoffDate >= shipDate)
@@ -102,59 +122,104 @@ public sealed class Wave
             throw new DomainException("Приём заказов должен заканчиваться раньше даты отправки волны.");
         }
 
-        return new Wave(direction, shipDate, orderCutoffDate, capacityGrams, minLoadGrams);
+        return new Wave(number, direction, shipDate, orderCutoffDate, capacityGrams, minLoadGrams);
     }
 
     /// <summary>
-    /// Проверяет, принимает ли волна заказы в указанный день.
+    /// Проверяет, принимает ли волна заказы на указанный момент местного времени.
     /// </summary>
-    /// <param name="today">Текущая дата.</param>
-    /// <returns><see langword="true"/>, если волна запланирована и дата дедлайна ещё не наступила.</returns>
-    public bool IsOpenForOrders(DateOnly today) =>
-        Status == WaveStatus.Planned && today <= OrderCutoffDate;
+    /// <param name="localNow">Текущее местное время в часовом поясе региона.</param>
+    /// <returns><see langword="true"/>, если волна открыта.</returns>
+    public bool IsOpenForOrders(DateTime localNow) =>
+        Status == WaveStatus.Planned && DateOnly.FromDateTime(localNow) <= OrderCutoffDate;
 
     /// <summary>
-    /// Проверяет, достаточно ли свободной вместимости волны для заказа.
+    /// Остаток времени до закрытия приёма заказов.
     /// </summary>
-    /// <param name="loadedGrams">Вес, уже набранный в волне, в граммах.</param>
-    /// <param name="orderGrams">Вес оформляемого заказа в граммах.</param>
-    /// <returns><see langword="true"/>, если заказ помещается в оставшуюся вместимость.</returns>
-    public bool CanAccept(int loadedGrams, int orderGrams) =>
-        loadedGrams >= 0 && orderGrams > 0 && loadedGrams + orderGrams <= CapacityGrams;
+    /// <param name="localNow">Текущее местное время.</param>
+    /// <returns>Остаток до конца дедлайна включительно.</returns>
+    public TimeSpan TimeLeftUntilCutoff(DateTime localNow)
+    {
+        DateOnly today = DateOnly.FromDateTime(localNow);
+        DateOnly cutoff = OrderCutoffDate;
+
+        if (today > cutoff)
+        {
+            return TimeSpan.Zero;
+        }
+
+        DateOnly nextDay = today.AddDays(1);
+        DateOnly endOfCutoffDay = cutoff == today ? nextDay : cutoff;
+
+        return endOfCutoffDay.ToDateTime(TimeOnly.MinValue) - localNow;
+    }
 
     /// <summary>
-    /// Рассчитывает заполнение волны в процентах.
+    /// Проверяет, помещается ли заказ в оставшуюся вместимость.
     /// </summary>
-    /// <param name="loadedGrams">Вес, уже набранный в волне, в граммах.</param>
-    /// <returns>Заполнение волны в процентах.</returns>
-    public decimal GetFillPercent(int loadedGrams) =>
-        CapacityGrams == 0 ? 0m : (decimal)loadedGrams * 100m / CapacityGrams;
+    /// <param name="orderGrams">Вес заказа в граммах.</param>
+    /// <returns><see langword="true"/>, если заказ помещается.</returns>
+    public bool CanAccept(int orderGrams) => orderGrams > 0 && LoadedGrams + orderGrams <= CapacityGrams;
 
     /// <summary>
-    /// Проверяет, можно ли отправить волну прямо сейчас.
+    /// Заполнение волны в процентах.
     /// </summary>
-    /// <param name="loadedGrams">Вес, уже набранный в волне, в граммах.</param>
-    /// <returns><see langword="true"/>, если волна запланирована и набрана минимальная загрузка.</returns>
-    public bool IsReadyToDispatch(int loadedGrams) =>
-        Status == WaveStatus.Planned && loadedGrams >= MinLoadGrams;
+    /// <param name="orderGrams">Вес добавляемого заказа.</param>
+    /// <returns>Заполнение в процентах.</returns>
+    public decimal GetFillPercent(int orderGrams) =>
+        CapacityGrams == 0 ? 0m : (decimal)(LoadedGrams + orderGrams) * 100m / CapacityGrams;
 
     /// <summary>
-    /// Помечает волну отправленной.
+    /// Свободная вместимость волны в граммах.
     /// </summary>
-    /// <param name="loadedGrams">Вес, набранный в волне, в граммах.</param>
-    /// <exception cref="DomainException">Волна уже отправлена или набрано меньше минимальной загрузки.</exception>
-    public void MarkDispatched(int loadedGrams)
+    /// <returns>Свободная вместимость.</returns>
+    public int GetRemainingCapacity() => Math.Max(0, CapacityGrams - LoadedGrams);
+
+    /// <summary>
+    /// Проверяет готовность волны к отправке.
+    /// </summary>
+    /// <returns><see langword="true"/>, если набрана минимальная загрузка.</returns>
+    public bool IsReadyToDispatch() => Status == WaveStatus.Planned && LoadedGrams >= MinLoadGrams;
+
+    /// <summary>
+    /// Резервирует вес заказа в волне.
+    /// </summary>
+    /// <param name="orderGrams">Вес заказа в граммах.</param>
+    /// <exception cref="DomainException">Заказ не помещается в волну.</exception>
+    public void Reserve(int orderGrams)
+    {
+        if (!CanAccept(orderGrams))
+        {
+            throw new DomainException(string.Create(
+                CultureInfo.CurrentCulture,
+                $"Волна №{Number} почти заполнена: свободно {GetRemainingCapacity()} г, а заказ весит {orderGrams} г."));
+        }
+
+        LoadedGrams += orderGrams;
+    }
+
+    /// <summary>
+    /// Освобождает вес отменённого заказа.
+    /// </summary>
+    /// <param name="orderGrams">Вес заказа в граммах.</param>
+    public void Release(int orderGrams) => LoadedGrams = Math.Max(0, LoadedGrams - orderGrams);
+
+    /// <summary>
+    /// Отправляет волну.
+    /// </summary>
+    /// <exception cref="DomainException">Волна уже отправлена или не набрала минимальную загрузку.</exception>
+    public void MarkDispatched()
     {
         if (Status == WaveStatus.Dispatched)
         {
             throw new DomainException("Волна уже отправлена.");
         }
 
-        if (loadedGrams < MinLoadGrams)
+        if (LoadedGrams < MinLoadGrams)
         {
             throw new DomainException(string.Create(
                 CultureInfo.CurrentCulture,
-                $"Отправить волну нельзя: собрано {loadedGrams / GramsPerKilogram:0.#} кг из требуемых {MinLoadGrams / GramsPerKilogram:0.#} кг."));
+                $"Отправить волну нельзя: собрано {LoadedGrams / GramsPerKilogram:0.#} кг из требуемых {MinLoadGrams / GramsPerKilogram:0.#} кг."));
         }
 
         Status = WaveStatus.Dispatched;

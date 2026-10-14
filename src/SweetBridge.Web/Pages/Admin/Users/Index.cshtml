@@ -1,0 +1,72 @@
+@page
+@model SweetBridge.Web.Pages.Admin.Users.IndexModel
+@using SweetBridge.Web.Extensions
+@{
+    ViewData["Title"] = "Пользователи";
+}
+<section class="page">
+    <div class="admin-layout">
+        <partial name="_AdminNav" />
+
+        <div class="admin-content">
+            <h1 class="page__title">Пользователи</h1>
+
+            <div class="card card-pad">
+                <div class="table-scroll">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Пользователь</th>
+                                <th>Почта</th>
+                                <th>Телефон</th>
+                                <th>Регистрация</th>
+                                <th class="text-end">Заказы</th>
+                                <th>Роль</th>
+                                <th>Состояние</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (SweetBridge.Web.Pages.Admin.Users.IndexModel.UserRow user in Model.Users)
+                            {
+                                <tr>
+                                    <td>@(string.IsNullOrWhiteSpace(user.FullName) ? "—" : user.FullName)</td>
+                                    <td class="nowrap">@user.Email</td>
+                                    <td class="nowrap">@user.Phone</td>
+                                    <td class="nowrap">@user.CreatedAtUtc.ToLocalTime().ToString("dd.MM.yyyy")</td>
+                                    <td class="text-end">@user.OrdersCount</td>
+                                    <td>
+                                        @if (user.IsAdmin)
+                                        {
+                                            <span class="chip chip--accent">администратор</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="chip">покупатель</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="chip @(user.IsBlocked ? "chip--muted" : "chip--success")">
+                                            @(user.IsBlocked ? "заблокирован" : "активен")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (!user.IsAdmin)
+                                        {
+                                            <form method="post" asp-page-handler="ToggleBlock">
+                                                <input type="hidden" name="id" value="@user.Id" />
+                                                <button class="btn btn--ghost btn--sm" type="submit">
+                                                    @(user.IsBlocked ? "Разблокировать" : "Заблокировать")
+                                                </button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

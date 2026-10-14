@@ -17,12 +17,16 @@ public sealed class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.ToTable("Products");
         builder.HasKey(product => product.Id);
         builder.Property(product => product.Id).HasMaxLength(32);
-        builder.Property(product => product.Manufacturer).HasMaxLength(200).IsRequired();
         builder.Property(product => product.Name).HasMaxLength(200).IsRequired();
         builder.Property(product => product.Category).HasMaxLength(100).IsRequired();
         builder.Property(product => product.Price).HasPrecision(18, 2);
-        builder.Property(product => product.Photo).HasMaxLength(200);
+        builder.Property(product => product.PhotoPath).HasMaxLength(200);
         builder.Property(product => product.Description).HasMaxLength(1000);
         builder.HasIndex(product => new { product.Region, product.IsActive });
+
+        builder.HasOne(product => product.Producer)
+            .WithMany()
+            .HasForeignKey(product => product.ProducerId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

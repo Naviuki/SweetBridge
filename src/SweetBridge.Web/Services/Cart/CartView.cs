@@ -1,4 +1,4 @@
-using SweetBridge.Web.Services.Catalog;
+using System.Globalization;
 
 namespace SweetBridge.Web.Services.Cart;
 
@@ -9,37 +9,37 @@ namespace SweetBridge.Web.Services.Cart;
 public sealed record CartView(IReadOnlyList<CartLineView> Lines)
 {
     /// <summary>
-    /// Признак того, что в корзине нет позиций.
+    /// Суммарное количество товаров.
     /// </summary>
-    public bool IsEmpty => Lines.Count == 0;
+    public int ItemCount => Lines.Sum(line => line.Quantity);
 
     /// <summary>
-    /// Направление витрины, к которой относится корзина, или <see langword="null"/> для пустой корзины.
-    /// </summary>
-    public Domain.Enums.ShippingDirection? Direction => Lines.Count == 0 ? null : Lines[0].Product.ShippingDirection;
-
-    /// <summary>
-    /// Общее количество товаров в корзине.
-    /// </summary>
-    public int TotalQuantity => Lines.Sum(line => line.Quantity);
-
-    /// <summary>
-    /// Общий вес корзины в граммах.
+    /// Суммарный вес корзины в граммах.
     /// </summary>
     public int TotalWeightGrams => Lines.Sum(line => line.LineWeightGrams);
 
     /// <summary>
-    /// Итоговая стоимость товаров в рублях.
+    /// Стоимость товаров в рублях.
     /// </summary>
     public decimal GoodsCost => Lines.Sum(line => line.LineTotal);
 
     /// <summary>
-    /// Признак того, что в корзине есть температурно чувствительные товары.
+    /// Признак того, что корзина пуста.
     /// </summary>
-    public bool HasTemperatureSensitiveItems => Lines.Any(line => line.Product.IsTemperatureSensitive);
+    public bool IsEmpty => Lines.Count == 0;
 
     /// <summary>
-    /// Товары каталога, находящиеся в корзине.
+    /// Пустая корзина.
     /// </summary>
-    public IReadOnlyList<ProductSummary> Products => [.. Lines.Select(line => line.Product)];
+    /// <returns>Пустая корзина.</returns>
+    public static CartView Empty() => new([]);
+
+    /// <summary>
+    /// Направление доставки корзины, если она не пуста.
+    /// </summary>
+    /// <returns>Направление доставки или <see langword="null"/>.</returns>
+    public Domain.Enums.ShippingDirection? ShippingDirection =>
+        Lines.Select(line => line.ShippingDirection).Distinct().Count() == 1
+            ? Lines[0].ShippingDirection
+            : null;
 }

@@ -12,6 +12,21 @@ public interface ICartService
     int GetItemCount();
 
     /// <summary>
+    /// Возвращает количество товара в корзине без обращения к базе данных.
+    /// </summary>
+    /// <param name="productId">Идентификатор товара.</param>
+    /// <returns>Количество товара в корзине.</returns>
+    int GetQuantity(string productId);
+
+    /// <summary>
+    /// Добавляет товар в корзину без ожидания: используется страницами каталога,
+    /// где обработчик формы уже выполняет запись в корзину перед редиректом.
+    /// </summary>
+    /// <param name="productId">Идентификатор товара.</param>
+    /// <param name="quantity">Количество для добавления.</param>
+    void Add(string productId, int quantity);
+
+    /// <summary>
     /// Возвращает корзину с актуальными ценами и весами.
     /// </summary>
     /// <param name="cancellationToken">Токен отмены.</param>

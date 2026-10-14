@@ -1,7 +1,7 @@
 namespace SweetBridge.Web.Domain.Enums;
 
 /// <summary>
-/// Жизненный цикл заказа. Статус движется только вперёд, по одному шагу.
+/// Статус заказа. Первые пять статусов образуют цепочку доставки, последний — отмена.
 /// </summary>
 public enum OrderStatus
 {
@@ -11,7 +11,7 @@ public enum OrderStatus
     Accepted = 0,
 
     /// <summary>
-    /// Заказ упаковывается в волну.
+    /// Идёт комплектация партии.
     /// </summary>
     Assembling = 1,
 
@@ -26,7 +26,12 @@ public enum OrderStatus
     ReadyForPickup = 3,
 
     /// <summary>
-    /// Заказ получен покупателем или получателем подарка.
+    /// Заказ получен.
     /// </summary>
-    Received = 4
+    Received = 4,
+
+    /// <summary>
+    /// Заказ отменен.
+    /// </summary>
+    Cancelled = 5
 }

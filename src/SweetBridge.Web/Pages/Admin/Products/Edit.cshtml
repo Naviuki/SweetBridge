@@ -1,79 +1,100 @@
-@page
-@model EditModel
+@page "{id}"
+@model SweetBridge.Web.Pages.Admin.Products.EditModel
+@using SweetBridge.Web.Extensions
+@using SweetBridge.Web.Domain.Enums
 @{
-    ViewData["Title"] = $"Товар {Model.Id}";
+    ViewData["Title"] = "Редактирование товара";
 }
+<section class="page">
+    <div class="admin-layout">
+        <partial name="_AdminNav" />
 
-<h1 class="h3 mb-3">Товар @Model.Id</h1>
+        <div class="admin-content">
+            <h1 class="page__title">Товар @Model.Id</h1>
 
-<div class="card shadow-sm">
-    <div class="card-body">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
+            @if (!string.IsNullOrWhiteSpace(Model.CurrentPhotoPath))
+            {
+                <div class="card card-pad">
+                    <h2>Текущая фотография</h2>
+                    <img class="admin-photo" src="@Model.CurrentPhotoPath" alt="@Model.Input.Name" width="320" height="240" />
+                </div>
+            }
 
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label" asp-for="Input.Region"></label>
-                    <select class="form-select" asp-for="Input.Region" asp-items="Html.GetEnumSelectList<Region>()"></select>
-                    <span class="form-text">Товар едет в противоположный регион.</span>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label" asp-for="Input.Manufacturer"></label>
-                    <input class="form-control" asp-for="Input.Manufacturer" />
-                    <span class="text-danger small" asp-validation-for="Input.Manufacturer"></span>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label" asp-for="Input.Category"></label>
-                    <input class="form-control" asp-for="Input.Category" />
-                    <span class="text-danger small" asp-validation-for="Input.Category"></span>
-                </div>
+            <form class="card checkout-form" method="post" enctype="multipart/form-data">
+                <div asp-validation-summary="ModelOnly" class="form-errors"></div>
 
-                <div class="col-md-8">
-                    <label class="form-label" asp-for="Input.Name"></label>
-                    <input class="form-control" asp-for="Input.Name" />
-                    <span class="text-danger small" asp-validation-for="Input.Name"></span>
-                </div>
-                <div class="col-md-4 d-flex align-items-end">
-                    <div class="form-check">
-                        <input class="form-check-input" asp-for="Input.IsTemperatureSensitive" />
-                        <label class="form-check-label" asp-for="Input.IsTemperatureSensitive"></label>
-                    </div>
-                </div>
+                <label class="field">
+                    <span class="field__label">Производитель</span>
+                    <input class="field__control" asp-for="Input.ProducerName" data-field-control />
+                    <span class="field__error" asp-validation-for="Input.ProducerName"></span>
+                </label>
 
-                <div class="col-md-4">
-                    <label class="form-label" asp-for="Input.WeightGrams"></label>
-                    <input class="form-control" asp-for="Input.WeightGrams" />
-                    <span class="text-danger small" asp-validation-for="Input.WeightGrams"></span>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label" asp-for="Input.Price"></label>
-                    <input class="form-control" asp-for="Input.Price" />
-                    <span class="text-danger small" asp-validation-for="Input.Price"></span>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label" asp-for="Input.ShelfLifeDays"></label>
-                    <input class="form-control" asp-for="Input.ShelfLifeDays" />
-                    <span class="text-danger small" asp-validation-for="Input.ShelfLifeDays"></span>
+                <label class="field">
+                    <span class="field__label">Название</span>
+                    <input class="field__control" asp-for="Input.Name" data-field-control />
+                    <span class="field__error" asp-validation-for="Input.Name"></span>
+                </label>
+
+                <div class="grid-2">
+                    <label class="field">
+                        <span class="field__label">Витрина</span>
+                        <select class="field__control" asp-for="Input.Region" data-field-control>
+                            <option value="@Region.Yakutia">Якутия</option>
+                            <option value="@Region.Donbass">ДНР</option>
+                        </select>
+                    </label>
+
+                    <label class="field">
+                        <span class="field__label">Категория</span>
+                        <input class="field__control" asp-for="Input.Category" data-field-control />
+                        <span class="field__error" asp-validation-for="Input.Category"></span>
+                    </label>
                 </div>
 
-                <div class="col-md-4">
-                    <label class="form-label" asp-for="Input.Photo"></label>
-                    <input class="form-control" asp-for="Input.Photo" />
-                    <span class="form-text">Пусто — будет заглушка.</span>
-                    <span class="text-danger small" asp-validation-for="Input.Photo"></span>
-                </div>
-                <div class="col-md-8">
-                    <label class="form-label" asp-for="Input.Description"></label>
-                    <textarea class="form-control" rows="2" asp-for="Input.Description"></textarea>
-                    <span class="text-danger small" asp-validation-for="Input.Description"></span>
-                </div>
-            </div>
+                <div class="grid-2">
+                    <label class="field">
+                        <span class="field__label">Вес, граммов</span>
+                        <input class="field__control" asp-for="Input.WeightGrams" data-field-control type="number" min="1" />
+                        <span class="field__error" asp-validation-for="Input.WeightGrams"></span>
+                    </label>
 
-            <div class="mt-4 d-flex gap-2">
-                <button type="submit" class="btn btn-primary">Сохранить</button>
-                <a class="btn btn-outline-secondary" asp-page="/Admin/Products/Index">Отмена</a>
-            </div>
-        </form>
+                    <label class="field">
+                        <span class="field__label">Цена, рублей</span>
+                        <input class="field__control" asp-for="Input.Price" data-field-control type="number" min="0" step="1" />
+                        <span class="field__error" asp-validation-for="Input.Price"></span>
+                    </label>
+                </div>
+
+                <div class="grid-2">
+                    <label class="field">
+                        <span class="field__label">Срок годности, дней</span>
+                        <input class="field__control" asp-for="Input.ShelfLifeDays" data-field-control type="number" min="1" />
+                        <span class="field__error" asp-validation-for="Input.ShelfLifeDays"></span>
+                    </label>
+
+                    <label class="field">
+                        <span class="field__label">Новая фотография</span>
+                        <input class="field__control" asp-for="Photo" type="file" accept="image/png,image/jpeg,image/webp" />
+                        <span class="field__hint">PNG, JPEG или WEBP, до 2 МБ. Без файла останется текущая.</span>
+                        <span class="field__error" asp-validation-for="Photo"></span>
+                    </label>
+                </div>
+
+                <label class="switch-box">
+                    <input asp-for="Input.IsTemperatureSensitive" type="checkbox" />
+                    <span>Товар термочувствительный: нужна термоупаковка</span>
+                </label>
+
+                <label class="field">
+                    <span class="field__label">Описание</span>
+                    <textarea class="field__control" asp-for="Input.Description" rows="4" maxlength="1000"></textarea>
+                </label>
+
+                <div class="row gap-8">
+                    <button class="btn btn--primary" type="submit">Сохранить</button>
+                    <a class="btn btn--ghost" asp-page="/Admin/Products/Index">Отмена</a>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
+</section>

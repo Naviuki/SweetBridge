@@ -1,188 +1,200 @@
-using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using SweetBridge.Web.Domain.Entities;
 using SweetBridge.Web.Domain.Enums;
 using SweetBridge.Web.Domain.Exceptions;
 using SweetBridge.Web.Services.Catalog;
+using SweetBridge.Web.Services.Media;
 
 namespace SweetBridge.Web.Pages.Admin.Products;
 
 /// <summary>
-/// Правка товара каталога.
+/// Редактирование товара.
 /// </summary>
-/// <param name="productManagementService">Сервис управления товарами.</param>
-public sealed class EditModel(IProductManagementService productManagementService) : PageModel
+/// <param name="productService">Сервис управления каталогом.</param>
+/// <param name="imageStorage">Хранилище изображений.</param>
+public sealed class EditModel(IProductManagementService productService, IImageStorage imageStorage) : PageModel
 {
     /// <summary>
-    /// Идентификатор редактируемого товара.
+    /// Идентификатор товара.
     /// </summary>
     [BindProperty(SupportsGet = true)]
-    public string Id { get; set; } = string.Empty;
+    public string? Id { get; set; }
 
     /// <summary>
-    /// Данные формы товара.
+    /// Данные товара.
     /// </summary>
     [BindProperty]
     public InputModel Input { get; set; } = new();
 
     /// <summary>
-    /// Загружает товар в форму.
+    /// Новая фотография товара.
+    /// </summary>
+    [BindProperty]
+    public IFormFile? Photo { get; set; }
+
+    /// <summary>
+    /// Текущий путь к фотографии.
+    /// </summary>
+    public string? CurrentPhotoPath { get; private set; }
+
+    /// <summary>
+    /// Загружает товар.
     /// </summary>
     /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Задача, отражающая выполнение операции.</returns>
+    /// <returns>Результат выполнения.</returns>
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
     {
-        ProductSummary? product = await FindProductAsync(cancellationToken);
+        ProductSummary? product = await productService.GetAllAsync(cancellationToken) is var all
+            ? all.FirstOrDefault(item => item.Id == Id)
+            : null;
 
         if (product is null)
         {
             return NotFound();
         }
 
-        Input = InputModel.FromProduct(product);
+        CurrentPhotoPath = product.PhotoPath;
+        Input = new InputModel
+        {
+            ProducerName = product.ProducerName,
+            Region = product.Region,
+            Name = product.Name,
+            Category = product.Category,
+            WeightGrams = product.WeightGrams,
+            Price = product.Price,
+            IsTemperatureSensitive = product.IsTemperatureSensitive,
+            ShelfLifeDays = product.ShelfLifeDays,
+            Description = product.Description
+        };
 
         return Page();
     }
 
     /// <summary>
-    /// Обновляет товар и возвращает к списку.
+    /// Сохраняет изменения товара.
     /// </summary>
     /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Возврат к списку товаров.</returns>
+    /// <returns>Перенаправление на список товаров.</returns>
     public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
+        if (!ModelState.IsValid || string.IsNullOrWhiteSpace(Id))
         {
             return Page();
+        }
+
+        string? photoPath = CurrentPhotoPath;
+
+        if (Photo is not null && Photo.Length > 0)
+        {
+            ImageValidationResult validation = await imageStorage.ValidateAsync(Photo, cancellationToken);
+
+            if (!validation.IsValid)
+            {
+                ModelState.AddModelError(nameof(Photo), validation.ErrorMessage ?? "Файл не принят.");
+
+                return Page();
+            }
+
+            photoPath = await imageStorage.SaveAsync(Photo, cancellationToken);
         }
 
         try
         {
-            await productManagementService.UpdateAsync(Id, Input.ToProductInput(Id), cancellationToken);
-            TempData["Success"] = $"Товар {Id} обновлён.";
+            ProductInput input = new(
+                Id,
+                Input.ProducerName,
+                Input.Region,
+                Input.Name,
+                Input.Category,
+                Input.WeightGrams,
+                Input.Price,
+                Input.IsTemperatureSensitive,
+                Input.ShelfLifeDays,
+                photoPath,
+                Input.Description);
+
+            await productService.UpdateAsync(Id, input, cancellationToken);
+            TempData["Success"] = "Товар сохранён.";
+
+            return RedirectToPage("/Admin/Products/Index");
         }
         catch (DomainException exception)
         {
             ModelState.AddModelError(string.Empty, exception.Message);
+
             return Page();
         }
-
-        return RedirectToPage("/Admin/Products/Index");
-    }
-
-    private async Task<ProductSummary?> FindProductAsync(CancellationToken cancellationToken)
-    {
-        IReadOnlyList<ProductSummary> products = await productManagementService.GetAllAsync(cancellationToken);
-
-        return products.FirstOrDefault(product => product.Id == Id);
     }
 
     /// <summary>
-    /// Данные формы товара с русскими сообщениями валидации.
+    /// Данные формы товара.
     /// </summary>
     public sealed class InputModel
     {
         /// <summary>
-        /// Регион производителя.
+        /// Название производителя.
         /// </summary>
-        [Display(Name = "Регион производителя")]
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Укажите производителя.")]
+        [System.ComponentModel.DataAnnotations.StringLength(200)]
+        [System.ComponentModel.DataAnnotations.Display(Name = "Производитель")]
+        public string ProducerName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Витрина.
+        /// </summary>
+        [System.ComponentModel.DataAnnotations.Display(Name = "Витрина")]
         public Region Region { get; set; } = Region.Yakutia;
 
         /// <summary>
-        /// Название производителя.
+        /// Название товара.
         /// </summary>
-        [Required(ErrorMessage = "Укажите производителя.")]
-        [StringLength(200, ErrorMessage = "Название производителя слишком длинное.")]
-        [Display(Name = "Производитель")]
-        public string Manufacturer { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Наименование товара.
-        /// </summary>
-        [Required(ErrorMessage = "Укажите наименование товара.")]
-        [StringLength(200, ErrorMessage = "Наименование товара слишком длинное.")]
-        [Display(Name = "Наименование")]
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Укажите название товара.")]
+        [System.ComponentModel.DataAnnotations.StringLength(200)]
+        [System.ComponentModel.DataAnnotations.Display(Name = "Название")]
         public string Name { get; set; } = string.Empty;
 
         /// <summary>
-        /// Категория в каталоге.
+        /// Категория.
         /// </summary>
-        [Required(ErrorMessage = "Укажите категорию.")]
-        [StringLength(100, ErrorMessage = "Название категории слишком длинное.")]
-        [Display(Name = "Категория")]
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "Укажите категорию.")]
+        [System.ComponentModel.DataAnnotations.StringLength(100)]
+        [System.ComponentModel.DataAnnotations.Display(Name = "Категория")]
         public string Category { get; set; } = string.Empty;
 
         /// <summary>
         /// Вес одной штуки в граммах.
         /// </summary>
-        [Range(1, 100_000, ErrorMessage = "Вес должен быть от 1 до 100 000 граммов.")]
-        [Display(Name = "Вес, г")]
+        [System.ComponentModel.DataAnnotations.Range(1, 100_000, ErrorMessage = "Вес должен быть от 1 до 100 000 граммов.")]
+        [System.ComponentModel.DataAnnotations.Display(Name = "Вес, г")]
         public int WeightGrams { get; set; }
 
         /// <summary>
-        /// Цена одной штуки в рублях.
+        /// Цена в рублях.
         /// </summary>
-        [Range(0, 1_000_000, ErrorMessage = "Цена должна быть от 0 до 1 000 000 рублей.")]
-        [Display(Name = "Цена, ₽")]
+        [System.ComponentModel.DataAnnotations.Range(0, 1_000_000, ErrorMessage = "Цена должна быть от 0 до 1 000 000 рублей.")]
+        [System.ComponentModel.DataAnnotations.Display(Name = "Цена, ₽")]
         public decimal Price { get; set; }
 
         /// <summary>
-        /// Признак температурной чувствительности.
+        /// Признак термочувствительности.
         /// </summary>
-        [Display(Name = "Боится мороза и жары")]
+        [System.ComponentModel.DataAnnotations.Display(Name = "Термочувствительный")]
         public bool IsTemperatureSensitive { get; set; }
 
         /// <summary>
         /// Срок годности в днях.
         /// </summary>
-        [Range(1, 3650, ErrorMessage = "Срок годности должен быть от 1 до 3650 дней.")]
-        [Display(Name = "Срок годности, дней")]
+        [System.ComponentModel.DataAnnotations.Range(1, 3650, ErrorMessage = "Срок годности должен быть от 1 до 3650 дней.")]
+        [System.ComponentModel.DataAnnotations.Display(Name = "Срок годности, дней")]
         public int ShelfLifeDays { get; set; }
 
         /// <summary>
-        /// Имя файла изображения в каталоге <c>wwwroot/images</c>.
+        /// Описание.
         /// </summary>
-        [StringLength(200, ErrorMessage = "Имя файла слишком длинное.")]
-        [Display(Name = "Файл изображения")]
-        public string? Photo { get; set; }
-
-        /// <summary>
-        /// Описание товара.
-        /// </summary>
-        [StringLength(1000, ErrorMessage = "Описание не должно быть длиннее 1000 символов.")]
-        [Display(Name = "Описание")]
+        [System.ComponentModel.DataAnnotations.StringLength(1000)]
+        [System.ComponentModel.DataAnnotations.Display(Name = "Описание")]
         public string? Description { get; set; }
-
-        /// <summary>
-        /// Заполняет форму данными товара.
-        /// </summary>
-        /// <param name="product">Редактируемый товар.</param>
-        /// <returns>Данные формы.</returns>
-        public static InputModel FromProduct(ProductSummary product)
-        {
-            ArgumentNullException.ThrowIfNull(product);
-
-            return new InputModel
-            {
-                Region = product.Region,
-                Manufacturer = product.Manufacturer,
-                Name = product.Name,
-                Category = product.Category,
-                WeightGrams = product.WeightGrams,
-                Price = product.Price,
-                IsTemperatureSensitive = product.IsTemperatureSensitive,
-                ShelfLifeDays = product.ShelfLifeDays,
-                Photo = product.Photo,
-                Description = product.Description
-            };
-        }
-
-        /// <summary>
-        /// Преобразует данные формы в команду сервиса.
-        /// </summary>
-        /// <param name="Id">Идентификатор товара.</param>
-        /// <returns>Команда для сервиса управления товарами.</returns>
-        public ProductInput ToProductInput(string id) =>
-            new(id, Region, Manufacturer, Name, Category, WeightGrams, Price, IsTemperatureSensitive, ShelfLifeDays, Photo, Description);
     }
 }

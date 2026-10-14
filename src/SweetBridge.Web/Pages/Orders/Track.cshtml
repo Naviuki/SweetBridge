@@ -1,83 +1,65 @@
 @page
-@model TrackModel
+@model SweetBridge.Web.Pages.Orders.TrackModel
+@using SweetBridge.Web.Extensions
+@using SweetBridge.Web.Domain.Enums
 @{
-    ViewData["Title"] = "Отслеживание заказа";
+    ViewData["Title"] = "Отследить заказ";
 }
+<section class="page">
+    <h1 class="page__title">Отследить заказ</h1>
+    <p class="page__lead">Введите номер заказа и телефон покупателя или получателя — покажем, на каком этапе посылка.</p>
 
-<h1 class="h3 mb-3">Отслеживание заказа</h1>
+    <div class="checkout-layout mt-16">
+        <form class="card checkout-form" method="post">
+            <div asp-validation-summary="ModelOnly" class="form-errors"></div>
 
-<div class="card shadow-sm mb-4">
-    <div class="card-body">
-        <form method="post" class="row g-3 align-items-end">
-            <div class="col-md-4">
-                <label class="form-label" asp-for="Input.Number"></label>
-                <input class="form-control" asp-for="Input.Number" placeholder="SW-XXXXXX" />
-                <span class="text-danger small" asp-validation-for="Input.Number"></span>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label" asp-for="Input.Phone"></label>
-                <input class="form-control" asp-for="Input.Phone" placeholder="+7 999 000-11-22" />
-                <span class="text-danger small" asp-validation-for="Input.Phone"></span>
-            </div>
-            <div class="col-md-4">
-                <button type="submit" class="btn btn-primary w-100">Найти заказ</button>
-            </div>
+            <label class="field">
+                <span class="field__label">Номер заказа</span>
+                <input class="field__control" asp-for="Number" data-field-control placeholder="SW-XXXXXX" autocomplete="off" />
+                <span class="field__hint">Номер из письма о заказе или из личного кабинета</span>
+            </label>
+
+            <label class="field">
+                <span class="field__label">Телефон</span>
+                <input class="field__control" asp-for="Phone" data-field-control inputmode="tel"
+                       autocomplete="tel" placeholder="+7 999 000-11-22" />
+            </label>
+
+            <button class="btn btn--primary" type="submit">@IconRenderer.Render("search") Найти заказ</button>
+            <a class="btn btn--ghost" asp-page="/Support/Index">Не нашли? Напишите в поддержку</a>
         </form>
-    </div>
-</div>
 
-@if (Model.IsNotFound)
-{
-    <div class="alert alert-warning">
-        Заказ с таким номером и телефоном не найден. Проверьте номер и телефон получателя.
-    </div>
-}
-
-@if (Model.Order is not null)
-{
-    <div class="row g-4">
-        <div class="col-lg-7">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h2 class="h5">Заказ @Model.Order.Number</h2>
-                    <p class="text-secondary small mb-3">
-                        Создан @Model.Order.CreatedAtUtc.FormatDateTime() · волна от @Model.Order.WaveShipDate.FormatDate()
-                    </p>
-                    <partial name="_OrderStatusTimeline" model="Model.Order" />
+        <aside class="card card-pad">
+            @if (Model.Order is not null)
+            {
+                <h2>Заказ @Model.Order.Number</h2>
+                <p class="muted">
+                    @IconRenderer.Render("truck")
+                    Волна №@Model.Order.WaveNumber · отправка @Model.Order.WaveShipDate.ToString("dd.MM.yyyy")
+                </p>
+                <partial name="_OrderTracker" model="Model.Order.ToTracker()" />
+                <a class="btn btn--primary btn--block mt-16" asp-page="/Orders/Details" asp-route-number="@Model.Order.Number">
+                    Подробнее о заказе
+                </a>
+            }
+            else if (Model.IsSearched)
+            {
+                <div class="empty">
+                    @IconRenderer.Render("search")
+                    <h2>Заказ не найден</h2>
+                    <p class="muted">Проверьте номер и телефон. Номер выглядит как SW-XXXXXX.</p>
+                    <a class="btn btn--outline" asp-page="/Support/Index">Написать в поддержку</a>
                 </div>
-            </div>
-        </div>
-        <div class="col-lg-5">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h2 class="h5">Состав</h2>
-                    <ul class="list-group list-group-flush mb-3">
-                        @foreach (OrderLineSummary item in Model.Order.Items)
-                        {
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span>@item.ProductName × @item.Quantity</span>
-                                <span>@item.LineTotal.FormatPrice()</span>
-                            </li>
-                        }
-                    </ul>
-
-                    <div class="d-flex justify-content-between">
-                        <span>Товары</span><span>@Model.Order.GoodsCost.FormatPrice()</span>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <span>Доставка</span><span>@Model.Order.ShippingCost.FormatPrice()</span>
-                    </div>
-                    @if (Model.Order.HasThermoPack)
-                    {
-                        <div class="d-flex justify-content-between">
-                            <span>Термоупаковка</span><span>@Model.Order.ThermoPackCost.FormatPrice()</span>
-                        </div>
-                    }
-                    <div class="d-flex justify-content-between border-top mt-2 pt-2">
-                        <strong>Итого</strong><strong>@Model.Order.TotalCost.FormatPrice()</strong>
-                    </div>
-                </div>
-            </div>
-        </div>
+            }
+            else
+            {
+                <h2>Что покажет трекер</h2>
+                <ul class="site-footer__list">
+                    <li>Статус и дату каждого этапа</li>
+                    <li>Состав заказа и стоимость</li>
+                    <li>Срок доставки по вашей волне</li>
+                </ul>
+            }
+        </aside>
     </div>
-}
+</section>

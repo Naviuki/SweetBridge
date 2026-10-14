@@ -1,0 +1,51 @@
+@page
+@model SweetBridge.Web.Pages.Admin.Audit.IndexModel
+@using SweetBridge.Web.Extensions
+@{
+    ViewData["Title"] = "Журнал действий";
+}
+<section class="page">
+    <div class="admin-layout">
+        <partial name="_AdminNav" />
+
+        <div class="admin-content">
+            <h1 class="page__title">Журнал действий</h1>
+            <p class="page__lead">Действия администраторов без персональных данных покупателей и секретов.</p>
+
+            <div class="card card-pad">
+                @if (Model.Entries.Count == 0)
+                {
+                    <p class="muted">Записей пока нет.</p>
+                }
+                else
+                {
+                    <div class="table-scroll">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Когда</th>
+                                    <th>Администратор</th>
+                                    <th>Действие</th>
+                                    <th>Объект</th>
+                                    <th>Детали</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (SweetBridge.Web.Services.Auditing.AuditEntrySummary entry in Model.Entries)
+                                {
+                                    <tr>
+                                        <td class="nowrap">@entry.CreatedAtUtc.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                                        <td class="nowrap">@entry.UserEmail</td>
+                                        <td class="nowrap">@entry.Action</td>
+                                        <td class="nowrap">@entry.TargetType</td>
+                                        <td>@entry.Details</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>

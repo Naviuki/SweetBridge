@@ -1,0 +1,24 @@
+@using SweetBridge.Web.Extensions
+@model IReadOnlyList<(string Url, string Title)>
+@{
+    var current = ViewContext.RouteData.Values["page"] as string ?? string.Empty;
+}
+<nav class="card account-nav" aria-label="Личный кабинет">
+    @foreach ((string url, string title) in Model)
+    {
+        <a href="@url" class="@(string.Equals(current, url.TrimStart('/'), StringComparison.OrdinalIgnoreCase) ? "is-active" : string.Empty)">
+            @IconRenderer.Render(title switch
+            {
+                "Мои заказы" => "box",
+                "Уведомления" => "bell",
+                "Избранное" => "heart",
+                _ => "user"
+            })
+            @title
+        </a>
+    }
+    <a asp-page="/Index">
+        @IconRenderer.Render("cart")
+        Продолжить покупки
+    </a>
+</nav>

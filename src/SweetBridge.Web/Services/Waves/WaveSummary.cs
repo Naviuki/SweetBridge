@@ -3,20 +3,22 @@ using SweetBridge.Web.Domain.Enums;
 namespace SweetBridge.Web.Services.Waves;
 
 /// <summary>
-/// Модель чтения волны для списка админки.
+/// Сводка волны для админки и витрины.
 /// </summary>
-/// <param name="waveId">Идентификатор волны.</param>
-/// <param name="direction">Направление доставки.</param>
-/// <param name="shipDate">Запланированная дата отправки.</param>
-/// <param name="orderCutoffDate">Последний день приёма заказов.</param>
-/// <param name="capacityGrams">Максимальный вес волны в граммах.</param>
-/// <param name="minLoadGrams">Минимальный вес для отправки в граммах.</param>
-/// <param name="loadedGrams">Вес, уже набранный в волне, в граммах.</param>
+/// <param name="Id">Идентификатор волны.</param>
+/// <param name="Number">Сквозной номер волны.</param>
+/// <param name="Direction">Направление доставки.</param>
+/// <param name="ShipDate">Дата отправки.</param>
+/// <param name="OrderCutoffDate">Дедлайн приёма заказов.</param>
+/// <param name="CapacityGrams">Вместимость волны в граммах.</param>
+/// <param name="MinLoadGrams">Минимальная загрузка в граммах.</param>
+/// <param name="LoadedGrams">Текущий заполненный вес в граммах.</param>
 /// <param name="FillPercent">Заполнение волны в процентах.</param>
-/// <param name="status">Статус волны.</param>
-/// <param name="IsReadyToDispatch">Признак того, что в волне есть минимальная загрузка и её можно отправить.</param>
+/// <param name="Status">Статус волны.</param>
+/// <param name="IsReadyToDispatch">Набрана ли минимальная загрузка.</param>
 public sealed record WaveSummary(
-    int WaveId,
+    int Id,
+    int Number,
     ShippingDirection Direction,
     DateOnly ShipDate,
     DateOnly OrderCutoffDate,

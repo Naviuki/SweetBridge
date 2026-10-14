@@ -32,12 +32,18 @@ public sealed class CatalogService : ICatalogService
 
         IQueryable<Product> products = _dbContext.Products
             .AsNoTracking()
+            .Include(product => product.Producer)
             .Where(product => product.IsActive && product.Region == region);
 
         if (!string.IsNullOrWhiteSpace(query.Category))
         {
             string category = query.Category.Trim();
             products = products.Where(product => product.Category == category);
+        }
+
+        if (query.ThermoSensitiveOnly)
+        {
+            products = products.Where(product => product.IsTemperatureSensitive);
         }
 
         List<Product> result = await products
@@ -62,6 +68,44 @@ public sealed class CatalogService : ICatalogService
             .ToListAsync(cancellationToken);
     }
 
+    /// <inheritdoc />
+    public async Task<ProductSummary?> GetProductAsync(string id, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            return null;
+        }
+
+        string normalized = id.Trim().ToUpperInvariant();
+
+        return await _dbContext.Products
+            .AsNoTracking()
+            .Include(product => product.Producer)
+            .FirstOrDefaultAsync(product => product.Id == normalized && product.IsActive, cancellationToken)
+            is Product product
+            ? ProductSummary.FromProduct(product)
+            : null;
+    }
+
+    /// <inheritdoc />
+    public async Task<IReadOnlyList<ProductSummary>> GetShowcaseAsync(
+        ShippingDirection direction,
+        int count,
+        CancellationToken cancellationToken)
+    {
+        Region region = ToRegion(direction);
+
+        return await _dbContext.Products
+            .AsNoTracking()
+            .Include(product => product.Producer)
+            .Where(product => product.IsActive && product.Region == region)
+            .OrderBy(product => product.Category)
+            .ThenBy(product => product.Name)
+            .Take(count)
+            .Select(product => ProductSummary.FromProduct(product))
+            .ToListAsync(cancellationToken);
+    }
+
     /// <remarks>
     /// SQLite сравнивает строки с кириллицей регистрозависимо, поэтому текстовый поиск выполняется в памяти
     /// по небольшому каталогу витрины.
@@ -82,7 +126,7 @@ public sealed class CatalogService : ICatalogService
         return products
             .Where(product => terms.All(term =>
                 product.Name.Contains(term, StringComparison.OrdinalIgnoreCase)
-                || product.Manufacturer.Contains(term, StringComparison.OrdinalIgnoreCase)
+                || product.ProducerName.Contains(term, StringComparison.OrdinalIgnoreCase)
                 || product.Category.Contains(term, StringComparison.OrdinalIgnoreCase)))
             .ToList();
     }

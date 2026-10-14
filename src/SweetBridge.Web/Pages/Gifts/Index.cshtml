@@ -1,0 +1,59 @@
+@page "{handler?}"
+@model SweetBridge.Web.Pages.Gifts.IndexModel
+@using SweetBridge.Web.Extensions
+@{
+    ViewData["Title"] = "Подарочные наборы";
+}
+<section class="page">
+    <h1 class="page__title">Подарочные наборы</h1>
+    <p class="page__lead">Готовые подборки сладостей одной витрины: состав уже собран, добавьте открытку при оформлении.</p>
+
+    @if (Model.Sets.Count == 0)
+    {
+        <div class="empty">
+            @IconRenderer.Render("gift")
+            <h2>Наборы скоро появятся</h2>
+            <p class="muted">А пока выберите сладости сами в каталоге и оформите заказ как подарок.</p>
+            <a class="btn btn--primary" asp-page="/Catalog/Index">Перейти в каталог</a>
+        </div>
+    }
+    else
+    {
+        <div class="grid grid--2 mt-16">
+            @foreach (SweetBridge.Web.Services.Gifts.GiftSetSummary set in Model.Sets)
+            {
+                <article class="card product-card">
+                    <div class="product-card__photo-link">
+                        <span class="chip @(set.Showcase == SweetBridge.Web.Domain.Enums.Region.Yakutia ? "chip--yakutia" : "chip--donbass") product-card__chip">
+                            @IconRenderer.Render(set.Showcase == SweetBridge.Web.Domain.Enums.Region.Yakutia ? "snowflake" : "sun")
+                            @set.Showcase.ToDisplayName()
+                        </span>
+                        <img class="product-card__photo" src="@(string.IsNullOrWhiteSpace(set.PhotoPath) ? "/images/placeholders/product.svg" : set.PhotoPath)"
+                             alt="@set.Name" width="320" height="240" loading="lazy" />
+                    </div>
+                    <div class="card__body product-card__body">
+                        <h3 class="product-card__name">@set.Name</h3>
+                        <p class="product-card__category">@set.Description</p>
+                        <ul class="product-card__weight">
+                            @foreach (SweetBridge.Web.Services.Gifts.GiftSetItemSummary item in set.Items)
+                            {
+                                <li>@item.ProductName × @item.Quantity</li>
+                            }
+                        </ul>
+                        <p class="product-card__weight">@IconRenderer.Render("weight") @set.TotalWeightGrams.FormatWeight()</p>
+                        <div class="row row--between product-card__footer">
+                            <span class="product-card__price">@set.Price.FormatPrice()</span>
+                            <form method="post" asp-page-handler="AddToCart" asp-route-id="@set.Id">
+                                <input type="hidden" name="id" value="@set.Id" />
+                                <button class="btn btn--primary btn--sm" type="submit">
+                                    @IconRenderer.Render("cart")
+                                    В корзину
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
+    }
+</section>

@@ -18,4 +18,9 @@ public sealed record CartLineView(ProductSummary Product, int Quantity)
     /// Итоговая стоимость позиции в рублях.
     /// </summary>
     public decimal LineTotal => Product.Price * Quantity;
+
+    /// <summary>
+    /// Направление доставки товара.
+    /// </summary>
+    public Domain.Enums.ShippingDirection ShippingDirection => Product.ShippingDirection;
 }

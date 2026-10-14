@@ -83,4 +83,16 @@ public sealed class LogisticsOptions
     /// </summary>
     [MinLength(1)]
     public List<FillDiscountOption> FillDiscounts { get; set; } = [];
+
+    /// <summary>
+    /// Часовой пояс, по которому считаются даты отправки и дедлайны волн.
+    /// </summary>
+    [Required]
+    public string TimeZoneId { get; set; } = "Asia/Yakutsk";
+
+    /// <summary>
+    /// Сколько минут действует резерв веса в волне до подтверждения оплаты.
+    /// </summary>
+    [Range(5, 1440)]
+    public int PaymentHoldMinutes { get; set; } = 30;
 }

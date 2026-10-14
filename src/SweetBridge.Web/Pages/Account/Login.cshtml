@@ -1,0 +1,45 @@
+@page
+@model SweetBridge.Web.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Вход";
+}
+<section class="page">
+    <div class="card auth-card card-pad">
+        <h1 class="page__title">Вход</h1>
+        <p class="page__lead">Войдите, чтобы видеть заказы, избранное и уведомления.</p>
+
+        <form method="post" class="mt-16">
+            <div asp-validation-summary="ModelOnly" class="form-errors"></div>
+
+            <label class="field">
+                <span class="field__label">Электронная почта</span>
+                <input class="field__control" asp-for="Input.Email" data-field-control type="email"
+                       autocomplete="username" autofocus />
+                <span class="field__error" asp-validation-for="Input.Email"></span>
+            </label>
+
+            <label class="field">
+                <span class="field__label">Пароль</span>
+                <span class="password-wrap">
+                    <input class="field__control" asp-for="Input.Password" data-field-control
+                           autocomplete="current-password" data-password-field />
+                    <button class="btn btn--ghost btn--sm" type="button"
+                            data-password-toggle="Input_Password" aria-label="Показать пароль">Показать</button>
+                </span>
+                <span class="field__error" asp-validation-for="Input.Password"></span>
+            </label>
+
+            <label class="field field--check">
+                <input asp-for="Input.RememberMe" type="checkbox" />
+                <span>Не выходить из аккаунта</span>
+            </label>
+
+            <button class="btn btn--primary btn--block" type="submit">Войти</button>
+        </form>
+
+        <div class="row row--between mt-16">
+            <a asp-page="/Account/Register">Создать аккаунт</a>
+            <a asp-page="/Account/ForgotPassword">Забыли пароль?</a>
+        </div>
+    </div>
+</section>

@@ -19,7 +19,7 @@ public sealed class WaveTests
     {
         Wave wave = CreateWave();
 
-        Assert.True(wave.IsOpenForOrders(new DateOnly(2025, 3, 16)));
+        Assert.True(wave.IsOpenForOrders(ToLocalTime(new DateOnly(2025, 3, 16))));
     }
 
     [Fact]
@@ -27,7 +27,7 @@ public sealed class WaveTests
     {
         Wave wave = CreateWave();
 
-        Assert.True(wave.IsOpenForOrders(CutoffDate));
+        Assert.True(wave.IsOpenForOrders(ToLocalTime(CutoffDate)));
     }
 
     [Fact]
@@ -35,32 +35,58 @@ public sealed class WaveTests
     {
         Wave wave = CreateWave();
 
-        Assert.False(wave.IsOpenForOrders(new DateOnly(2025, 3, 18)));
+        Assert.False(wave.IsOpenForOrders(ToLocalTime(new DateOnly(2025, 3, 18))));
     }
 
     [Fact]
     public void IsOpenForOrders_DispatchedWave_ReturnsFalse()
     {
         Wave wave = CreateWave();
-        wave.MarkDispatched(MinLoadGrams);
+        wave.Reserve(MinLoadGrams);
+        wave.MarkDispatched();
 
-        Assert.False(wave.IsOpenForOrders(new DateOnly(2025, 3, 10)));
+        Assert.False(wave.IsOpenForOrders(ToLocalTime(new DateOnly(2025, 3, 10))));
     }
 
     [Fact]
     public void CanAccept_OrderFitsIntoRemainingCapacity_ReturnsTrue()
     {
         Wave wave = CreateWave();
+        wave.Reserve(250_000);
 
-        Assert.True(wave.CanAccept(250_000, 50_000));
+        Assert.True(wave.CanAccept(50_000));
     }
 
     [Fact]
     public void CanAccept_OrderExceedsRemainingCapacity_ReturnsFalse()
     {
         Wave wave = CreateWave();
+        wave.Reserve(250_000);
 
-        Assert.False(wave.CanAccept(250_000, 50_001));
+        Assert.False(wave.CanAccept(50_001));
+    }
+
+    [Fact]
+    public void Reserve_OrderExceedsCapacity_ThrowsDomainException()
+    {
+        Wave wave = CreateWave();
+        wave.Reserve(250_000);
+
+        DomainException exception = Assert.Throws<DomainException>(() => wave.Reserve(50_001));
+
+        Assert.Contains("Волна", exception.Message, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void Release_FreesReservedWeight()
+    {
+        Wave wave = CreateWave();
+        wave.Reserve(100_000);
+
+        wave.Release(100_000);
+
+        Assert.Equal(0, wave.LoadedGrams);
+        Assert.Equal(CapacityGrams, wave.GetRemainingCapacity());
     }
 
     [Fact]
@@ -75,8 +101,9 @@ public sealed class WaveTests
     public void MarkDispatched_LessThanMinimalLoad_ThrowsDomainException()
     {
         Wave wave = CreateWave();
+        wave.Reserve(MinLoadGrams - 1);
 
-        DomainException exception = Assert.Throws<DomainException>(() => wave.MarkDispatched(MinLoadGrams - 1));
+        DomainException exception = Assert.Throws<DomainException>(wave.MarkDispatched);
 
         Assert.Contains("Отправить волну нельзя", exception.Message, StringComparison.Ordinal);
         Assert.Equal(WaveStatus.Planned, wave.Status);
@@ -86,17 +113,19 @@ public sealed class WaveTests
     public void MarkDispatched_MinimalLoad_MarksWaveAsDispatched()
     {
         Wave wave = CreateWave();
+        wave.Reserve(MinLoadGrams);
 
-        wave.MarkDispatched(MinLoadGrams);
+        wave.MarkDispatched();
 
         Assert.Equal(WaveStatus.Dispatched, wave.Status);
-        Assert.False(wave.IsReadyToDispatch(MinLoadGrams));
+        Assert.False(wave.IsReadyToDispatch());
     }
 
     [Fact]
     public void Create_CutoffNotBeforeShipDate_ThrowsDomainException()
     {
         Assert.Throws<DomainException>(() => Wave.Create(
+            1,
             ShippingDirection.YakutiaToDonbass,
             ShipDate,
             ShipDate,
@@ -108,6 +137,7 @@ public sealed class WaveTests
     public void Create_MinLoadAboveCapacity_ThrowsDomainException()
     {
         Assert.Throws<DomainException>(() => Wave.Create(
+            1,
             ShippingDirection.DonbassToYakutia,
             ShipDate,
             CutoffDate,
@@ -116,5 +146,7 @@ public sealed class WaveTests
     }
 
     private static Wave CreateWave() =>
-        Wave.Create(ShippingDirection.YakutiaToDonbass, ShipDate, CutoffDate, CapacityGrams, MinLoadGrams);
+        Wave.Create(1, ShippingDirection.YakutiaToDonbass, ShipDate, CutoffDate, CapacityGrams, MinLoadGrams);
+
+    private static DateTime ToLocalTime(DateOnly date) => date.ToDateTime(new TimeOnly(12, 0));
 }

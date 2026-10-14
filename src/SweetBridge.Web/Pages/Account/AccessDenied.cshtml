@@ -1,0 +1,14 @@
+@page
+@model SweetBridge.Web.Pages.Account.AccessDeniedModel
+@using SweetBridge.Web.Extensions
+@{
+    ViewData["Title"] = "Доступ закрыт";
+}
+<section class="page">
+    <div class="empty">
+        @IconRenderer.Render("lock")
+        <h1 class="page__title">Доступ закрыт</h1>
+        <p class="muted">Раздел доступен только администраторам платформы.</p>
+        <a class="btn btn--primary" asp-page="/Index">На главную</a>
+    </div>
+</section>

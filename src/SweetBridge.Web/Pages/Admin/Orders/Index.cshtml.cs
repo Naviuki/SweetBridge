@@ -1,71 +1,118 @@
+using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using SweetBridge.Web.Domain.Entities;
 using SweetBridge.Web.Domain.Enums;
 using SweetBridge.Web.Extensions;
 using SweetBridge.Web.Domain.Exceptions;
+using SweetBridge.Web.Services.Auditing;
 using SweetBridge.Web.Services.Orders;
-using SweetBridge.Web.Services.Waves;
 
 namespace SweetBridge.Web.Pages.Admin.Orders;
 
 /// <summary>
-/// Список заказов с фильтрами по статусу и волне и кнопкой перехода к следующему статусу.
+/// Список заказов администратора со сменой статуса и отменой.
 /// </summary>
 /// <param name="orderService">Сервис заказов.</param>
-/// <param name="waveService">Сервис волн.</param>
-public sealed class IndexModel(IOrderService orderService, IWaveService waveService) : PageModel
+/// <param name="auditService">Журнал действий.</param>
+public sealed class IndexModel(IOrderService orderService, IAuditService auditService) : PageModel
 {
     /// <summary>
-    /// Выбранный фильтр по статусу.
+    /// Фильтр по статусу.
     /// </summary>
     [BindProperty(SupportsGet = true)]
     public OrderStatus? Status { get; set; }
 
     /// <summary>
-    /// Выбранный фильтр по волне.
+    /// Фильтр по номеру заказа.
     /// </summary>
     [BindProperty(SupportsGet = true)]
-    public int? WaveId { get; set; }
+    [StringLength(16)]
+    public string? Search { get; set; }
 
     /// <summary>
-    /// Заказы, подходящие под фильтр.
+    /// Подходящие заказы.
     /// </summary>
     public IReadOnlyList<OrderSummary> Orders { get; private set; } = [];
 
     /// <summary>
-    /// Волны, доступные в фильтре.
+    /// Все статусы для фильтра.
     /// </summary>
-    public IReadOnlyList<WaveSummary> Waves { get; private set; } = [];
+    public IReadOnlyList<SelectItem> Statuses { get; } =
+    [
+        new SelectItem(null, "Все статусы"),
+        .. Enum.GetValues<OrderStatus>().Select(value => new SelectItem(value, value.ToDisplayTitle()))
+    ];
 
     /// <summary>
-    /// Загружает заказы и данные фильтра.
+    /// Загружает список заказов.
     /// </summary>
     /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Задача, отражающая выполнение операции.</returns>
-    public async Task OnGetAsync(CancellationToken cancellationToken)
-    {
-        Orders = await orderService.GetOrdersAsync(new OrderFilter(Status, WaveId), cancellationToken);
-        Waves = await waveService.GetAllAsync(cancellationToken);
-    }
+    /// <returns>Результат выполнения.</returns>
+    public async Task OnGetAsync(CancellationToken cancellationToken) =>
+        Orders = await orderService.GetOrdersAsync(new OrderFilter(Status, null, Search), cancellationToken);
 
     /// <summary>
     /// Переводит заказ на следующий статус.
     /// </summary>
-    /// <param name="orderId">Идентификатор заказа.</param>
+    /// <param name="id">Идентификатор заказа.</param>
     /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Возврат к списку.</returns>
-    public async Task<IActionResult> OnPostAdvanceAsync(int orderId, CancellationToken cancellationToken)
+    /// <returns>Перенаправление на список заказов.</returns>
+    public async Task<IActionResult> OnPostAdvanceAsync(int id, CancellationToken cancellationToken)
     {
         try
         {
-            OrderSummary order = await orderService.AdvanceStatusAsync(orderId, cancellationToken);
-            TempData["Success"] = $"Заказ {order.Number}: статус «{order.Status.ToDisplayName()}».";
+            OrderSummary order = await orderService.AdvanceStatusAsync(id, cancellationToken);
+            await auditService.WriteAsync(
+                User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "system",
+                "Order.AdvanceStatus",
+                nameof(Order),
+                $"Заказ {order.Number}: {order.Status.ToDisplayTitle()}",
+                cancellationToken);
+
+            TempData["Success"] = $"Заказ {order.Number}: статус «{order.Status.ToDisplayTitle()}».";
         }
         catch (DomainException exception)
         {
             TempData["Error"] = exception.Message;
         }
 
-        return RedirectToPage(new { Status, WaveId });
+        return RedirectToPage();
     }
+
+    /// <summary>
+    /// Отменяет заказ администратором.
+    /// </summary>
+    /// <param name="id">Идентификатор заказа.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Перенаправление на список заказов.</returns>
+    public async Task<IActionResult> OnPostCancelAsync(int id, CancellationToken cancellationToken)
+    {
+        try
+        {
+            OrderSummary order = await orderService.CancelByAdminAsync(id, cancellationToken);
+            await auditService.WriteAsync(
+                User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "system",
+                "Order.Cancel",
+                nameof(Order),
+                $"Заказ {order.Number}",
+                cancellationToken);
+
+            TempData["Success"] = $"Заказ {order.Number} отменён.";
+        }
+        catch (DomainException exception)
+        {
+            TempData["Error"] = exception.Message;
+        }
+
+        return RedirectToPage();
+    }
+
+    /// <summary>
+    /// Пункт выбора в фильтре.
+    /// </summary>
+    /// <param name="Value">Значение.</param>
+    /// <param name="Title">Подпись.</param>
+    public sealed record SelectItem(OrderStatus? Value, string Title);
 }

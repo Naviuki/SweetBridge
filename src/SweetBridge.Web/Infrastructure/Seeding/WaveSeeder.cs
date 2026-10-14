@@ -4,6 +4,7 @@ using SweetBridge.Web.Domain.Entities;
 using SweetBridge.Web.Domain.Enums;
 using SweetBridge.Web.Infrastructure.Persistence;
 using SweetBridge.Web.Options;
+using SweetBridge.Web.Services.Common;
 
 namespace SweetBridge.Web.Infrastructure.Seeding;
 
@@ -17,23 +18,23 @@ public sealed class WaveSeeder
 
     private readonly AppDbContext _dbContext;
     private readonly LogisticsOptions _options;
-    private readonly TimeProvider _timeProvider;
+    private readonly IBusinessClock _clock;
 
     /// <summary>
     /// Создаёт новый экземпляр класса <see cref="WaveSeeder"/>.
     /// </summary>
     /// <param name="dbContext">Контекст базы данных.</param>
     /// <param name="options">Логистические параметры.</param>
-    /// <param name="timeProvider">Провайдер времени.</param>
-    public WaveSeeder(AppDbContext dbContext, IOptions<LogisticsOptions> options, TimeProvider timeProvider)
+    /// <param name="clock">Источник текущей даты.</param>
+    public WaveSeeder(AppDbContext dbContext, IOptions<LogisticsOptions> options, IBusinessClock clock)
     {
         ArgumentNullException.ThrowIfNull(dbContext);
         ArgumentNullException.ThrowIfNull(options);
-        ArgumentNullException.ThrowIfNull(timeProvider);
+        ArgumentNullException.ThrowIfNull(clock);
 
         _dbContext = dbContext;
         _options = options.Value;
-        _timeProvider = timeProvider;
+        _clock = clock;
     }
 
     /// <summary>
@@ -48,10 +49,11 @@ public sealed class WaveSeeder
             return 0;
         }
 
-        DateOnly firstShipDate = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime)
-            .AddDays(_options.OrderCutoffDaysBeforeShipment + 1);
+        DateOnly firstShipDate = _clock.LocalToday.AddDays(_options.OrderCutoffDaysBeforeShipment + 1);
 
-        List<Wave> waves = [];
+        var waves = new List<Wave>();
+        var number = 1;
+
         foreach (ShippingDirection direction in new[] { ShippingDirection.YakutiaToDonbass, ShippingDirection.DonbassToYakutia })
         {
             for (var waveIndex = 0; waveIndex < WavesPerDirection; waveIndex++)
@@ -59,6 +61,7 @@ public sealed class WaveSeeder
                 DateOnly shipDate = firstShipDate.AddDays(waveIndex * _options.WaveIntervalDays);
 
                 waves.Add(Wave.Create(
+                    number++,
                     direction,
                     shipDate,
                     shipDate.AddDays(-_options.OrderCutoffDaysBeforeShipment),

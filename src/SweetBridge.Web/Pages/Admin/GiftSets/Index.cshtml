@@ -1,0 +1,57 @@
+@page
+@model SweetBridge.Web.Pages.Admin.GiftSets.IndexModel
+@using SweetBridge.Web.Extensions
+@using SweetBridge.Web.Services.Gifts
+@{
+    ViewData["Title"] = "Подарочные наборы";
+}
+<section class="page">
+    <div class="admin-layout">
+        <partial name="_AdminNav" />
+
+        <div class="admin-content">
+            <h1 class="page__title">Подарочные наборы</h1>
+
+            <div class="card card-pad">
+                @if (Model.Sets.Count == 0)
+                {
+                    <p class="muted">Наборы появятся после импорта каталога.</p>
+                }
+                else
+                {
+                    <div class="table-scroll">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Название</th>
+                                    <th>Витрина</th>
+                                    <th>Состав</th>
+                                    <th class="text-end">Вес</th>
+                                    <th class="text-end">Цена</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (GiftSetSummary set in Model.Sets)
+                                {
+                                    <tr>
+                                        <td>@set.Name</td>
+                                        <td>
+                                            <span class="chip @(set.Showcase == SweetBridge.Web.Domain.Enums.Region.Yakutia ? "chip--yakutia" : "chip--donbass")">
+                                                @set.Showcase.ToDisplayName()
+                                            </span>
+                                        </td>
+                                        <td>
+                                            @string.Join(", ", set.Items.Select(item => $"{item.ProductName} × {item.Quantity}"))
+                                        </td>
+                                        <td class="text-end nowrap">@set.TotalWeightGrams.FormatWeight()</td>
+                                        <td class="text-end nowrap">@set.Price.FormatPrice()</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</section>

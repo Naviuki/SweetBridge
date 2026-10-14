@@ -1,115 +1,135 @@
-﻿@page
-@model IndexModel
+@page
+@model SweetBridge.Web.Pages.IndexModel
+@using SweetBridge.Web.Domain.Enums
+@using SweetBridge.Web.Extensions
+@using SweetBridge.Web.Services.Waves
 @{
-    ViewData["Title"] = "Главная";
-
-    var showcases = new[]
-    {
-        new
-        {
-            Direction = ShippingDirection.YakutiaToDonbass,
-            Title = "Сладости Якутии",
-            Description = "Печенье, карамель и шоколад от производителей Якутии.",
-            Waves = Model.WavesToDonbass,
-            ButtonClass = "btn-primary"
-        },
-        new
-        {
-            Direction = ShippingDirection.DonbassToYakutia,
-            Title = "Сладости Донбасса",
-            Description = "Шоколад и печенье от кондитерской фабрики Донбасса.",
-            Waves = Model.WavesToYakutia,
-            ButtonClass = "btn-outline-primary"
-        }
-    };
+    ViewData["Title"] = "Сладкий мост";
 }
-
-<div class="p-4 mb-4 bg-light rounded-3">
-    <h1 class="display-5 fw-semibold">SweetWave — сладкий мост между Якутией и ДНР</h1>
-    <p class="lead mb-3">
-        Заказы на сладости копятся в сборные партии — волны. Чем полнее волна, тем дешевле доставка
-        для каждого покупателя: скидка 20 % при заполнении более 50 % и 35 % при заполнении более 80 %.
-    </p>
-    <div class="d-flex flex-wrap gap-2">
-        <a class="btn btn-primary" asp-page="/Catalog" asp-route-direction="@ShippingDirection.YakutiaToDonbass">Сладости Якутии</a>
-        <a class="btn btn-outline-primary" asp-page="/Catalog" asp-route-direction="@ShippingDirection.DonbassToYakutia">Сладости Донбасса</a>
+<section class="hero">
+    <div>
+        <span class="chip chip--accent">Маркетплейс Якутии и Донбасса</span>
+        <h1 class="hero__title">Сладкий мост: волны сладостей между Якутией и ДНР</h1>
+        <p class="hero__lead">
+            Сладости местных производителей едут друг к другу сборными волнами раз в две недели.
+            Вы выбираете товар и волну — мы собираем посылку, возим её и выдаём в пункте выдачи.
+            Чем больше заказов в волне, тем ниже стоимость доставки.
+        </p>
+        <div class="row gap-12">
+            <a class="btn btn--primary" asp-page="/Catalog/Index" asp-route-region="@ShippingDirection.YakutiaToDonbass">
+                Сладости Якутии
+            </a>
+            <a class="btn btn--secondary" asp-page="/Catalog/Index" asp-route-region="@ShippingDirection.DonbassToYakutia">
+                Сладости Донбасса
+            </a>
+            <a class="btn btn--ghost" asp-page="/Orders/Track">Отследить заказ</a>
+        </div>
     </div>
-</div>
 
-<div class="row g-4">
-    @foreach (var showcase in showcases)
-    {
-        <div class="col-lg-6">
-            <div class="card h-100 shadow-sm">
-                <div class="card-body">
-                    <h2 class="h4">@showcase.Title → @showcase.Direction.GetDestinationName()</h2>
-                    <p class="text-secondary">@showcase.Description</p>
+    <div class="hero__tiles">
+        <a class="hero__tile hero__tile--yakutia" asp-page="/Catalog/Index" asp-route-region="@ShippingDirection.YakutiaToDonbass">
+            @IconRenderer.Render("snowflake")
+            <strong>Витрина Якутии</strong>
+            <span class="muted">Шоколад, ореховые конфеты, зефир, молочная пастила</span>
+        </a>
+        <a class="hero__tile hero__tile--donbass" asp-page="/Catalog/Index" asp-route-region="@ShippingDirection.DonbassToYakutia">
+            @IconRenderer.Render("sun")
+            <strong>Витрина ДНР</strong>
+            <span class="muted">Пряники, карамель, «Доннари», вафли и зеркальные торты</span>
+        </a>
+        <a class="hero__tile" asp-page="/Gifts/Index">
+            @IconRenderer.Render("gift")
+            <strong>Подарочные наборы</strong>
+            <span class="muted">Готовые подборки с открыткой и без выбора состава</span>
+        </a>
+    </div>
+</section>
 
-                    @if (showcase.Waves.Count == 0)
-                    {
-                        <p class="text-secondary small">Ближайших волн пока нет — загляните позже.</p>
-                    }
-                    else
-                    {
-                        <table class="table table-sm align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Отправка</th>
-                                    <th>Приём заказов до</th>
-                                    <th>Заполнено</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (WaveSummary wave in showcase.Waves)
-                                {
-                                    <tr>
-                                        <td>@wave.ShipDate.FormatDate()</td>
-                                        <td>@wave.OrderCutoffDate.FormatDate()</td>
-                                        <td>@wave.FillPercent.FormatPercent()</td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    }
-
-                    <a class="btn btn-sm @showcase.ButtonClass" asp-page="/Catalog" asp-route-direction="@showcase.Direction">Открыть витрину</a>
+<section class="section">
+    <div class="section__head">
+        <h2>Ближайшие волны</h2>
+        <a class="btn btn--ghost btn--sm" asp-page="/Info/HowItWorks">Как это работает</a>
+    </div>
+    <div class="grid grid--2">
+        @{
+            var allWaves = Model.WavesToDonbass.Concat(Model.WavesToYakutia).Take(4).ToList();
+        }
+        @foreach (SweetBridge.Web.Services.Waves.WaveSummary wave in allWaves)
+        {
+            <article class="card card--flat wave-card">
+                <div class="row row--between">
+                    <strong>Волна №@wave.Number</strong>
+                    <span class="chip">@(wave.Direction == ShippingDirection.YakutiaToDonbass ? "Якутия → Донбасс" : "Донбасс → Якутия")</span>
                 </div>
-            </div>
-        </div>
-    }
-</div>
+                <p class="muted">
+                    @IconRenderer.Render("truck")
+                    Отправка @wave.ShipDate.ToString("dd.MM.yyyy") · приём заказов до @wave.OrderCutoffDate.ToString("dd.MM.yyyy")
+                </p>
+                <div class="progress" id="wave-@wave.Id" data-progress data-progress-max="100" data-progress-value="@wave.FillPercent">
+                    <span class="progress__value" data-progress-fill></span>
+                </div>
+                <p class="muted">
+                    Заполнено на @((int)Math.Round(wave.FillPercent))% ·
+                    @((wave.LoadedGrams / 1000.0).ToString("0.#")) кг из @(wave.CapacityGrams / 1000) кг
+                </p>
+                <a class="btn btn--outline btn--sm" asp-page="/Catalog/Index" asp-route-region="@wave.Direction">Собрать заказ</a>
+            </article>
+        }
+    </div>
+</section>
 
-<div class="row g-4 mt-1">
-    <div class="col-md-3">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h3 class="h6">Волны вместо посылок</h3>
-                <p class="small mb-0">Заказы едут сборной партией раз в две недели в каждом направлении.</p>
-            </div>
-        </div>
+<section class="section">
+    <div class="section__head">
+        <h2>Сладости Якутии</h2>
+        <a class="btn btn--ghost btn--sm" asp-page="/Catalog/Index" asp-route-region="@ShippingDirection.YakutiaToDonbass">Весь каталог</a>
     </div>
-    <div class="col-md-3">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h3 class="h6">Скидка за заполнение</h3>
-                <p class="small mb-0">Доставка считается от веса заказа и заполнения выбранной волны.</p>
-            </div>
-        </div>
+    <div class="product-grid">
+        @foreach (SweetBridge.Web.Services.Catalog.ProductCardViewModel product in Model.YakutiaShowcase)
+        {
+            <partial name="_ProductCard" model="product" />
+        }
     </div>
-    <div class="col-md-3">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h3 class="h6">Термоупаковка</h3>
-                <p class="small mb-0">Зимой и летом шоколад едет только с термоупаковкой.</p>
-            </div>
-        </div>
+</section>
+
+<section class="section">
+    <div class="section__head">
+        <h2>Сладости Донбасса</h2>
+        <a class="btn btn--ghost btn--sm" asp-page="/Catalog/Index" asp-route-region="@ShippingDirection.DonbassToYakutia">Весь каталог</a>
     </div>
-    <div class="col-md-3">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body">
-                <h3 class="h6">Подарок</h3>
-                <p class="small mb-0">Можно указать получателя в другом регионе и текст открытки.</p>
-            </div>
-        </div>
+    <div class="product-grid">
+        @foreach (SweetBridge.Web.Services.Catalog.ProductCardViewModel product in Model.DonbassShowcase)
+        {
+            <partial name="_ProductCard" model="product" />
+        }
     </div>
-</div>
+</section>
+
+<section class="section">
+    <div class="section__head"><h2>Как работает «волна»</h2></div>
+    <div class="grid grid--4">
+        <article class="card card--flat step-card">
+            <span class="step-card__number">1</span>
+            @IconRenderer.Render("cart")
+            <strong>Выбираете</strong>
+            <span class="muted">Сладости одной витрины и удобную волну.</span>
+        </article>
+        <article class="card card--flat step-card">
+            <span class="step-card__number">2</span>
+            @IconRenderer.Render("ticket")
+            <strong>Оформляете</strong>
+            <span class="muted">Доставку в свой город или подарок близкому человеку.</span>
+        </article>
+        <article class="card card--flat step-card">
+            <span class="step-card__number">3</span>
+            @IconRenderer.Render("wave")
+            <strong>Мы собираем</strong>
+            <span class="muted">Волна набирается, пока не достигнет нужного веса.</span>
+        </article>
+        <article class="card card--flat step-card">
+            <span class="step-card__number">4</span>
+            @IconRenderer.Render("map")
+            <strong>Вы забираете</strong>
+            <span class="muted">Заказ ждёт в пункте выдачи 5 дней.</span>
+        </article>
+    </div>
+</section>

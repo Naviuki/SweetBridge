@@ -1,0 +1,71 @@
+@page
+@model SweetBridge.Web.Pages.Account.ProfileModel
+@using SweetBridge.Web.Extensions
+@{
+    ViewData["Title"] = "Профиль";
+}
+<section class="page">
+    <div class="account-layout">
+        <partial name="_AccountNav" model="@(new[] { ("/Account/Orders", "Мои заказы"), ("/Account/Notifications", "Уведомления"), ("/Account/Favorites", "Избранное"), ("/Account/Profile", "Профиль") })" />
+
+        <div class="admin-content">
+            <h1 class="page__title">Профиль</h1>
+
+            <div class="card card-pad">
+                <h2>Личные данные</h2>
+                <form method="post">
+                    <div asp-validation-summary="ModelOnly" class="form-errors"></div>
+
+                    <label class="field">
+                        <span class="field__label">Имя и фамилия</span>
+                        <input class="field__control" asp-for="Input.Name" data-field-control autocomplete="name" />
+                        <span class="field__error" asp-validation-for="Input.Name"></span>
+                    </label>
+
+                    <label class="field">
+                        <span class="field__label">Электронная почта</span>
+                        <input class="field__control" asp-for="Input.Email" data-field-control type="email" readonly />
+                        <span class="field__hint">Почта аккаунта меняется через поддержку</span>
+                    </label>
+
+                    <label class="field">
+                        <span class="field__label">Телефон</span>
+                        <input class="field__control" asp-for="Input.Phone" data-field-control inputmode="tel" autocomplete="tel" />
+                        <span class="field__error" asp-validation-for="Input.Phone"></span>
+                    </label>
+
+                    <button class="btn btn--primary" type="submit">Сохранить</button>
+                </form>
+            </div>
+
+            <div class="card card-pad">
+                <h2>Смена пароля</h2>
+                <form method="post" asp-page-handler="ChangePassword">
+                    <label class="field">
+                        <span class="field__label">Текущий пароль</span>
+                        <input class="field__control" asp-for="Password.CurrentPassword" data-field-control
+                               autocomplete="current-password" />
+                        <span class="field__error" asp-validation-for="Password.CurrentPassword"></span>
+                    </label>
+
+                    <label class="field">
+                        <span class="field__label">Новый пароль</span>
+                        <input class="field__control" asp-for="Password.NewPassword" data-field-control
+                               autocomplete="new-password" />
+                        <span class="field__hint">Минимум 8 символов, цифра, заглавная буква и спецсимвол</span>
+                        <span class="field__error" asp-validation-for="Password.NewPassword"></span>
+                    </label>
+
+                    <label class="field">
+                        <span class="field__label">Повторите новый пароль</span>
+                        <input class="field__control" asp-for="Password.ConfirmPassword" data-field-control
+                               autocomplete="new-password" />
+                        <span class="field__error" asp-validation-for="Password.ConfirmPassword"></span>
+                    </label>
+
+                    <button class="btn btn--secondary" type="submit">Сменить пароль</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>

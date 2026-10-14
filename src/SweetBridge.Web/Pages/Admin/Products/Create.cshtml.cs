@@ -1,29 +1,38 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SweetBridge.Web.Domain.Enums;
 using SweetBridge.Web.Domain.Exceptions;
 using SweetBridge.Web.Services.Catalog;
+using SweetBridge.Web.Services.Media;
 
 namespace SweetBridge.Web.Pages.Admin.Products;
 
 /// <summary>
-/// Создание товара каталога.
+/// Создание товара с загрузкой фотографии.
 /// </summary>
-/// <param name="productManagementService">Сервис управления товарами.</param>
-public sealed class CreateModel(IProductManagementService productManagementService) : PageModel
+/// <param name="productService">Сервис управления каталогом.</param>
+/// <param name="imageStorage">Хранилище изображений.</param>
+public sealed class CreateModel(IProductManagementService productService, IImageStorage imageStorage) : PageModel
 {
     /// <summary>
-    /// Данные формы товара.
+    /// Данные товара.
     /// </summary>
     [BindProperty]
     public InputModel Input { get; set; } = new();
 
     /// <summary>
-    /// Создаёт товар и возвращает к списку.
+    /// Загружаемое изображение товара.
+    /// </summary>
+    [BindProperty]
+    public IFormFile? Photo { get; set; }
+
+    /// <summary>
+    /// Создаёт товар.
     /// </summary>
     /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Возврат к списку товаров.</returns>
+    /// <returns>Перенаправление на список товаров.</returns>
     public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
         if (!ModelState.IsValid)
@@ -31,27 +40,58 @@ public sealed class CreateModel(IProductManagementService productManagementServi
             return Page();
         }
 
+        string? photoPath = null;
+
+        if (Photo is not null && Photo.Length > 0)
+        {
+            ImageValidationResult validation = await imageStorage.ValidateAsync(Photo, cancellationToken);
+
+            if (!validation.IsValid)
+            {
+                ModelState.AddModelError(nameof(Photo), validation.ErrorMessage ?? "Файл не принят.");
+
+                return Page();
+            }
+
+            photoPath = await imageStorage.SaveAsync(Photo, cancellationToken);
+        }
+
         try
         {
-            ProductSummary product = await productManagementService.CreateAsync(Input.ToProductInput(), cancellationToken);
-            TempData["Success"] = $"Товар {product.Id} добавлен в каталог.";
+            await productService.CreateAsync(ToInput(photoPath), cancellationToken);
+            TempData["Success"] = "Товар создан.";
+
+            return RedirectToPage("/Admin/Products/Index");
         }
         catch (DomainException exception)
         {
             ModelState.AddModelError(string.Empty, exception.Message);
+
             return Page();
         }
-
-        return RedirectToPage("/Admin/Products/Index");
     }
 
+    private ProductInput ToInput(string? photoPath) =>
+        new(
+            Input.Id,
+            Input.ProducerName,
+            Input.Region,
+            Input.Name,
+            Input.Category,
+            Input.WeightGrams,
+            Input.Price,
+            Input.IsTemperatureSensitive,
+            Input.ShelfLifeDays,
+            photoPath,
+            Input.Description);
+
     /// <summary>
-    /// Данные формы товара с русскими сообщениями валидации.
+    /// Данные формы товара.
     /// </summary>
     public sealed class InputModel
     {
         /// <summary>
-        /// Идентификатор товара, например <c>YKT-011</c>.
+        /// Идентификатор товара.
         /// </summary>
         [Required(ErrorMessage = "Укажите идентификатор товара.")]
         [StringLength(32, MinimumLength = 3, ErrorMessage = "Идентификатор должен быть от 3 до 32 символов.")]
@@ -59,32 +99,32 @@ public sealed class CreateModel(IProductManagementService productManagementServi
         public string Id { get; set; } = string.Empty;
 
         /// <summary>
-        /// Регион производителя.
-        /// </summary>
-        [Display(Name = "Регион производителя")]
-        public Region Region { get; set; } = Region.Yakutia;
-
-        /// <summary>
         /// Название производителя.
         /// </summary>
         [Required(ErrorMessage = "Укажите производителя.")]
-        [StringLength(200, ErrorMessage = "Название производителя слишком длинное.")]
+        [StringLength(200, ErrorMessage = "Название производителя не должно быть длиннее 200 символов.")]
         [Display(Name = "Производитель")]
-        public string Manufacturer { get; set; } = string.Empty;
+        public string ProducerName { get; set; } = string.Empty;
 
         /// <summary>
-        /// Наименование товара.
+        /// Витрина.
         /// </summary>
-        [Required(ErrorMessage = "Укажите наименование товара.")]
-        [StringLength(200, ErrorMessage = "Наименование товара слишком длинное.")]
-        [Display(Name = "Наименование")]
+        [Display(Name = "Витрина")]
+        public Region Region { get; set; } = Region.Yakutia;
+
+        /// <summary>
+        /// Название товара.
+        /// </summary>
+        [Required(ErrorMessage = "Укажите название товара.")]
+        [StringLength(200, ErrorMessage = "Название не должно быть длиннее 200 символов.")]
+        [Display(Name = "Название")]
         public string Name { get; set; } = string.Empty;
 
         /// <summary>
-        /// Категория в каталоге.
+        /// Категория.
         /// </summary>
         [Required(ErrorMessage = "Укажите категорию.")]
-        [StringLength(100, ErrorMessage = "Название категории слишком длинное.")]
+        [StringLength(100, ErrorMessage = "Категория не должна быть длиннее 100 символов.")]
         [Display(Name = "Категория")]
         public string Category { get; set; } = string.Empty;
 
@@ -96,16 +136,16 @@ public sealed class CreateModel(IProductManagementService productManagementServi
         public int WeightGrams { get; set; } = 100;
 
         /// <summary>
-        /// Цена одной штуки в рублях.
+        /// Цена в рублях.
         /// </summary>
         [Range(0, 1_000_000, ErrorMessage = "Цена должна быть от 0 до 1 000 000 рублей.")]
         [Display(Name = "Цена, ₽")]
         public decimal Price { get; set; }
 
         /// <summary>
-        /// Признак температурной чувствительности.
+        /// Признак термочувствительности.
         /// </summary>
-        [Display(Name = "Боится мороза и жары")]
+        [Display(Name = "Термочувствительный")]
         public bool IsTemperatureSensitive { get; set; }
 
         /// <summary>
@@ -113,27 +153,13 @@ public sealed class CreateModel(IProductManagementService productManagementServi
         /// </summary>
         [Range(1, 3650, ErrorMessage = "Срок годности должен быть от 1 до 3650 дней.")]
         [Display(Name = "Срок годности, дней")]
-        public int ShelfLifeDays { get; set; } = 180;
+        public int ShelfLifeDays { get; set; } = 30;
 
         /// <summary>
-        /// Имя файла изображения в каталоге <c>wwwroot/images</c>.
-        /// </summary>
-        [StringLength(200, ErrorMessage = "Имя файла слишком длинное.")]
-        [Display(Name = "Файл изображения")]
-        public string? Photo { get; set; }
-
-        /// <summary>
-        /// Описание товара.
+        /// Описание.
         /// </summary>
         [StringLength(1000, ErrorMessage = "Описание не должно быть длиннее 1000 символов.")]
         [Display(Name = "Описание")]
         public string? Description { get; set; }
-
-        /// <summary>
-        /// Преобразует данные формы в команду сервиса.
-        /// </summary>
-        /// <returns>Команда для сервиса управления товарами.</returns>
-        public ProductInput ToProductInput() =>
-            new(Id, Region, Manufacturer, Name, Category, WeightGrams, Price, IsTemperatureSensitive, ShelfLifeDays, Photo, Description);
     }
 }

@@ -1,0 +1,35 @@
+@page "{number?}"
+@model SweetBridge.Web.Pages.Checkout.PayModel
+@using SweetBridge.Web.Extensions
+@{
+    var order = Model.Order!;
+    ViewData["Title"] = $"Оплата заказа {order.Number}";
+}
+<section class="page">
+    <div class="card auth-card card-pad">
+        <h1 class="page__title">Оплата заказа @order.Number</h1>
+        <p class="page__lead">Сумма к оплате: <strong>@order.Total.FormatPrice()</strong></p>
+
+        @if (order.PaymentStatus == SweetBridge.Web.Domain.Enums.PaymentStatus.Paid)
+        {
+            <div class="flash flash--success" role="status">
+                @IconRenderer.Render("check")
+                Заказ оплачен. Следите за статусом в трекере.
+            </div>
+            <a class="btn btn--primary btn--block" asp-page="/Orders/Details" asp-route-number="@order.Number">Открыть заказ</a>
+        }
+        else
+        {
+            <div class="flash flash--info" role="note">
+                @IconRenderer.Render("info")
+                Это демонстрационный платёж: данные карты не вводятся и нигде не хранятся.
+                Нажмите кнопку, чтобы подтвердить оплату.
+            </div>
+
+            <form method="post">
+                <button class="btn btn--primary btn--block" type="submit">Оплатить @order.Total.FormatPrice()</button>
+            </form>
+            <a class="btn btn--ghost btn--block" asp-page="/Orders/Details" asp-route-number="@order.Number">Вернуться к заказу</a>
+        }
+    </div>
+</section>

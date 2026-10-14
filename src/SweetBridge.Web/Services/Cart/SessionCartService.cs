@@ -13,8 +13,7 @@ namespace SweetBridge.Web.Services.Cart;
 /// </summary>
 public sealed class SessionCartService : ICartService
 {
-    private const string SessionKey = "SweetWave.Cart";
-    private const int MaxQuantityPerProduct = 50;
+    private const string SessionKey = "SweetBridge.Cart";
 
     private readonly AppDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -35,6 +34,17 @@ public sealed class SessionCartService : ICartService
 
     /// <inheritdoc />
     public int GetItemCount() => ReadStates().Sum(state => state.Quantity);
+
+    /// <inheritdoc />
+    public int GetQuantity(string productId) =>
+        string.IsNullOrWhiteSpace(productId)
+            ? 0
+            : ReadStates().FirstOrDefault(state =>
+                string.Equals(state.ProductId, productId, StringComparison.Ordinal))?.Quantity ?? 0;
+
+    /// <inheritdoc />
+    public void Add(string productId, int quantity) =>
+        AddItemAsync(productId, quantity, CancellationToken.None).GetAwaiter().GetResult();
 
     /// <inheritdoc />
     public async Task<CartView> GetCartAsync(CancellationToken cancellationToken)
@@ -65,9 +75,9 @@ public sealed class SessionCartService : ICartService
 
         CartLineState? existing = states.Find(state => state.ProductId == product.Id);
         int newQuantity = quantity + (existing?.Quantity ?? 0);
-        if (newQuantity > MaxQuantityPerProduct)
+        if (newQuantity > CartLimits.MaxQuantityPerProduct)
         {
-            throw new DomainException($"Максимальное количество одного товара в заказе — {MaxQuantityPerProduct} шт.");
+            throw new DomainException($"Максимальное количество одного товара в заказе — {CartLimits.MaxQuantityPerProduct} шт.");
         }
 
         states.RemoveAll(state => state.ProductId == product.Id);
@@ -80,9 +90,9 @@ public sealed class SessionCartService : ICartService
     /// <inheritdoc />
     public async Task<CartView> SetQuantityAsync(string productId, int quantity, CancellationToken cancellationToken)
     {
-        if (quantity > MaxQuantityPerProduct)
+        if (quantity > CartLimits.MaxQuantityPerProduct)
         {
-            throw new DomainException($"Максимальное количество одного товара в заказе — {MaxQuantityPerProduct} шт.");
+            throw new DomainException($"Максимальное количество одного товара в заказе — {CartLimits.MaxQuantityPerProduct} шт.");
         }
 
         List<CartLineState> states = ReadStates();
@@ -177,7 +187,7 @@ public sealed class SessionCartService : ICartService
 
         CartView cart = await BuildCartAsync(states, cancellationToken);
 
-        if (!cart.IsEmpty && cart.Direction != product.ShippingDirection)
+        if (!cart.IsEmpty && cart.ShippingDirection != product.ShippingDirection)
         {
             throw new DomainException(
                 "В корзине уже есть товары другой витрины. Оформите заказ или очистите корзину, чтобы сменить витрину.");

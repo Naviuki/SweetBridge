@@ -1,51 +1,42 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using SweetBridge.Web.Domain.Exceptions;
 using SweetBridge.Web.Services.Catalog;
 
 namespace SweetBridge.Web.Pages.Admin.Products;
 
 /// <summary>
-/// Управление каталогом: список всех товаров, включая скрытые.
+/// Список товаров администратора.
 /// </summary>
-/// <param name="productManagementService">Сервис управления товарами.</param>
-public sealed class IndexModel(IProductManagementService productManagementService) : PageModel
+/// <param name="productService">Сервис управления каталогом.</param>
+public sealed class IndexModel(IProductManagementService productService) : PageModel
 {
     /// <summary>
-    /// Все товары каталога.
+    /// Все товары, включая скрытые.
     /// </summary>
     public IReadOnlyList<ProductSummary> Products { get; private set; } = [];
 
     /// <summary>
-    /// Загружает все товары.
+    /// Загружает товары.
     /// </summary>
     /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Задача, отражающая выполнение операции.</returns>
-    public async Task OnGetAsync(CancellationToken cancellationToken)
-    {
-        Products = await productManagementService.GetAllAsync(cancellationToken);
-    }
+    /// <returns>Результат выполнения.</returns>
+    public async Task OnGetAsync(CancellationToken cancellationToken) =>
+        Products = await productService.GetAllAsync(cancellationToken);
 
     /// <summary>
-    /// Скрывает товар или возвращает его в каталог.
+    /// Показывает или скрывает товар.
     /// </summary>
-    /// <param name="Id">Идентификатор товара.</param>
+    /// <param name="id">Идентификатор товара.</param>
     /// <param name="isVisible">Требуемая видимость.</param>
     /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Возврат к списку.</returns>
-    public async Task<IActionResult> OnPostVisibilityAsync(string id, bool isVisible, CancellationToken cancellationToken)
+    /// <returns>Перенаправление на список товаров.</returns>
+    public async Task<IActionResult> OnPostVisibilityAsync(
+        string id,
+        bool isVisible,
+        CancellationToken cancellationToken)
     {
-        try
-        {
-            await productManagementService.SetVisibilityAsync(id, isVisible, cancellationToken);
-            TempData["Success"] = isVisible
-                ? $"Товар {id} снова в каталоге."
-                : $"Товар {id} скрыт из каталога.";
-        }
-        catch (DomainException exception)
-        {
-            TempData["Error"] = exception.Message;
-        }
+        await productService.SetVisibilityAsync(id, isVisible, cancellationToken);
+        TempData["Info"] = isVisible ? "Товар снова в каталоге." : "Товар скрыт из каталога.";
 
         return RedirectToPage();
     }

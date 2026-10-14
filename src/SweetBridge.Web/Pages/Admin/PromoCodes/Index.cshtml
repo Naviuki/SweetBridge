@@ -1,0 +1,108 @@
+@page
+@model SweetBridge.Web.Pages.Admin.PromoCodes.IndexModel
+@using SweetBridge.Web.Extensions
+@using SweetBridge.Web.Domain.Enums
+@{
+    ViewData["Title"] = "Промокоды";
+}
+<section class="page">
+    <div class="admin-layout">
+        <partial name="_AdminNav" />
+
+        <div class="admin-content">
+            <h1 class="page__title">Промокоды</h1>
+
+            <form class="card card-pad admin-toolbar" method="post" asp-page-handler="Create">
+                <label class="field">
+                    <span class="field__label">Код</span>
+                    <input class="field__control" asp-for="Input.Code" data-field-control placeholder="MOST10" />
+                </label>
+
+                <label class="field">
+                    <span class="field__label">Тип</span>
+                    <select class="field__control" asp-for="Input.Kind" data-field-control>
+                        <option value="@PromoCodeKind.Percent">Процент</option>
+                        <option value="@PromoCodeKind.FixedAmount">Фиксированная сумма</option>
+                    </select>
+                </label>
+
+                <label class="field">
+                    <span class="field__label">Размер</span>
+                    <input class="field__control" asp-for="Input.Value" data-field-control type="number" min="1" step="1" />
+                </label>
+
+                <label class="field">
+                    <span class="field__label">Действует с</span>
+                    <input class="field__control" asp-for="Input.ValidFrom" data-field-control type="date" />
+                </label>
+
+                <label class="field">
+                    <span class="field__label">Действует по</span>
+                    <input class="field__control" asp-for="Input.ValidTo" data-field-control type="date" />
+                </label>
+
+                <label class="field">
+                    <span class="field__label">Лимит применений</span>
+                    <input class="field__control" asp-for="Input.MaxUses" data-field-control type="number" min="0" />
+                </label>
+
+                <label class="field">
+                    <span class="field__label">Мин. сумма, ₽</span>
+                    <input class="field__control" asp-for="Input.MinOrderAmount" data-field-control type="number" min="0" />
+                </label>
+
+                <button class="btn btn--primary" type="submit">@IconRenderer.Render("plus") Создать</button>
+            </form>
+
+            <div class="card card-pad">
+                <div class="table-scroll">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Код</th>
+                                <th>Скидка</th>
+                                <th>Период</th>
+                                <th>Лимит</th>
+                                <th>Использований</th>
+                                <th>Мин. сумма</th>
+                                <th>Состояние</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (SweetBridge.Web.Domain.Entities.PromoCode code in Model.PromoCodes)
+                            {
+                                <tr>
+                                    <td class="nowrap"><strong>@code.Code</strong></td>
+                                    <td class="nowrap">
+                                        @(code.Kind == PromoCodeKind.Percent
+                                            ? $"{code.Value:0.##}%"
+                                            : code.Value.FormatPrice())
+                                    </td>
+                                    <td class="nowrap">@code.ValidFrom.FormatDate() — @code.ValidTo.FormatDate()</td>
+                                    <td>@(code.MaxUses == 0 ? "без лимита" : code.MaxUses.ToString())</td>
+                                    <td>@code.UsedCount</td>
+                                    <td class="nowrap">@code.MinOrderAmount.FormatPrice()</td>
+                                    <td>
+                                        <span class="chip @(code.IsActive ? "chip--success" : "chip--muted")">
+                                            @(code.IsActive ? "активен" : "выключен")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <form method="post" asp-page-handler="Toggle">
+                                            <input type="hidden" name="id" value="@code.Id" />
+                                            <input type="hidden" name="isActive" value="@((!code.IsActive).ToString().ToLowerInvariant())" />
+                                            <button class="btn btn--ghost btn--sm" type="submit">
+                                                @(code.IsActive ? "Выключить" : "Включить")
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

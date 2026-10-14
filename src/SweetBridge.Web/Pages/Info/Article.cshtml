@@ -1,0 +1,54 @@
+@page
+@model SweetBridge.Web.Pages.Info.ArticleModel
+@{
+    var article = Model.Article!;
+    ViewData["Title"] = article.Title;
+}
+<section class="page article-page">
+    <div class="article-layout">
+        <div class="card card-pad">
+            <h1 class="page__title">@article.Title</h1>
+            <p class="page__lead">@article.Lead</p>
+
+            @if (article.Slug == "how-it-works")
+            {
+                <div class="grid grid--4 mt-16">
+                    <span class="chip chip--yakutia">1 · Выбираете</span>
+                    <span class="chip chip--yakutia">2 · Оформляете</span>
+                    <span class="chip chip--donbass">3 · Мы собираем</span>
+                    <span class="chip chip--donbass">4 · Вы забираете</span>
+                </div>
+            }
+
+            <div class="accordion mt-16">
+                @for (var index = 0; index < article.Blocks.Count; index++)
+                {
+                    string panelId = $"panel-{article.Slug}-{index}";
+                    <div class="accordion__item">
+                        <button class="accordion__trigger" type="button"
+                                aria-expanded="@(index == 0 ? "true" : "false")" aria-controls="@panelId"
+                                data-accordion-trigger>
+                            @article.Blocks[index].Title
+                        </button>
+                        <div class="accordion__panel" id="@panelId" @(index == 0 ? string.Empty : "hidden")>
+                            @article.Blocks[index].Body
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <aside class="card card-pad">
+            <h2 class="article-side__title">Другие страницы</h2>
+            <ul class="site-footer__list">
+                @foreach (SweetBridge.Web.Services.Content.ContentPage item in Model.Related)
+                {
+                    <li>
+                        <a asp-page="/Info/Article" asp-route-slug="@(item.Slug)">@item.Title</a>
+                    </li>
+                }
+            </ul>
+            <a class="btn btn--outline btn--block mt-16" asp-page="/Support/Index">Написать в поддержку</a>
+        </aside>
+    </div>
+</section>

@@ -1,63 +1,81 @@
 @page
-@model IndexModel
+@model SweetBridge.Web.Pages.Admin.Products.IndexModel
+@using SweetBridge.Web.Extensions
+@using SweetBridge.Web.Domain.Enums
+@using SweetBridge.Web.Services.Catalog
 @{
     ViewData["Title"] = "Товары";
 }
+<section class="page">
+    <div class="admin-layout">
+        <partial name="_AdminNav" />
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1 class="h3 mb-0">Товары</h1>
-    <a class="btn btn-primary" asp-page="/Admin/Products/Create">Добавить товар</a>
-</div>
+        <div class="admin-content">
+            <div class="row row--between">
+                <h1 class="page__title">Товары</h1>
+                <a class="btn btn--primary" asp-page="/Admin/Products/Create">@IconRenderer.Render("plus") Добавить товар</a>
+            </div>
 
-<div class="table-responsive">
-    <table class="table align-middle">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Наименование</th>
-                <th>Витрина</th>
-                <th>Категория</th>
-                <th class="text-end">Вес</th>
-                <th class="text-end">Цена</th>
-                <th>Статус</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (ProductSummary product in Model.Products)
-            {
-                <tr class="@(product.IsActive ? string.Empty : "table-secondary")">
-                    <td class="text-nowrap">@product.Id</td>
-                    <td>
-                        <div class="fw-semibold">@product.Name</div>
-                        <div class="small text-secondary">@product.Manufacturer</div>
-                    </td>
-                    <td>@product.ShippingDirection.ToShortName()</td>
-                    <td>@product.Category</td>
-                    <td class="text-end">@product.WeightGrams.FormatWeight()</td>
-                    <td class="text-end">@product.Price.FormatPrice()</td>
-                    <td>
-                        @if (product.IsActive)
-                        {
-                            <span class="badge bg-success text-white">в каталоге</span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-secondary text-white">скрыт</span>
-                        }
-                    </td>
-                    <td class="text-end text-nowrap">
-                        <a class="btn btn-sm btn-outline-primary" asp-page="/Admin/Products/Edit" asp-route-id="@product.Id">Изменить</a>
-                        <form method="post" asp-page-handler="Visibility" class="d-inline">
-                            <input type="hidden" name="id" value="@product.Id" />
-                            <input type="hidden" name="isVisible" value="@((!product.IsActive).ToString().ToLowerInvariant())" />
-                            <button class="btn btn-sm btn-outline-secondary" type="submit">
-                                @(product.IsActive ? "Скрыть" : "Показать")
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
+            <div class="card card-pad">
+                <div class="table-scroll">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Название</th>
+                                <th>Производитель</th>
+                                <th>Витрина</th>
+                                <th>Категория</th>
+                                <th class="text-end">Вес</th>
+                                <th class="text-end">Цена</th>
+                                <th>Состояние</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (ProductSummary product in Model.Products)
+                            {
+                                <tr>
+                                    <td class="nowrap">@product.Id</td>
+                                    <td>
+                                        <a asp-page="/Catalog/Product" asp-route-id="@product.Id">@product.Name</a>
+                                        @if (product.IsTemperatureSensitive)
+                                        {
+                                            <span class="chip chip--accent" title="Термочувствительный">@IconRenderer.Render("thermo")</span>
+                                        }
+                                    </td>
+                                    <td>@product.ProducerName</td>
+                                    <td>
+                                        <span class="chip @(product.Region == Region.Yakutia ? "chip--yakutia" : "chip--donbass")">
+                                            @product.Region.ToDisplayName()
+                                        </span>
+                                    </td>
+                                    <td>@product.Category</td>
+                                    <td class="text-end nowrap">@product.WeightGrams.FormatWeight()</td>
+                                    <td class="text-end nowrap">@product.Price.FormatPrice()</td>
+                                    <td>
+                                        <span class="chip @(product.IsActive ? "chip--success" : "chip--muted")">
+                                            @(product.IsActive ? "в каталоге" : "скрыт")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="row gap-6">
+                                            <a class="btn btn--outline btn--sm" asp-page="/Admin/Products/Edit" asp-route-id="@product.Id">Изменить</a>
+                                            <form method="post" asp-page-handler="Visibility">
+                                                <input type="hidden" name="id" value="@product.Id" />
+                                                <input type="hidden" name="isVisible" value="@((!product.IsActive).ToString().ToLowerInvariant())" />
+                                                <button class="btn btn--ghost btn--sm" type="submit">
+                                                    @(product.IsActive ? "Скрыть" : "Показать")
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

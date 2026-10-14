@@ -3,59 +3,55 @@ using SweetBridge.Web.Domain.Enums;
 namespace SweetBridge.Web.Services.Orders;
 
 /// <summary>
-/// Модель чтения заказа для страниц подтверждения, отслеживания и админки.
+/// Полная модель чтения заказа.
 /// </summary>
-/// <param name="Id">Идентификатор заказа.</param>
-/// <param name="number">Номер заказа.</param>
-/// <param name="createdAtUtc">Момент создания в UTC.</param>
-/// <param name="Status">Текущий статус.</param>
-/// <param name="isGift">Признак того, что заказ является подарком.</param>
-/// <param name="buyerName">Имя покупателя.</param>
-/// <param name="buyerPhone">Телефон покупателя.</param>
-/// <param name="RecipientName">Имя получателя.</param>
-/// <param name="RecipientPhone">Телефон получателя.</param>
-/// <param name="recipientCity">Город получателя.</param>
-/// <param name="recipientPickupPoint">Пункт выдачи.</param>
-/// <param name="giftMessage">Текст открытки.</param>
-/// <param name="waveId">Идентификатор волны.</param>
-/// <param name="WaveShipDate">Дата отправки волны.</param>
-/// <param name="TotalWeightGrams">Общий вес заказа в граммах.</param>
-/// <param name="GoodsCost">Стоимость товаров в рублях.</param>
-/// <param name="shippingCost">Стоимость доставки в рублях.</param>
-/// <param name="thermoPackCost">Стоимость термоупаковки в рублях.</param>
-/// <param name="appliedDiscountPercent">Применённая скидка на доставку в процентах.</param>
-/// <param name="Items">Позиции заказа.</param>
-/// <param name="History">Лента смены статусов.</param>
 public sealed record OrderSummary(
     int Id,
     string Number,
+    string? UserId,
     DateTime CreatedAtUtc,
     OrderStatus Status,
+    PaymentStatus PaymentStatus,
     bool IsGift,
     string BuyerName,
     string BuyerPhone,
     string RecipientName,
     string RecipientPhone,
     string RecipientCity,
-    string RecipientPickupPoint,
+    string? RecipientPickupPoint,
     string? GiftMessage,
     int WaveId,
+    int WaveNumber,
     DateOnly WaveShipDate,
     int TotalWeightGrams,
     decimal GoodsCost,
+    decimal DiscountAmount,
+    string? PromoCode,
     decimal ShippingCost,
     decimal ThermoPackCost,
-    decimal AppliedDiscountPercent,
+    decimal FillDiscountPercent,
+    decimal Total,
+    DateTime? PaymentDueAtUtc,
     IReadOnlyList<OrderLineSummary> Items,
     IReadOnlyList<OrderStatusPoint> History)
 {
     /// <summary>
-    /// Итоговая сумма к оплате в рублях.
+    /// Признак того, что заказ принадлежит пользователю.
     /// </summary>
-    public decimal TotalCost => GoodsCost + ShippingCost + ThermoPackCost;
+    /// <param name="userId">Идентификатор текущего пользователя.</param>
+    /// <returns><see langword="true"/>, если заказ найден в кабинете пользователя.</returns>
+    public bool BelongsTo(string? userId) =>
+        !string.IsNullOrEmpty(UserId) && string.Equals(UserId, userId, StringComparison.Ordinal);
 
     /// <summary>
-    /// Признак того, что термоупаковка была оплачена.
+    /// Подписи шагов трекера до текущего статуса.
     /// </summary>
-    public bool HasThermoPack => ThermoPackCost > 0m;
+    /// <returns>Подписи шагов.</returns>
+    public OrderTrackerViewModel ToTracker()
+    {
+        string[] steps = ["Принят", "Собирается", "В пути", "Готов к выдаче", "Получен"];
+        int current = Status == OrderStatus.Cancelled ? 0 : (int)Status;
+
+        return new OrderTrackerViewModel(steps, Math.Clamp(current, 0, steps.Length - 1));
+    }
 }

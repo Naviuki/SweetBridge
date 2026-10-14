@@ -1,80 +1,67 @@
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using SweetBridge.Web.Domain.Entities;
 using SweetBridge.Web.Domain.Enums;
-using SweetBridge.Web.Extensions;
 using SweetBridge.Web.Domain.Exceptions;
+using SweetBridge.Web.Services.Auditing;
 using SweetBridge.Web.Services.Waves;
 
 namespace SweetBridge.Web.Pages.Admin.Waves;
 
 /// <summary>
-/// Расписание волн: список с заполнением, создание волны и отправка.
+/// Управление волнами: создание и отправка.
 /// </summary>
 /// <param name="waveService">Сервис волн.</param>
-public sealed class IndexModel(IWaveService waveService) : PageModel
+/// <param name="auditService">Журнал действий.</param>
+public sealed class IndexModel(IWaveService waveService, IAuditService auditService) : PageModel
 {
     /// <summary>
-    /// Данные формы создания волны.
-    /// </summary>
-    [BindProperty]
-    public InputModel Input { get; set; } = new();
-
-    /// <summary>
-    /// Все волны обоих направлений.
+    /// Все волны.
     /// </summary>
     public IReadOnlyList<WaveSummary> Waves { get; private set; } = [];
 
     /// <summary>
-    /// Загружает расписание волн.
+    /// Дата отправки новой волны.
     /// </summary>
-    /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Задача, отражающая выполнение операции.</returns>
-    public async Task OnGetAsync(CancellationToken cancellationToken)
-    {
-        Waves = await waveService.GetAllAsync(cancellationToken);
-    }
+    [BindProperty]
+    [Required]
+    public DateOnly ShipDate { get; set; } = DateOnly.FromDateTime(DateTime.UtcNow).AddDays(7);
 
     /// <summary>
-    /// Создаёт запланированную волну с автоматически рассчитанным дедлайном приёма заказов.
+    /// Направление новой волны.
+    /// </summary>
+    [BindProperty]
+    public ShippingDirection Direction { get; set; } = ShippingDirection.YakutiaToDonbass;
+
+    /// <summary>
+    /// Загружает волны.
     /// </summary>
     /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Возврат к списку.</returns>
+    /// <returns>Результат выполнения.</returns>
+    public async Task OnGetAsync(CancellationToken cancellationToken) =>
+        Waves = await waveService.GetAllAsync(cancellationToken);
+
+    /// <summary>
+    /// Создаёт волну.
+    /// </summary>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Перенаправление на список волн.</returns>
     public async Task<IActionResult> OnPostCreateAsync(CancellationToken cancellationToken)
-    {
-        if (ModelState.IsValid && Input.ShipDate is DateOnly shipDate)
-        {
-            try
-            {
-                WaveSummary wave = await waveService.CreateAsync(
-                    new CreateWaveCommand(Input.Direction, shipDate),
-                    cancellationToken);
-
-                TempData["Success"] = $"Волна на {wave.ShipDate.FormatDate()} создана, приём заказов до {wave.OrderCutoffDate.FormatDate()}.";
-            }
-            catch (DomainException exception)
-            {
-                ModelState.AddModelError(string.Empty, exception.Message);
-            }
-        }
-
-        Waves = await waveService.GetAllAsync(cancellationToken);
-
-        return Page();
-    }
-
-    /// <summary>
-    /// Отправляет волну и переводит её заказы в статус «в пути».
-    /// </summary>
-    /// <param name="waveId">Идентификатор волны.</param>
-    /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Возврат к списку.</returns>
-    public async Task<IActionResult> OnPostDispatchAsync(int waveId, CancellationToken cancellationToken)
     {
         try
         {
-            await waveService.DispatchAsync(waveId, cancellationToken);
-            TempData["Success"] = "Волна отправлена, заказы переведены в статус «в пути».";
+            WaveSummary wave = await waveService.CreateAsync(new CreateWaveCommand(Direction, ShipDate), cancellationToken);
+
+            await auditService.WriteAsync(
+                User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "system",
+                "Wave.Create",
+                nameof(Wave),
+                $"Волна №{wave.Number} на {wave.ShipDate:yyyy-MM-dd}",
+                cancellationToken);
+
+            TempData["Success"] = $"Волна №{wave.Number} создана: отправка {wave.ShipDate:dd.MM.yyyy}.";
         }
         catch (DomainException exception)
         {
@@ -85,21 +72,31 @@ public sealed class IndexModel(IWaveService waveService) : PageModel
     }
 
     /// <summary>
-    /// Данные формы создания волны.
+    /// Отправляет волну.
     /// </summary>
-    public sealed class InputModel
+    /// <param name="id">Идентификатор волны.</param>
+    /// <param name="cancellationToken">Токен отмены.</param>
+    /// <returns>Перенаправление на список волн.</returns>
+    public async Task<IActionResult> OnPostDispatchAsync(int id, CancellationToken cancellationToken)
     {
-        /// <summary>
-        /// Направление доставки.
-        /// </summary>
-        [Display(Name = "Направление")]
-        public ShippingDirection Direction { get; set; } = ShippingDirection.YakutiaToDonbass;
+        try
+        {
+            await waveService.DispatchAsync(id, cancellationToken);
 
-        /// <summary>
-        /// Запланированная дата отправки.
-        /// </summary>
-        [Required(ErrorMessage = "Укажите дату отправки.")]
-        [Display(Name = "Дата отправки")]
-        public DateOnly? ShipDate { get; set; }
+            await auditService.WriteAsync(
+                User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "system",
+                "Wave.Dispatch",
+                nameof(Wave),
+                $"Волна {id} отправлена",
+                cancellationToken);
+
+            TempData["Success"] = "Волна отправлена, заказы переведены в статус «В пути».";
+        }
+        catch (DomainException exception)
+        {
+            TempData["Error"] = exception.Message;
+        }
+
+        return RedirectToPage();
     }
 }

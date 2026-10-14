@@ -4,7 +4,7 @@ using SweetBridge.Web.Domain.Exceptions;
 namespace SweetBridge.Web.Domain.Entities;
 
 /// <summary>
-/// Кондитерское изделие одной из двух витрин.
+/// Кондитерское изделие одной из витрин.
 /// </summary>
 public sealed class Product
 {
@@ -14,45 +14,50 @@ public sealed class Product
 
     private Product(
         string id,
+        int producerId,
         Region region,
-        string manufacturer,
         string name,
         string category,
         int weightGrams,
         decimal price,
         bool isTemperatureSensitive,
         int shelfLifeDays,
-        string? photo,
+        string? photoPath,
         string? description)
     {
         Id = id;
+        ProducerId = producerId;
         Region = region;
-        Manufacturer = manufacturer;
         Name = name;
         Category = category;
         WeightGrams = weightGrams;
         Price = price;
         IsTemperatureSensitive = isTemperatureSensitive;
         ShelfLifeDays = shelfLifeDays;
-        Photo = photo;
+        PhotoPath = photoPath;
         Description = description;
         IsActive = true;
     }
 
     /// <summary>
-    /// Идентификатор товара в формате каталога, например <c>YKT-001</c>.
+    /// Идентификатор товара в формате <c>YKT-001</c>.
     /// </summary>
     public string Id { get; private set; } = string.Empty;
 
     /// <summary>
-    /// Регион производителя.
+    /// Идентификатор производителя.
+    /// </summary>
+    public int ProducerId { get; private set; }
+
+    /// <summary>
+    /// Регион производства, берётся у производителя.
     /// </summary>
     public Region Region { get; private set; }
 
     /// <summary>
     /// Название производителя.
     /// </summary>
-    public string Manufacturer { get; private set; } = string.Empty;
+    public Producer? Producer { get; private set; }
 
     /// <summary>
     /// Наименование товара.
@@ -60,7 +65,7 @@ public sealed class Product
     public string Name { get; private set; } = string.Empty;
 
     /// <summary>
-    /// Категория каталога, используемая в фильтре.
+    /// Категория каталога.
     /// </summary>
     public string Category { get; private set; } = string.Empty;
 
@@ -75,7 +80,7 @@ public sealed class Product
     public decimal Price { get; private set; }
 
     /// <summary>
-    /// Признак того, что товар нельзя отправлять без термоупаковки в холодные и жаркие месяцы.
+    /// Признак термочувствительности.
     /// </summary>
     public bool IsTemperatureSensitive { get; private set; }
 
@@ -85,111 +90,114 @@ public sealed class Product
     public int ShelfLifeDays { get; private set; }
 
     /// <summary>
-    /// Имя файла изображения в каталоге <c>wwwroot/images</c> или <see langword="null"/> для заглушки.
+    /// Путь к фотографии внутри <c>wwwroot/uploads/products</c>.
     /// </summary>
-    public string? Photo { get; private set; }
+    public string? PhotoPath { get; private set; }
 
     /// <summary>
-    /// Описание товара, показываемое на карточке.
+    /// Описание товара.
     /// </summary>
     public string? Description { get; private set; }
 
     /// <summary>
-    /// Признак мягкого удаления: скрытые товары остаются в прошлых заказах, но исчезают из каталога.
+    /// Признак мягкого удаления.
     /// </summary>
     public bool IsActive { get; private set; }
 
     /// <summary>
-    /// Направление доставки: товары региона всегда едут в противоположный регион.
+    /// Направление доставки: товары региона едут в противоположный регион.
     /// </summary>
     public ShippingDirection ShippingDirection => Region == Region.Yakutia
         ? ShippingDirection.YakutiaToDonbass
         : ShippingDirection.DonbassToYakutia;
 
     /// <summary>
-    /// Создаёт новый активный товар.
+    /// Создаёт товар.
     /// </summary>
-    /// <param name="id">Уникальный идентификатор товара.</param>
-    /// <param name="region">Регион производителя.</param>
-    /// <param name="manufacturer">Название производителя.</param>
-    /// <param name="name">Наименование товара.</param>
-    /// <param name="category">Категория в каталоге.</param>
-    /// <param name="weightGrams">Вес одной штуки в граммах.</param>
-    /// <param name="price">Цена одной штуки в рублях.</param>
-    /// <param name="isTemperatureSensitive">Признак температурной чувствительности.</param>
+    /// <param name="id">Идентификатор товара.</param>
+    /// <param name="producerId">Производитель.</param>
+    /// <param name="region">Регион производства.</param>
+    /// <param name="name">Наименование.</param>
+    /// <param name="category">Категория.</param>
+    /// <param name="weightGrams">Вес в граммах.</param>
+    /// <param name="price">Цена в рублях.</param>
+    /// <param name="isTemperatureSensitive">Термочувствительность.</param>
     /// <param name="shelfLifeDays">Срок годности в днях.</param>
-    /// <param name="photo">Имя файла изображения или <see langword="null"/>.</param>
-    /// <param name="description">Описание товара или <see langword="null"/>.</param>
-    /// <returns>Созданный товар.</returns>
+    /// <param name="photoPath">Путь к фотографии.</param>
+    /// <param name="description">Описание.</param>
+    /// <returns>Новый товар.</returns>
     /// <exception cref="DomainException">Данные товара некорректны.</exception>
     public static Product Create(
         string id,
+        int producerId,
         Region region,
-        string manufacturer,
         string name,
         string category,
         int weightGrams,
         decimal price,
         bool isTemperatureSensitive,
         int shelfLifeDays,
-        string? photo,
+        string? photoPath,
         string? description)
     {
-        Validate(id, manufacturer, name, category, weightGrams, price, shelfLifeDays);
+        Validate(id, name, category, weightGrams, price, shelfLifeDays);
 
         return new Product(
-            id,
+            id.Trim().ToUpperInvariant(),
+            producerId,
             region,
-            manufacturer.Trim(),
             name.Trim(),
             category.Trim(),
             weightGrams,
             price,
             isTemperatureSensitive,
             shelfLifeDays,
-            photo,
+            photoPath,
             description);
     }
 
     /// <summary>
-    /// Обновляет изменяемые данные товара.
+    /// Обновляет редактируемые данные товара.
     /// </summary>
-    /// <param name="manufacturer">Название производителя.</param>
-    /// <param name="name">Наименование товара.</param>
-    /// <param name="category">Категория в каталоге.</param>
-    /// <param name="weightGrams">Вес одной штуки в граммах.</param>
-    /// <param name="price">Цена одной штуки в рублях.</param>
-    /// <param name="isTemperatureSensitive">Признак температурной чувствительности.</param>
-    /// <param name="shelfLifeDays">Срок годности в днях.</param>
-    /// <param name="photo">Имя файла изображения или <see langword="null"/>.</param>
-    /// <param name="description">Описание товара или <see langword="null"/>.</param>
+    /// <param name="producerId">Производитель.</param>
+    /// <param name="region">Регион производства.</param>
+    /// <param name="name">Наименование.</param>
+    /// <param name="category">Категория.</param>
+    /// <param name="weightGrams">Вес в граммах.</param>
+    /// <param name="price">Цена в рублях.</param>
+    /// <param name="isTemperatureSensitive">Термочувствительность.</param>
+    /// <param name="shelfLifeDays">Срок годности.</param>
+    /// <param name="photoPath">Путь к фотографии.</param>
+    /// <param name="description">Описание.</param>
     /// <exception cref="DomainException">Данные товара некорректны.</exception>
     public void Update(
-        string manufacturer,
+        int producerId,
+        Region region,
         string name,
         string category,
         int weightGrams,
         decimal price,
         bool isTemperatureSensitive,
         int shelfLifeDays,
-        string? photo,
+        string? photoPath,
         string? description)
     {
-        Validate(Id, manufacturer, name, category, weightGrams, price, shelfLifeDays);
+        Validate(Id, name, category, weightGrams, price, shelfLifeDays);
 
-        Manufacturer = manufacturer.Trim();
+        ProducerId = producerId;
+        Region = region;
         Name = name.Trim();
         Category = category.Trim();
         WeightGrams = weightGrams;
         Price = price;
         IsTemperatureSensitive = isTemperatureSensitive;
         ShelfLifeDays = shelfLifeDays;
-        Photo = photo;
+        PhotoPath = photoPath;
         Description = description;
     }
 
     /// <summary>
-    /// Скрывает товар из каталога (мягкое удаление).
+    /// Скрывает товар из каталога.
     /// </summary>
     public void Hide() => IsActive = false;
 
@@ -200,7 +208,6 @@ public sealed class Product
 
     private static void Validate(
         string id,
-        string manufacturer,
         string name,
         string category,
         int weightGrams,
@@ -210,11 +217,6 @@ public sealed class Product
         if (string.IsNullOrWhiteSpace(id))
         {
             throw new DomainException("У товара должен быть идентификатор.");
-        }
-
-        if (string.IsNullOrWhiteSpace(manufacturer))
-        {
-            throw new DomainException("У товара должен быть производитель.");
         }
 
         if (string.IsNullOrWhiteSpace(name))

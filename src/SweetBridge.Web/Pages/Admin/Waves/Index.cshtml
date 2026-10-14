@@ -1,79 +1,91 @@
 @page
-@model IndexModel
+@model SweetBridge.Web.Pages.Admin.Waves.IndexModel
+@using SweetBridge.Web.Extensions
+@using SweetBridge.Web.Domain.Enums
+@using SweetBridge.Web.Services.Waves
 @{
     ViewData["Title"] = "Волны";
 }
+<section class="page">
+    <div class="admin-layout">
+        <partial name="_AdminNav" />
 
-<h1 class="h3 mb-3">Волны</h1>
+        <div class="admin-content">
+            <h1 class="page__title">Волны доставки</h1>
 
-<div class="card shadow-sm mb-4">
-    <div class="card-body">
-        <h2 class="h5">Создать волну</h2>
-        <form method="post" asp-page-handler="Create" class="row g-3 align-items-end">
-            <div class="col-md-4">
-                <label class="form-label" asp-for="Input.Direction"></label>
-                <select class="form-select" asp-for="Input.Direction" asp-items="Html.GetEnumSelectList<ShippingDirection>()"></select>
+            <form class="card card-pad admin-toolbar" method="post" asp-page-handler="Create">
+                <label class="field">
+                    <span class="field__label">Дата отправки</span>
+                    <input class="field__control" asp-for="ShipDate" type="date" data-field-control />
+                </label>
+
+                <label class="field">
+                    <span class="field__label">Направление</span>
+                    <select class="field__control" asp-for="Direction" data-field-control>
+                        <option value="@ShippingDirection.YakutiaToDonbass">Якутия → ДНР</option>
+                        <option value="@ShippingDirection.DonbassToYakutia">ДНР → Якутия</option>
+                    </select>
+                </label>
+
+                <button class="btn btn--primary" type="submit">@IconRenderer.Render("plus") Создать волну</button>
+                <p class="muted">Дедлайн приёма заказов и вместимость считаются по логистическим настройкам.</p>
+            </form>
+
+            <div class="card card-pad">
+                <div class="table-scroll">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Волна</th>
+                                <th>Направление</th>
+                                <th>Отправка</th>
+                                <th>Приём до</th>
+                                <th>Заполнено</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (WaveSummary wave in Model.Waves)
+                            {
+                                <tr>
+                                    <td>№@wave.Number</td>
+                                    <td>@wave.Direction.ToShortName()</td>
+                                    <td class="nowrap">@wave.ShipDate.FormatDate()</td>
+                                    <td class="nowrap">@wave.OrderCutoffDate.FormatDate()</td>
+                                    <td>
+                                        <div class="progress" id="wave-@wave.Id" data-progress
+                                             data-progress-max="100" data-progress-value="@wave.FillPercent">
+                                            <span class="progress__value" data-progress-fill></span>
+                                        </div>
+                                        <span class="muted">
+                                            @wave.FillPercent.FormatPercent() · @wave.LoadedGrams.FormatWeight()
+                                            из @wave.CapacityGrams.FormatWeight()
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="chip">@wave.Status.ToDisplayName()</span>
+                                    </td>
+                                    <td>
+                                        @if (wave.Status == WaveStatus.Planned)
+                                        {
+                                            <form method="post" asp-page-handler="Dispatch">
+                                                <input type="hidden" name="id" value="@wave.Id" />
+                                                <button class="btn btn--outline btn--sm" type="submit"
+                                                        disabled="@(!wave.IsReadyToDispatch)"
+                                                        title="@(wave.IsReadyToDispatch ? "Отправить волну" : "Набрана недостаточная загрузка")">
+                                                    @IconRenderer.Render("truck")
+                                                    Отправить
+                                                </button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="col-md-4">
-                <label class="form-label" asp-for="Input.ShipDate"></label>
-                <input class="form-control" asp-for="Input.ShipDate" type="date" />
-                <span class="form-text">Дедлайн приёма заказов рассчитывается автоматически.</span>
-                <span class="text-danger small" asp-validation-for="Input.ShipDate"></span>
-            </div>
-            <div class="col-md-4">
-                <button type="submit" class="btn btn-primary w-100">Создать</button>
-            </div>
-        </form>
+        </div>
     </div>
-</div>
-
-<div class="table-responsive">
-    <table class="table align-middle">
-        <thead>
-            <tr>
-                <th>Направление</th>
-                <th>Отправка</th>
-                <th>Приём заказов до</th>
-                <th class="text-end">Загружено</th>
-                <th class="text-end">Заполнение</th>
-                <th>Статус</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (WaveSummary wave in Model.Waves)
-            {
-                <tr>
-                    <td>@wave.Direction.ToShortName()</td>
-                    <td>@wave.ShipDate.FormatDate()</td>
-                    <td>@wave.OrderCutoffDate.FormatDate()</td>
-                    <td class="text-end">@wave.LoadedGrams.FormatWeight() / @wave.CapacityGrams.FormatWeight()</td>
-                    <td class="text-end">@wave.FillPercent.FormatPercent()</td>
-                    <td>
-                        <span class="badge bg-light text-dark border">@wave.Status.ToDisplayName()</span>
-                        @if (wave.IsReadyToDispatch)
-                        {
-                            <span class="badge bg-success text-white">готова к отправке</span>
-                        }
-                    </td>
-                    <td class="text-end">
-                        @if (wave.Status == WaveStatus.Planned)
-                        {
-                            <form method="post" asp-page-handler="Dispatch" class="d-inline">
-                                <input type="hidden" name="waveId" value="@wave.WaveId" />
-                                <button class="btn btn-sm btn-outline-danger" type="submit" @(wave.IsReadyToDispatch ? null : "disabled")>
-                                    Отправить волну
-                                </button>
-                            </form>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
-
-<p class="text-secondary small">
-    Отправить волну можно только при загрузке не меньше минимальной: иначе кнопка недоступна,
-    а сервер вернёт понятную ошибку.
-</p>
+</section>

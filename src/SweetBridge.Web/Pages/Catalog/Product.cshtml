@@ -1,0 +1,86 @@
+@page "{id}"
+@model SweetBridge.Web.Pages.Catalog.ProductModel
+@using SweetBridge.Web.Domain.Enums
+@using SweetBridge.Web.Extensions
+@{
+    var product = Model.Product!;
+    ViewData["Title"] = product.Name;
+    string photoPath = string.IsNullOrWhiteSpace(product.PhotoPath) ? "/images/placeholders/product.svg" : product.PhotoPath;
+    string directionTitle = product.ShippingDirection == ShippingDirection.YakutiaToDonbass
+        ? "из Якутии в Донбасс"
+        : "из Донбасса в Якутию";
+}
+<section class="page product-page">
+    <nav class="breadcrumbs" aria-label="Хлебные крошки">
+        <a asp-page="/Index">Главная</a>
+        <span>/</span>
+        <a asp-page="/Catalog/Index" asp-route-region="@product.ShippingDirection">Каталог</a>
+        <span>/</span>
+        <span>@product.Name</span>
+    </nav>
+
+    <div class="product-detail">
+        <div class="card product-detail__photo">
+            <span class="chip @(product.Region == Region.Yakutia ? "chip--yakutia" : "chip--donbass")">@product.Region.ToDisplayName()</span>
+            <img src="@photoPath" alt="@product.Name" width="640" height="480" />
+        </div>
+
+        <div class="product-detail__info">
+            <p class="product-card__producer">@product.ProducerName</p>
+            <h1 class="page__title">@product.Name</h1>
+            <p class="muted">@product.Category · доставка @directionTitle</p>
+
+            <ul class="product-detail__facts">
+                <li>@IconRenderer.Render("weight") Вес: <strong>@product.WeightGrams.FormatWeight()</strong></li>
+                <li>@IconRenderer.Render("clock") Срок годности: <strong>@product.ShelfLifeDays дней</strong></li>
+                <li>@IconRenderer.Render("truck") Доставка волной каждые 2 недели</li>
+                @if (product.IsTemperatureSensitive)
+                {
+                    <li>@IconRenderer.Render("thermo") Термочувствительный: <strong>термоупаковка включена</strong></li>
+                }
+            </ul>
+
+            @if (!string.IsNullOrWhiteSpace(product.Description))
+            {
+                <p class="product-detail__description">@product.Description</p>
+            }
+
+            <p class="product-detail__price">@product.Price.FormatPrice()</p>
+
+            <div class="row gap-12">
+                @if (Model.QuantityInCart > 0)
+                {
+                    <a class="btn btn--secondary" asp-page="/Cart/Index">
+                        @IconRenderer.Render("cart")
+                        В корзине: @Model.QuantityInCart шт.
+                    </a>
+                }
+                else
+                {
+                    <form class="row gap-8" method="post" asp-page-handler="AddToCart">
+                        <div class="stepper" data-stepper data-min="1" data-max="99">
+                            <button class="stepper__btn" type="button" data-stepper-step="-1" aria-label="Меньше">−</button>
+                            <input class="stepper__value" type="number" name="Quantity" value="@Model.Quantity"
+                                   min="1" max="99" data-stepper-input data-field-control aria-label="Количество" />
+                            <button class="stepper__btn" type="button" data-stepper-step="1" aria-label="Больше">+</button>
+                        </div>
+                        <button class="btn btn--primary" type="submit">В корзину</button>
+                    </form>
+                }
+
+                <form method="post" asp-page-handler="ToggleFavorite">
+                    <input type="hidden" name="Id" value="@product.Id" />
+                    <button class="btn btn--ghost" type="submit">
+                        @IconRenderer.Render("heart")
+                        @(Model.IsFavorite ? "В избранном" : "В избранное")
+                    </button>
+                </form>
+            </div>
+
+            <div class="flash flash--info" role="note">
+                @IconRenderer.Render("wave")
+                Заказы собираются в волны. Чем больше заказов в волне, тем ниже стоимость доставки.
+            </div>
+        </div>
+    </div>
+</section>

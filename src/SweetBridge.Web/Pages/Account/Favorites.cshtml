@@ -1,0 +1,57 @@
+@page
+@model SweetBridge.Web.Pages.Account.FavoritesModel
+@using SweetBridge.Web.Extensions
+@{
+    ViewData["Title"] = "Избранное";
+}
+<section class="page">
+    <div class="account-layout">
+        <partial name="_AccountNav" model="@(new[] { ("/Account/Orders", "Мои заказы"), ("/Account/Notifications", "Уведомления"), ("/Account/Favorites", "Избранное"), ("/Account/Profile", "Профиль") })" />
+
+        <div class="admin-content">
+            <h1 class="page__title">Избранное</h1>
+
+            @if (Model.Products.Count == 0)
+            {
+                <div class="empty">
+                    @IconRenderer.Render("heart")
+                    <h2>Здесь пока пусто</h2>
+                    <p class="muted">Нажимайте на сердечко в каталоге, чтобы вернуться к товарам позже.</p>
+                    <a class="btn btn--primary" asp-page="/Catalog/Index">Открыть каталог</a>
+                </div>
+            }
+            else
+            {
+                <div class="product-grid">
+                    @foreach (SweetBridge.Web.Services.Catalog.ProductCardViewModel product in Model.Products)
+                    {
+                        <article class="card product-card">
+                            <a class="product-card__photo-link" asp-page="/Catalog/Product" asp-route-id="@product.Id">
+                                <img class="product-card__photo"
+                                     src="@(string.IsNullOrWhiteSpace(product.PhotoPath) ? "/images/placeholders/product.svg" : product.PhotoPath)"
+                                     alt="@product.Name" width="320" height="240" loading="lazy" />
+                            </a>
+                            <div class="card__body product-card__body">
+                                <p class="product-card__producer">@product.ProducerName</p>
+                                <h3 class="product-card__name">
+                                    <a asp-page="/Catalog/Product" asp-route-id="@product.Id">@product.Name</a>
+                                </h3>
+                                <p class="product-card__weight">@IconRenderer.Render("weight") @product.WeightGrams.FormatWeight()</p>
+                                <div class="row row--between product-card__footer">
+                                    <span class="product-card__price">@product.Price.FormatPrice()</span>
+                                    <form method="post" asp-page-handler="Remove">
+                                        <input type="hidden" name="productId" value="@product.Id" />
+                                        <button class="btn btn--ghost btn--sm" type="submit">
+                                            @IconRenderer.Render("trash")
+                                            Убрать
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </article>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</section>

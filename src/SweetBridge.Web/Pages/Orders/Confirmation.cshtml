@@ -1,87 +1,110 @@
-@page
-@model ConfirmationModel
+@page "{number?}"
+@model SweetBridge.Web.Pages.Orders.ConfirmationModel
+@using SweetBridge.Web.Extensions
+@using SweetBridge.Web.Domain.Enums
 @{
-    ViewData["Title"] = "Заказ оформлен";
+    var order = Model.Order!;
+    ViewData["Title"] = $"Заказ {order.Number}";
 }
-
-@if (Model.Order is not null)
-{
-    <div class="alert alert-success">
-        Заказ <strong>@Model.Order.Number</strong> принят и ждёт отправки в волне от @Model.Order.WaveShipDate.FormatDate().
-        Сохраните номер: по нему и телефону можно отслеживать статус доставки.
+<section class="page">
+    <div class="flash flash--success" role="status">
+        @IconRenderer.Render("check")
+        Заказ @order.Number принят и зарезервирован в волне №@order.WaveNumber.
     </div>
 
-    <div class="row g-4">
-        <div class="col-lg-6">
-            <div class="card shadow-sm mb-3">
-                <div class="card-body">
-                    <h2 class="h5">Состав заказа</h2>
-                    <ul class="list-group list-group-flush">
-                        @foreach (OrderLineSummary item in Model.Order.Items)
+    <div class="checkout-layout mt-16">
+        <div class="stack gap-16">
+            <div class="card card-pad">
+                <div class="row row--between">
+                    <h1 class="page__title">Заказ @order.Number</h1>
+                    @{
+                        string statusClass = order.Status switch
                         {
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <span>@item.ProductName × @item.Quantity</span>
-                                <span>@item.LineTotal.FormatPrice()</span>
-                            </li>
+                            OrderStatus.Cancelled => "chip--muted",
+                            OrderStatus.Received => "chip--success",
+                            OrderStatus.InTransit or OrderStatus.ReadyForPickup => "chip--yakutia",
+                            _ => "chip--accent"
+                        };
+                    }
+                    <span class="chip @statusClass">@order.Status.ToDisplayName()</span>
+                </div>
+
+                <partial name="_OrderTracker" model="order.ToTracker()" />
+
+                <table class="table table--compact mt-16">
+                    <tbody>
+                        <tr><th>Волна</th><td>№@order.WaveNumber, отправка @order.WaveShipDate.ToString("dd.MM.yyyy")</td></tr>
+                        <tr><th>Получатель</th><td>@order.RecipientName, @order.RecipientCity</td></tr>
+                        <tr><th>Пункт выдачи</th><td>@(order.RecipientPickupPoint ?? "не указан")</td></tr>
+                        <tr><th>Оплата</th><td>@order.PaymentStatus.ToDisplayName()</td></tr>
+                        @if (order.IsGift)
+                        {
+                            <tr><th>Открытка</th><td>@(order.GiftMessage ?? "без текста")</td></tr>
                         }
-                    </ul>
-                </div>
+                    </tbody>
+                </table>
             </div>
 
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h2 class="h5">Стоимость</h2>
-                    <div class="d-flex justify-content-between">
-                        <span>Товары</span><span>@Model.Order.GoodsCost.FormatPrice()</span>
-                    </div>
-                    <div class="d-flex justify-content-between">
-                        <span>Доставка</span><span>@Model.Order.ShippingCost.FormatPrice()</span>
-                    </div>
-                    @if (Model.Order.HasThermoPack)
+            <div class="card card-pad">
+                <h2>Состав заказа</h2>
+                <table class="table mt-8">
+                    <thead>
+                        <tr><th>Товар</th><th class="text-end">Кол-во</th><th class="text-end">Цена</th><th class="text-end">Сумма</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (SweetBridge.Web.Services.Orders.OrderLineSummary line in order.Items)
+                        {
+                            <tr>
+                                <td>@line.ProductName</td>
+                                <td class="text-end">@line.Quantity</td>
+                                <td class="text-end">@line.UnitPrice.FormatPrice()</td>
+                                <td class="text-end">@line.LineTotal.FormatPrice()</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <dl class="summary-list mt-16">
+                    <div class="summary-row"><dt>Товары</dt><dd>@order.GoodsCost.FormatPrice()</dd></div>
+                    @if (order.DiscountAmount > 0m)
                     {
-                        <div class="d-flex justify-content-between">
-                            <span>Термоупаковка</span><span>@Model.Order.ThermoPackCost.FormatPrice()</span>
-                        </div>
+                        <div class="summary-row"><dt>Скидка@(string.IsNullOrWhiteSpace(order.PromoCode) ? string.Empty : $" ({order.PromoCode})")</dt><dd class="text-success">−@order.DiscountAmount.FormatPrice()</dd></div>
                     }
-                    <div class="d-flex justify-content-between border-top mt-2 pt-2">
-                        <strong>Итого</strong><strong>@Model.Order.TotalCost.FormatPrice()</strong>
-                    </div>
-                    <p class="small text-secondary mb-0 mt-2">
-                        Стоимость зафиксирована на момент оформления.
-                    </p>
-                </div>
+                    <div class="summary-row"><dt>Доставка</dt><dd>@order.ShippingCost.FormatPrice()</dd></div>
+                    <div class="summary-row"><dt>Термоупаковка</dt><dd>@order.ThermoPackCost.FormatPrice()</dd></div>
+                    @if (order.FillDiscountPercent > 0m)
+                    {
+                        <div class="summary-row"><dt>Скидка за заполнение волны</dt><dd>@((int)order.FillDiscountPercent)%</dd></div>
+                    }
+                    <div class="summary-total"><span>Итого</span><span>@order.Total.FormatPrice()</span></div>
+                </dl>
             </div>
         </div>
 
-        <div class="col-lg-6">
-            <div class="card shadow-sm mb-3">
-                <div class="card-body">
-                    <h2 class="h5">Доставка</h2>
-                    <p class="mb-1"><strong>Получатель:</strong> @Model.Order.RecipientName</p>
-                    <p class="mb-1"><strong>Телефон:</strong> @Model.Order.RecipientPhone</p>
-                    <p class="mb-1"><strong>Город:</strong> @Model.Order.RecipientCity</p>
-                    @if (!string.IsNullOrWhiteSpace(Model.Order.RecipientPickupPoint))
-                    {
-                        <p class="mb-1"><strong>Пункт выдачи:</strong> @Model.Order.RecipientPickupPoint</p>
-                    }
-                    <p class="mb-0 text-secondary small">Вес заказа: @Model.Order.TotalWeightGrams.FormatWeight()</p>
+        <aside class="card cart-summary">
+            @if (order.PaymentStatus == PaymentStatus.Pending)
+            {
+                <h2>Оплата</h2>
+                <p class="muted">
+                    Вес зарезервирован в волне до @order.PaymentDueAtUtc?.ToString("HH:mm") UTC.
+                    После этого резерв снимется.
+                </p>
+                <a class="btn btn--primary btn--block" asp-page="/Checkout/Pay" asp-route-number="@order.Number">
+                    Оплатить @order.Total.FormatPrice()
+                </a>
+            }
+            else
+            {
+                <h2>Оплата</h2>
+                <div class="flash flash--success" role="status">@IconRenderer.Render("check") Заказ оплачен</div>
+            }
 
-                    @if (Model.Order.IsGift && !string.IsNullOrWhiteSpace(Model.Order.GiftMessage))
-                    {
-                        <div class="alert alert-light border small mt-3 mb-0">
-                            <strong>Открытка:</strong> @Model.Order.GiftMessage
-                        </div>
-                    }
-                </div>
-            </div>
-
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h2 class="h5">Статус</h2>
-                    <partial name="_OrderStatusTimeline" model="Model.Order" />
-                    <a class="btn btn-outline-primary mt-3" asp-page="/Orders/Track">Отследить заказ</a>
-                </div>
-            </div>
-        </div>
+            <a class="btn btn--outline btn--block" asp-page="/Orders/Confirmation" asp-route-number="@order.Number" asp-page-handler="Receipt">
+                @IconRenderer.Render("download")
+                Скачать накладную (PDF)
+            </a>
+            <a class="btn btn--ghost btn--block" asp-page="/Orders/Details" asp-route-number="@order.Number">Карточка заказа</a>
+            <a class="btn btn--ghost btn--block" asp-page="/Catalog/Index">Продолжить покупки</a>
+        </aside>
     </div>
-}
+</section>

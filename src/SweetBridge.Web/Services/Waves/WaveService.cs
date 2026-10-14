@@ -6,7 +6,9 @@ using SweetBridge.Web.Domain.Exceptions;
 using SweetBridge.Web.Infrastructure.Persistence;
 using SweetBridge.Web.Options;
 using SweetBridge.Web.Services.Catalog;
+using SweetBridge.Web.Services.Common;
 using SweetBridge.Web.Services.Delivery;
+using SweetBridge.Web.Services.Notifications;
 using SweetBridge.Web.Services.Seasons;
 
 namespace SweetBridge.Web.Services.Waves;
@@ -17,12 +19,14 @@ namespace SweetBridge.Web.Services.Waves;
 public sealed class WaveService : IWaveService
 {
     private const int GramsPerKilogram = 1000;
+    private const int ConcurrencyRetryCount = 3;
 
     private readonly AppDbContext _dbContext;
     private readonly IDeliveryCostCalculator _deliveryCostCalculator;
     private readonly ISeasonPolicy _seasonPolicy;
+    private readonly INotificationService _notificationService;
     private readonly LogisticsOptions _options;
-    private readonly TimeProvider _timeProvider;
+    private readonly IBusinessClock _clock;
 
     /// <summary>
     /// Создаёт новый экземпляр класса <see cref="WaveService"/>.
@@ -30,26 +34,30 @@ public sealed class WaveService : IWaveService
     /// <param name="dbContext">Контекст базы данных.</param>
     /// <param name="deliveryCostCalculator">Калькулятор стоимости доставки.</param>
     /// <param name="seasonPolicy">Сезонные правила.</param>
+    /// <param name="notificationService">Сервис уведомлений.</param>
     /// <param name="options">Логистические параметры.</param>
-    /// <param name="timeProvider">Провайдер времени.</param>
+    /// <param name="clock">Источник текущего времени.</param>
     public WaveService(
         AppDbContext dbContext,
         IDeliveryCostCalculator deliveryCostCalculator,
         ISeasonPolicy seasonPolicy,
+        INotificationService notificationService,
         IOptions<LogisticsOptions> options,
-        TimeProvider timeProvider)
+        IBusinessClock clock)
     {
         ArgumentNullException.ThrowIfNull(dbContext);
         ArgumentNullException.ThrowIfNull(deliveryCostCalculator);
         ArgumentNullException.ThrowIfNull(seasonPolicy);
+        ArgumentNullException.ThrowIfNull(notificationService);
         ArgumentNullException.ThrowIfNull(options);
-        ArgumentNullException.ThrowIfNull(timeProvider);
+        ArgumentNullException.ThrowIfNull(clock);
 
         _dbContext = dbContext;
         _deliveryCostCalculator = deliveryCostCalculator;
         _seasonPolicy = seasonPolicy;
+        _notificationService = notificationService;
         _options = options.Value;
-        _timeProvider = timeProvider;
+        _clock = clock;
     }
 
     /// <inheritdoc />
@@ -62,27 +70,9 @@ public sealed class WaveService : IWaveService
     {
         ArgumentNullException.ThrowIfNull(products);
 
-        DateOnly today = Today;
+        List<Wave> waves = await GetOpenWavesAsync(direction, cancellationToken);
 
-        List<Wave> waves = await _dbContext.Waves
-            .AsNoTracking()
-            .Where(wave => wave.Direction == direction
-                && wave.Status == WaveStatus.Planned
-                && wave.OrderCutoffDate >= today)
-            .OrderBy(wave => wave.ShipDate)
-            .ToListAsync(cancellationToken);
-
-        if (waves.Count == 0)
-        {
-            return [];
-        }
-
-        Dictionary<int, int> loadedGrams = await WaveLoadQueries.GetLoadedGramsAsync(
-            _dbContext,
-            [.. waves.Select(wave => wave.Id)],
-            cancellationToken);
-
-        return [.. waves.Select(wave => CreateOffer(wave, products, orderWeightGrams, thermoPackRequested, loadedGrams))];
+        return [.. waves.Select(wave => CreateOffer(wave, products, orderWeightGrams, thermoPackRequested))];
     }
 
     /// <inheritdoc />
@@ -91,23 +81,9 @@ public sealed class WaveService : IWaveService
         int count,
         CancellationToken cancellationToken)
     {
-        DateOnly today = Today;
+        List<Wave> waves = await GetOpenWavesAsync(direction, cancellationToken);
 
-        List<Wave> waves = await _dbContext.Waves
-            .AsNoTracking()
-            .Where(wave => wave.Direction == direction
-                && wave.Status == WaveStatus.Planned
-                && wave.OrderCutoffDate >= today)
-            .OrderBy(wave => wave.ShipDate)
-            .Take(count)
-            .ToListAsync(cancellationToken);
-
-        Dictionary<int, int> loadedGrams = await WaveLoadQueries.GetLoadedGramsAsync(
-            _dbContext,
-            [.. waves.Select(wave => wave.Id)],
-            cancellationToken);
-
-        return [.. waves.Select(wave => CreateSummary(wave, loadedGrams.GetValueOrDefault(wave.Id)))];
+        return [.. waves.Take(count).Select(CreateSummary)];
     }
 
     /// <inheritdoc />
@@ -119,12 +95,7 @@ public sealed class WaveService : IWaveService
             .ThenBy(wave => wave.Direction)
             .ToListAsync(cancellationToken);
 
-        Dictionary<int, int> loadedGrams = await WaveLoadQueries.GetLoadedGramsAsync(
-            _dbContext,
-            [.. waves.Select(wave => wave.Id)],
-            cancellationToken);
-
-        return [.. waves.Select(wave => CreateSummary(wave, loadedGrams.GetValueOrDefault(wave.Id)))];
+        return [.. waves.Select(CreateSummary)];
     }
 
     /// <inheritdoc />
@@ -132,7 +103,13 @@ public sealed class WaveService : IWaveService
     {
         ArgumentNullException.ThrowIfNull(command);
 
+        int nextNumber = await _dbContext.Waves
+            .AsNoTracking()
+            .Select(wave => (int?)wave.Number)
+            .MaxAsync(cancellationToken) ?? 0;
+
         Wave wave = Wave.Create(
+            nextNumber + 1,
             command.Direction,
             command.ShipDate,
             command.ShipDate.AddDays(-_options.OrderCutoffDaysBeforeShipment),
@@ -142,50 +119,85 @@ public sealed class WaveService : IWaveService
         _dbContext.Waves.Add(wave);
         await _dbContext.SaveChangesAsync(cancellationToken);
 
-        return CreateSummary(wave, 0);
+        return CreateSummary(wave);
     }
 
     /// <inheritdoc />
     public async Task DispatchAsync(int waveId, CancellationToken cancellationToken)
     {
-        Wave wave = await _dbContext.Waves.FirstOrDefaultAsync(item => item.Id == waveId, cancellationToken)
-            ?? throw new DomainException($"Волна {waveId} не найдена.");
+        DateTime nowUtc = _clock.UtcNow;
 
-        int loadedGrams = await WaveLoadQueries.GetLoadedGramsAsync(_dbContext, waveId, cancellationToken);
-        wave.MarkDispatched(loadedGrams);
-
-        DateTime nowUtc = _timeProvider.GetUtcNow().UtcDateTime;
-
-        List<Order> orders = await _dbContext.Orders
-            .Where(order => order.WaveId == waveId
-                && (order.Status == OrderStatus.Accepted || order.Status == OrderStatus.Assembling))
-            .ToListAsync(cancellationToken);
-
-        foreach (Order order in orders)
+        for (int attempt = 1; attempt <= ConcurrencyRetryCount; attempt++)
         {
-            order.Ship(nowUtc);
+            Wave wave = await _dbContext.Waves.FirstOrDefaultAsync(item => item.Id == waveId, cancellationToken)
+                ?? throw new DomainException($"Волна {waveId} не найдена.");
+
+            wave.MarkDispatched();
+
+            List<Order> orders = await _dbContext.Orders
+                .Where(order => order.WaveId == waveId
+                    && (order.Status == OrderStatus.Accepted || order.Status == OrderStatus.Assembling))
+                .ToListAsync(cancellationToken);
+
+            foreach (Order order in orders)
+            {
+                order.Ship(nowUtc);
+            }
+
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+
+            try
+            {
+                await _dbContext.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+            }
+            catch (DbUpdateConcurrencyException) when (attempt < ConcurrencyRetryCount)
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                _dbContext.ChangeTracker.Clear();
+
+                continue;
+            }
+
+            foreach (Order order in orders.Where(order => !string.IsNullOrEmpty(order.UserId)))
+            {
+                await _notificationService.AddAsync(
+                    order.UserId!,
+                    $"Заказ {order.Number} отправлен",
+                    $"Волна №{wave.Number} отправлена {wave.ShipDate:dd.MM.yyyy}. Ожидайте доставку в пункт выдачи.",
+                    order.Id,
+                    cancellationToken);
+            }
+
+            return;
         }
 
-        await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
+        throw new DomainException("Волна занята другим оператором. Попробуйте отправить её ещё раз.");
     }
 
-    private DateOnly Today => DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
+    private async Task<List<Wave>> GetOpenWavesAsync(ShippingDirection direction, CancellationToken cancellationToken)
+    {
+        DateOnly today = _clock.LocalToday;
+
+        return await _dbContext.Waves
+            .AsNoTracking()
+            .Where(wave => wave.Direction == direction
+                && wave.Status == WaveStatus.Planned
+                && wave.OrderCutoffDate >= today)
+            .OrderBy(wave => wave.ShipDate)
+            .ToListAsync(cancellationToken);
+    }
 
     private WaveOffer CreateOffer(
         Wave wave,
         IReadOnlyList<ProductSummary> products,
         int orderWeightGrams,
-        bool thermoPackRequested,
-        IReadOnlyDictionary<int, int> loadedGrams)
+        bool thermoPackRequested)
     {
-        int loaded = loadedGrams.GetValueOrDefault(wave.Id);
         bool thermoPackRequired = _seasonPolicy.IsThermoPackRequired(products, wave.ShipDate);
         bool thermoPackPaid = thermoPackRequired || thermoPackRequested;
 
-        decimal fillPercentAfter = wave.GetFillPercent(loaded + orderWeightGrams);
+        decimal fillPercentAfter = wave.GetFillPercent(orderWeightGrams);
 
         DeliveryCostResult cost = _deliveryCostCalculator.Calculate(
             new DeliveryCostRequest(orderWeightGrams, fillPercentAfter, thermoPackPaid));
@@ -194,14 +206,15 @@ public sealed class WaveService : IWaveService
 
         return new WaveOffer(
             wave.Id,
+            wave.Number,
             wave.Direction,
             wave.ShipDate,
             wave.OrderCutoffDate,
             wave.CapacityGrams,
-            loaded,
-            wave.GetFillPercent(loaded),
+            wave.LoadedGrams,
+            wave.GetFillPercent(0),
             fillPercentAfter,
-            wave.CanAccept(loaded, orderWeightGrams),
+            wave.CanAccept(orderWeightGrams),
             cost,
             thermoPackRequired,
             _options.MinDeliveryDays + extraDays,
@@ -210,16 +223,17 @@ public sealed class WaveService : IWaveService
             wave.ShipDate.AddDays(_options.MaxDeliveryDays + extraDays));
     }
 
-    private static WaveSummary CreateSummary(Wave wave, int loadedGrams) =>
+    private static WaveSummary CreateSummary(Wave wave) =>
         new(
             wave.Id,
+            wave.Number,
             wave.Direction,
             wave.ShipDate,
             wave.OrderCutoffDate,
             wave.CapacityGrams,
             wave.MinLoadGrams,
-            loadedGrams,
-            wave.GetFillPercent(loadedGrams),
+            wave.LoadedGrams,
+            wave.GetFillPercent(0),
             wave.Status,
-            wave.IsReadyToDispatch(loadedGrams));
+            wave.IsReadyToDispatch());
 }

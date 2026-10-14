@@ -1,0 +1,43 @@
+@using SweetBridge.Web.Extensions
+<nav class="card admin-nav" aria-label="Администрирование">
+    <a href="/Admin/Dashboard">
+        @IconRenderer.Render("info")
+        Сводка
+    </a>
+    <a href="/Admin/Orders">
+        @IconRenderer.Render("box")
+        Заказы
+    </a>
+    <a href="/Admin/Waves">
+        @IconRenderer.Render("wave")
+        Волны
+    </a>
+    <a href="/Admin/Products">
+        @IconRenderer.Render("cart")
+        Товары
+    </a>
+    <a href="/Admin/PromoCodes">
+        @IconRenderer.Render("ticket")
+        Промокоды
+    </a>
+    <a href="/Admin/PickupPoints">
+        @IconRenderer.Render("map")
+        Пункты выдачи
+    </a>
+    <a href="/Admin/GiftSets">
+        @IconRenderer.Render("gift")
+        Подарочные наборы
+    </a>
+    <a href="/Admin/Forms">
+        @IconRenderer.Render("message")
+        Обращения и заявки
+    </a>
+    <a href="/Admin/Users">
+        @IconRenderer.Render("users")
+        Пользователи
+    </a>
+    <a href="/Admin/Audit">
+        @IconRenderer.Render("clock")
+        Журнал действий
+    </a>
+</nav>

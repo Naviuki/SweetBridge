@@ -72,6 +72,7 @@ public static class DisplayExtensions
         OrderStatus.InTransit => "в пути",
         OrderStatus.ReadyForPickup => "на пункте выдачи",
         OrderStatus.Received => "получен",
+        OrderStatus.Cancelled => "отменён",
         _ => status.ToString()
     };
 
@@ -87,6 +88,21 @@ public static class DisplayExtensions
         OrderStatus.InTransit => "В пути",
         OrderStatus.ReadyForPickup => "На пункте выдачи",
         OrderStatus.Received => "Получен",
+        OrderStatus.Cancelled => "Отменён",
+        _ => status.ToString()
+    };
+
+    /// <summary>
+    /// Возвращает русское название статуса оплаты.
+    /// </summary>
+    /// <param name="status">Статус оплаты.</param>
+    /// <returns>Русское название статуса оплаты.</returns>
+    public static string ToDisplayName(this PaymentStatus status) => status switch
+    {
+        PaymentStatus.Pending => "ожидает оплаты",
+        PaymentStatus.Paid => "оплачен",
+        PaymentStatus.Failed => "ошибка оплаты",
+        PaymentStatus.Refunded => "возвращена",
         _ => status.ToString()
     };
 

@@ -16,6 +16,14 @@ public sealed class WaveConfiguration : IEntityTypeConfiguration<Wave>
 
         builder.ToTable("Waves");
         builder.HasKey(wave => wave.Id);
+        builder.HasIndex(wave => wave.Number).IsUnique();
         builder.HasIndex(wave => new { wave.Direction, wave.ShipDate });
+
+        builder.Property(wave => wave.Version).IsRowVersion();
+
+        builder.HasMany<Order>()
+            .WithOne()
+            .HasForeignKey(order => order.WaveId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

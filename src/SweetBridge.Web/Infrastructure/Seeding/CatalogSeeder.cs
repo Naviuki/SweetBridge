@@ -42,25 +42,55 @@ public sealed class CatalogSeeder
     /// <returns>Количество импортированных товаров.</returns>
     public async Task<int> SeedAsync(CancellationToken cancellationToken)
     {
-        IReadOnlyList<Product> products = ReadCatalog();
+        IReadOnlyList<CatalogCsvRecord> records = ReadCatalog();
 
         HashSet<string> existingIds = (await _dbContext.Products
                 .Select(product => product.Id)
                 .ToListAsync(cancellationToken))
             .ToHashSet(StringComparer.Ordinal);
 
-        List<Product> newProducts = products.Where(product => !existingIds.Contains(product.Id)).ToList();
+        var imported = 0;
 
-        if (newProducts.Count > 0)
+        foreach (CatalogCsvRecord record in records)
         {
-            _dbContext.Products.AddRange(newProducts);
+            string id = record.Id.Trim().ToUpperInvariant();
+
+            if (existingIds.Contains(id))
+            {
+                continue;
+            }
+
+            Producer producer = await GetOrCreateProducerAsync(record, cancellationToken);
+            _dbContext.Products.Add(ToProduct(record, producer.Id));
             await _dbContext.SaveChangesAsync(cancellationToken);
+
+            imported++;
         }
 
-        return newProducts.Count;
+        return imported;
     }
 
-    private static List<Product> ReadCatalog()
+    private async Task<Producer> GetOrCreateProducerAsync(CatalogCsvRecord record, CancellationToken cancellationToken)
+    {
+        Region region = ParseRegion(record);
+        string name = record.Manufacturer.Trim();
+
+        Producer? existing = await _dbContext.Producers
+            .FirstOrDefaultAsync(producer => producer.Name == name && producer.Region == region, cancellationToken);
+
+        if (existing is not null)
+        {
+            return existing;
+        }
+
+        Producer created = Producer.Create(name, region, record.Description);
+        _dbContext.Producers.Add(created);
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
+        return created;
+    }
+
+    private static List<CatalogCsvRecord> ReadCatalog()
     {
         string filePath = Path.Combine(AppContext.BaseDirectory, DataFolderName, CatalogFileName);
 
@@ -73,15 +103,13 @@ public sealed class CatalogSeeder
 
         using CsvReader reader = new(new StreamReader(filePath, Encoding.UTF8), configuration);
 
-        return reader.GetRecords<CatalogCsvRecord>()
-            .Select(ToProduct)
-            .ToList();
+        return reader.GetRecords<CatalogCsvRecord>().ToList();
     }
 
-    private static Product ToProduct(CatalogCsvRecord record) => Product.Create(
+    private static Product ToProduct(CatalogCsvRecord record, int producerId) => Product.Create(
         record.Id.Trim(),
+        producerId,
         ParseRegion(record),
-        record.Manufacturer,
         record.Name,
         record.Category,
         record.WeightGrams,

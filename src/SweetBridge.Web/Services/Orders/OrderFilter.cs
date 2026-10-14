@@ -7,4 +7,5 @@ namespace SweetBridge.Web.Services.Orders;
 /// </summary>
 /// <param name="Status">Статус для фильтра или <see langword="null"/> для всех статусов.</param>
 /// <param name="WaveId">Волна для фильтра или <see langword="null"/> для всех волн.</param>
-public sealed record OrderFilter(OrderStatus? Status = null, int? WaveId = null);
+/// <param name="Search">Фрагмент номера заказа или <see langword="null"/>.</param>
+public sealed record OrderFilter(OrderStatus? Status = null, int? WaveId = null, string? Search = null);

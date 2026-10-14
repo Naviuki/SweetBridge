@@ -1,21 +1,29 @@
-using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Mvc;
 using SweetBridge.Web.Services.Orders;
 
 namespace SweetBridge.Web.Pages.Orders;
 
 /// <summary>
-/// Отслеживание заказа по номеру и телефону покупателя или получателя.
+/// Отслеживание заказа по номеру и телефону.
 /// </summary>
 /// <param name="orderService">Сервис заказов.</param>
 public sealed class TrackModel(IOrderService orderService) : PageModel
 {
+    private const string TrackingRateLimitPolicy = "Tracking";
+
     /// <summary>
-    /// Форма поиска.
+    /// Номер заказа из формы.
     /// </summary>
     [BindProperty]
-    public InputModel Input { get; set; } = new();
+    public string? Number { get; set; }
+
+    /// <summary>
+    /// Телефон покупателя или получателя.
+    /// </summary>
+    [BindProperty]
+    public string? Phone { get; set; }
 
     /// <summary>
     /// Найденный заказ.
@@ -23,45 +31,49 @@ public sealed class TrackModel(IOrderService orderService) : PageModel
     public OrderSummary? Order { get; private set; }
 
     /// <summary>
-    /// Признак того, что поиск ничего не нашёл.
+    /// Признак того, что запрос выполнен, но заказ не найден.
     /// </summary>
-    public bool IsNotFound { get; private set; }
+    public bool IsSearched { get; private set; }
 
     /// <summary>
-    /// Ищет заказ.
+    /// Открывает форму поиска.
+    /// </summary>
+    /// <returns>Результат выполнения.</returns>
+    public IActionResult OnGet() => Page();
+
+    /// <summary>
+    /// Ищет заказ по номеру и телефону.
     /// </summary>
     /// <param name="cancellationToken">Токен отмены.</param>
-    /// <returns>Задача, отражающая выполнение операции.</returns>
-    public async Task OnPostAsync(CancellationToken cancellationToken)
+    /// <returns>Результат выполнения.</returns>
+    [EnableRateLimiting(TrackingRateLimitPolicy)]
+    public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
-        if (!ModelState.IsValid)
+        IsSearched = true;
+
+        if (string.IsNullOrWhiteSpace(Number) || string.IsNullOrWhiteSpace(Phone))
         {
-            return;
+            ModelState.AddModelError(string.Empty, "Введите номер заказа и телефон, указанный при оформлении.");
+
+            return Page();
         }
 
-        Order = await orderService.FindAsync(Input.Number, Input.Phone, cancellationToken);
-        IsNotFound = Order is null;
-    }
+        try
+        {
+            Order = await orderService.FindAsync(Number, Phone, cancellationToken);
+        }
+        catch (Domain.Exceptions.DomainException)
+        {
+            ModelState.AddModelError(string.Empty, "Проверьте номер заказа и телефон: номер выглядит как SW-XXXXXX.");
 
-    /// <summary>
-    /// Данные формы отслеживания.
-    /// </summary>
-    public sealed class InputModel
-    {
-        /// <summary>
-        /// Номер заказа.
-        /// </summary>
-        [Required(ErrorMessage = "Укажите номер заказа.")]
-        [StringLength(16, ErrorMessage = "Номер заказа выглядит неверно.")]
-        [Display(Name = "Номер заказа")]
-        public string Number { get; set; } = string.Empty;
+            return Page();
+        }
 
-        /// <summary>
-        /// Телефон покупателя или получателя.
-        /// </summary>
-        [Required(ErrorMessage = "Укажите телефон покупателя или получателя.")]
-        [StringLength(40, ErrorMessage = "Телефон не должен быть длиннее 40 символов.")]
-        [Display(Name = "Телефон")]
-        public string Phone { get; set; } = string.Empty;
+        if (Order is null)
+        {
+            TempData["Info"] = "Заказ с таким номером и телефоном не найден. Проверьте данные или напишите в поддержку.";
+        }
+
+        return Page();
     }
 }

@@ -1,0 +1,57 @@
+@page
+@model SweetBridge.Web.Pages.Corporate.IndexModel
+@using SweetBridge.Web.Extensions
+@using SweetBridge.Web.Domain.Enums
+@{
+    ViewData["Title"] = "Корпоративные заказы";
+}
+<section class="page">
+    <form class="card checkout-form" method="post">
+        <h1 class="page__title">Корпоративные заказы</h1>
+        <p class="page__lead">Крупные поставки для компаний, магазинов и мероприятий. Условия обсуждаем индивидуально.</p>
+
+        <div asp-validation-summary="ModelOnly" class="form-errors"></div>
+
+        <div class="grid-2">
+            <label class="field">
+                <span class="field__label">Компания</span>
+                <input class="field__control" asp-for="Input.Company" data-field-control autocomplete="organization" />
+                <span class="field__error" asp-validation-for="Input.Company"></span>
+            </label>
+            <label class="field">
+                <span class="field__label">Контактное лицо</span>
+                <input class="field__control" asp-for="Input.ContactName" data-field-control autocomplete="name" />
+                <span class="field__error" asp-validation-for="Input.ContactName"></span>
+            </label>
+        </div>
+
+        <div class="grid-2">
+            <label class="field">
+                <span class="field__label">Электронная почта</span>
+                <input class="field__control" asp-for="Input.Email" data-field-control type="email" autocomplete="email" />
+                <span class="field__error" asp-validation-for="Input.Email"></span>
+            </label>
+            <label class="field">
+                <span class="field__label">Объём заказа</span>
+                <input class="field__control" asp-for="Input.Volume" data-field-control
+                       placeholder="Например, 300 кг в месяц" />
+                <span class="field__error" asp-validation-for="Input.Volume"></span>
+            </label>
+        </div>
+
+        <label class="field">
+            <span class="field__label">Направление</span>
+            <select class="field__control" asp-for="Input.Direction" data-field-control>
+                <option value="@ShippingDirection.YakutiaToDonbass">Из Якутии в Донбасс</option>
+                <option value="@ShippingDirection.DonbassToYakutia">Из Донбасса в Якутию</option>
+            </select>
+        </label>
+
+        <label class="field">
+            <span class="field__label">Комментарий</span>
+            <textarea class="field__control" asp-for="Input.Comment" data-field-control rows="5" maxlength="2000"></textarea>
+        </label>
+
+        <button class="btn btn--primary" type="submit">@IconRenderer.Render("users") Отправить заявку</button>
+    </form>
+</section>

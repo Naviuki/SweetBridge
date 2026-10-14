@@ -1,0 +1,193 @@
+@page
+@model SweetBridge.Web.Pages.Checkout.IndexModel
+@using SweetBridge.Web.Extensions
+@{
+    ViewData["Title"] = "Оформление заказа";
+    var selectedOffer = Model.Offers.FirstOrDefault(offer => offer.Id == Model.Input.WaveId);
+}
+<section class="page">
+    <h1 class="page__title">Оформление заказа</h1>
+    <p class="page__lead">Проверьте состав, выберите волну и укажите, куда доставить заказ.</p>
+
+    <form method="post" class="checkout-layout mt-16">
+        <div class="card checkout-form">
+            <div asp-validation-summary="ModelOnly" class="form-errors"></div>
+
+            <fieldset class="form-section">
+                <legend>Кто покупает</legend>
+                <div class="grid-2">
+                    <label class="field">
+                        <span class="field__label">Имя и фамилия</span>
+                        <input class="field__control" asp-for="Input.BuyerName" data-field-control autocomplete="name" />
+                        <span class="field__error" asp-validation-for="Input.BuyerName"></span>
+                    </label>
+                    <label class="field">
+                        <span class="field__label">Телефон</span>
+                        <input class="field__control" asp-for="Input.BuyerPhone" data-field-control
+                               inputmode="tel" autocomplete="tel" placeholder="+7 999 000-11-22" />
+                        <span class="field__hint">Нужен для связи при доставке</span>
+                        <span class="field__error" asp-validation-for="Input.BuyerPhone"></span>
+                    </label>
+                </div>
+                <label class="field">
+                    <span class="field__label">Электронная почта</span>
+                    <input class="field__control" asp-for="Input.Email" data-field-control type="email" autocomplete="email" />
+                    <span class="field__hint">Пришлём номер заказа, ссылку на оплату и уведомления о статусе</span>
+                    <span class="field__error" asp-validation-for="Input.Email"></span>
+                </label>
+            </fieldset>
+
+            <fieldset class="form-section">
+                <legend>Доставка</legend>
+                <label class="switch-box">
+                    <input type="checkbox" asp-for="Input.IsGift" data-switch data-switch-target="#giftFields" />
+                    <span>Это подарок: другой человек получит заказ</span>
+                </label>
+
+                <div id="giftFields">
+                    <div class="grid-2">
+                        <label class="field">
+                            <span class="field__label">Имя получателя</span>
+                            <input class="field__control" asp-for="Input.RecipientName" data-field-control autocomplete="off" />
+                            <span class="field__error" asp-validation-for="Input.RecipientName"></span>
+                        </label>
+                        <label class="field">
+                            <span class="field__label">Телефон получателя</span>
+                            <input class="field__control" asp-for="Input.RecipientPhone" data-field-control
+                                   inputmode="tel" autocomplete="off" placeholder="+7 999 000-11-22" />
+                            <span class="field__error" asp-validation-for="Input.RecipientPhone"></span>
+                        </label>
+                    </div>
+                    <label class="field">
+                        <span class="field__label">Открытка</span>
+                        <textarea class="field__control" asp-for="Input.GiftMessage" rows="3" maxlength="300"
+                                  placeholder="С Днём рождения из Якутии!"></textarea>
+                        <span class="field__hint">До 300 символов</span>
+                    </label>
+                </div>
+
+                <label class="field">
+                    <span class="field__label">Город получателя</span>
+                    <input class="field__control" asp-for="Input.RecipientCity" data-field-control autocomplete="address-level2" />
+                    <span class="field__error" asp-validation-for="Input.RecipientCity"></span>
+                </label>
+
+                <label class="field">
+                    <span class="field__label">Пункт выдачи</span>
+                    <select class="field__control" asp-for="Input.PickupPointId" data-field-control>
+                        <option value="0">Выберите пункт выдачи</option>
+                        @foreach (SweetBridge.Web.Pages.Checkout.IndexModel.PickupPointSummary point in Model.PickupPoints)
+                        {
+                            <option value="@point.Id">@point.DisplayName</option>
+                        }
+                    </select>
+                    <span class="field__error" asp-validation-for="Input.PickupPointId"></span>
+                </label>
+            </fieldset>
+
+            <fieldset class="form-section">
+                <legend>Волна доставки</legend>
+                <div class="grid-2">
+                    @foreach (SweetBridge.Web.Services.Waves.WaveOffer offer in Model.Offers)
+                    {
+                        <label class="wave-option">
+                            <span class="wave-option__head">
+                                <input type="radio" asp-for="Input.WaveId" value="@offer.Id" data-field-control
+                                       disabled="@(!offer.CanAcceptOrder)" />
+                                Волна №@offer.Number · @offer.ShipDate.ToString("dd.MM.yyyy")
+                            </span>
+                            <span class="muted">
+                                Приём заказов до @offer.OrderCutoffDate.ToString("dd.MM.yyyy") ·
+                                доставка @offer.EarliestDeliveryDate.ToString("dd.MM")–@offer.LatestDeliveryDate.ToString("dd.MM.yyyy")
+                            </span>
+                            <span class="muted">
+                                @IconRenderer.Render("wave")
+                                Заполнено на @((int)Math.Round(offer.FillPercent))% → @((int)Math.Round(offer.FillPercentAfter))%
+                            </span>
+                            <span class="wave-option__cost">
+                                Доставка @offer.Cost.ShippingCost.ToString("N0") ₽
+                                @if (offer.Cost.ThermoPackCost > 0)
+                                {
+                                    <span>+ термоупаковка @offer.Cost.ThermoPackCost.ToString("N0") ₽</span>
+                                }
+                            </span>
+                            @if (offer.Cost.DiscountPercent > 0)
+                            {
+                                <span class="chip chip--success">Скидка за заполнение волны: @((int)offer.Cost.DiscountPercent)%</span>
+                            }
+                            @if (offer.ThermoPackRequired)
+                            {
+                                <span class="chip chip--accent">@IconRenderer.Render("thermo") Термоупаковка обязательна</span>
+                            }
+                            @if (!offer.CanAcceptOrder)
+                            {
+                                <span class="chip chip--muted">Волна заполнена</span>
+                            }
+                        </label>
+                    }
+                </div>
+                <span class="field__error" asp-validation-for="Input.WaveId"></span>
+            </fieldset>
+
+            <fieldset class="form-section">
+                <legend>Дополнительно</legend>
+                <label class="switch-box">
+                    <input type="checkbox" asp-for="Input.ThermoPackRequested" />
+                    <span>Добавить термоупаковку (защита шоколада и кремовых изделий)</span>
+                </label>
+
+                <label class="field">
+                    <span class="field__label">Промокод</span>
+                    <input class="field__control" asp-for="Input.PromoCode" placeholder="MOST10" autocomplete="off" />
+                    <span class="field__hint">Скидка применяется к товарам, но не к доставке</span>
+                </label>
+                @if (!string.IsNullOrWhiteSpace(Model.PromoMessage))
+                {
+                    <p class="muted">@Model.PromoMessage</p>
+                }
+            </fieldset>
+
+            <button class="btn btn--primary btn--block" type="submit">Оформить заказ</button>
+            <a class="btn btn--ghost btn--block" asp-page="/Cart/Index">Вернуться в корзину</a>
+        </div>
+
+        <aside class="card cart-summary">
+            <h2>Ваш заказ</h2>
+            <ul class="summary-list">
+                @foreach (SweetBridge.Web.Services.Cart.CartLineView line in Model.Cart.Lines)
+                {
+                    <li class="summary-row">
+                        <span>@line.Product.Name × @line.Quantity</span>
+                        <span class="nowrap">@line.LineTotal.FormatPrice()</span>
+                    </li>
+                }
+            </ul>
+            <div class="summary-total">
+                <span>Товары</span>
+                <span>@Model.Cart.GoodsCost.FormatPrice()</span>
+            </div>
+            @if (Model.PromoDiscount > 0m)
+            {
+                <div class="summary-row">
+                    <span>Промокод</span>
+                    <span class="nowrap text-success">−@Model.PromoDiscount.FormatPrice()</span>
+                </div>
+            }
+            @if (selectedOffer is not null)
+            {
+                <div class="summary-row">
+                    <span>Доставка</span>
+                    <span class="nowrap">@selectedOffer.Cost.TotalCost.ToString("N0") ₽</span>
+                </div>
+                <div class="summary-total">
+                    <span>Итого</span>
+                    <span>@(Model.Cart.GoodsCost - Model.PromoDiscount + selectedOffer.Cost.TotalCost).FormatPrice()</span>
+                </div>
+            }
+            <p class="muted">
+                @IconRenderer.Render("lock")
+                Данные банковской карты платформа не принимает и не хранит.
+            </p>
+        </aside>
+    </form>
+</section>
