@@ -1,0 +1,96 @@
+@inject SweetBridge.Web.Services.Cart.ICartService CartService
+@using SweetBridge.Web.Extensions
+@{
+    Layout = null;
+    var route = ViewContext.RouteData.Values["page"] as string ?? string.Empty;
+    bool IsActive(string page) => string.Equals(route, page, StringComparison.OrdinalIgnoreCase);
+    int cartCount = CartService.GetItemCount();
+    string? returnUrl = Context.Request.Path + Context.Request.QueryString;
+    string? userName = User.Identity?.Name;
+    string initials = string.IsNullOrWhiteSpace(userName)
+        ? string.Empty
+        : string.Concat(userName.Split('@', '.', StringSplitOptions.RemoveEmptyEntries)
+            .Where(part => !string.Equals(part, "admin", StringComparison.OrdinalIgnoreCase))
+            .Take(2)
+            .Select(part => char.ToUpperInvariant(part[0])));
+}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] — Сладкий мост</title>
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+</head>
+<body>
+    <a class="visually-hidden" href="#main">Перейти к содержимому</a>
+
+    <header class="site-header">
+        <div class="container site-header__inner">
+            <a class="brand" asp-page="/Index" aria-label="Сладкий мост — на главную">
+                <span class="brand__text">Сладкий мост<span class="brand__tagline">Мост к сладкому</span></span>
+            </a>
+
+            <button class="icon-button burger" type="button" data-menu-toggle
+                    aria-expanded="false" aria-controls="mainNav" aria-label="Открыть меню">
+                @IconRenderer.Render("menu")
+            </button>
+
+            <nav class="site-nav" id="mainNav" data-menu aria-label="Основная навигация">
+                <a class="site-nav__link @(IsActive("/Index") ? "is-active" : string.Empty)" asp-page="/Index">Главная</a>
+                <a class="site-nav__link @(IsActive("/Catalog") ? "is-active" : string.Empty)" asp-page="/Catalog/Index">Каталог</a>
+                <a class="site-nav__link @(IsActive("/Gifts/Index") ? "is-active" : string.Empty)" asp-page="/Gifts/Index">Подарочные наборы</a>
+                <a class="site-nav__link @(IsActive("/Orders/Track") ? "is-active" : string.Empty)" asp-page="/Orders/Track">Отследить заказ</a>
+                <a class="site-nav__link @(IsActive("/Info/HowItWorks") ? "is-active" : string.Empty)" asp-page="/Info/HowItWorks">Как работает</a>
+            </nav>
+
+            <div class="header-actions">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a class="icon-button" asp-page="/Account/Notifications" title="Уведомления" aria-label="Уведомления">
+                        @IconRenderer.Render("bell")
+                    </a>
+                }
+
+                <a class="icon-button" asp-page="/Cart/Index" title="Корзина" aria-label="Корзина">
+                    @IconRenderer.Render("cart")
+                    @if (cartCount > 0)
+                    {
+                        <span class="badge-counter">@(cartCount > 99 ? "99+" : cartCount.ToString())</span>
+                    }
+                </a>
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a class="profile-pill" asp-page="/Account/Profile">
+                        <span class="profile-pill__avatar">@initials</span>
+                        <span>@userName</span>
+                    </a>
+                    <form method="post" asp-page="/Account/Logout" asp-page-handler="Logout" class="d-inline">
+                        <button class="btn btn--ghost btn--sm" type="submit">Выйти</button>
+                    </form>
+                }
+                else
+                {
+                    <a class="profile-pill" asp-page="/Account/Login" asp-route-returnUrl="@returnUrl">
+                        <span class="profile-pill__avatar">@IconRenderer.Render("user")</span>
+                        <span>Войти</span>
+                    </a>
+                }
+            </div>
+        </div>
+    </header>
+
+    <main id="main" class="container">
+        <partial name="_Flash" />
+        @RenderBody()
+    </main>
+
+    <partial name="_Footer" />
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

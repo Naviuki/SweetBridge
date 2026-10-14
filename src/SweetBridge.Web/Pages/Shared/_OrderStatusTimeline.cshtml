@@ -1,0 +1,25 @@
+@model SweetBridge.Web.Services.Orders.OrderSummary
+@{
+    OrderStatus[] chain =
+    [
+        OrderStatus.Accepted,
+        OrderStatus.Assembling,
+        OrderStatus.InTransit,
+        OrderStatus.ReadyForPickup,
+        OrderStatus.Received
+    ];
+
+    List<OrderStatusPoint> history = [.. Model.History.OrderBy(point => point.ChangedAtUtc)];
+}
+<div class="list-group list-group-numbered">
+    @foreach (OrderStatus status in chain)
+    {
+        OrderStatusPoint? point = history.FirstOrDefault(item => item.Status == status);
+        bool isCurrent = status == Model.Status;
+
+        <div class="list-group-item d-flex justify-content-between align-items-center @(isCurrent ? "active" : string.Empty)">
+            <span>@status.ToDisplayName()</span>
+            <span class="small">@(point is null ? "—" : point.ChangedAtUtc.FormatDateTime())</span>
+        </div>
+    }
+</div>

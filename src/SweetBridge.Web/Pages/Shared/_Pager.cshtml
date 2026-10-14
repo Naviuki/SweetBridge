@@ -1,0 +1,17 @@
+@model SweetBridge.Web.Services.Catalog.PagerViewModel
+@if (Model.TotalPages > 1)
+{
+    <nav class="row row--between pager" aria-label="Страницы каталога">
+        <span class="muted">Страница @Model.Page из @Model.TotalPages · всего товаров: @Model.TotalItems</span>
+        <span class="row" style="gap:8px">
+            @if (Model.HasPrevious)
+            {
+                <a class="btn btn--ghost btn--sm" href="@Model.BuildUrl(Model.Page - 1)" rel="prev">Назад</a>
+            }
+            @if (Model.HasNext)
+            {
+                <a class="btn btn--ghost btn--sm" href="@Model.BuildUrl(Model.Page + 1)" rel="next">Показать ещё</a>
+            }
+        </span>
+    </nav>
+}

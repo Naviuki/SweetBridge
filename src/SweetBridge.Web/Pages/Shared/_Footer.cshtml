@@ -1,0 +1,88 @@
+@using SweetBridge.Web.Extensions
+@using SweetBridge.Web.Options
+@inject Microsoft.Extensions.Options.IOptions<ContactsOptions> ContactsOptions
+@{
+    var contacts = ContactsOptions.Value;
+}
+<footer class="site-footer">
+    <div class="container">
+        <div class="site-footer__grid">
+            <div>
+                <span class="brand__text" style="color:#fff">Сладкий мост<span class="brand__tagline" style="color:rgba(255,255,255,.6)">Мост к сладкому</span></span>
+                <p style="margin-top:14px;font-size:14px;max-width:34ch">
+                    Межрегиональный маркетплейс кондитерских изделий между Якутией и Донбассом.
+                </p>
+                <div class="row" style="gap:8px">
+                    <a class="icon-button" href="https://t.me/sweetbridge" rel="noopener noreferrer nofollow" target="_blank" aria-label="Telegram">
+                        @IconRenderer.Render("telegram")
+                    </a>
+                    <a class="icon-button" href="https://vk.com/sweetbridge" rel="noopener noreferrer nofollow" target="_blank" aria-label="VK">
+                        @IconRenderer.Render("vk")
+                    </a>
+                    <a class="icon-button" href="mailto:@contacts.Email" aria-label="Написать на почту">
+                        @IconRenderer.Render("mail")
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="site-footer__title">Каталог</h2>
+                <ul class="site-footer__list">
+                    <li><a asp-page="/Catalog/Index" asp-route-region="@Domain.Enums.Region.Yakutia">Сладости Якутии</a></li>
+                    <li><a asp-page="/Catalog/Index" asp-route-region="@Domain.Enums.Region.Donbass">Сладости Донбасса</a></li>
+                    <li><a asp-page="/Gifts/Index">Подарочные наборы</a></li>
+                    <li><a asp-page="/Corporate/Index">Корпоративные заказы</a></li>
+                    <li><a asp-page="/Catalog/Index">Все товары</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h2 class="site-footer__title">Помощь</h2>
+                <ul class="site-footer__list">
+                    <li><a asp-page="/Info/HowItWorks">Как работает «волна»</a></li>
+                    <li><a asp-page="/Info/Delivery">Доставка и сроки</a></li>
+                    <li><a asp-page="/Info/Payment">Оплата</a></li>
+                    <li><a asp-page="/Info/Faq">Частые вопросы</a></li>
+                    <li><a asp-page="/Info/Returns">Возврат и обмен</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h2 class="site-footer__title">О проекте</h2>
+                <ul class="site-footer__list">
+                    <li><a asp-page="/Info/About">О «Сладком мосте»</a></li>
+                    <li><a asp-page="/Info/Producers">Производители</a></li>
+                    <li><a asp-page="/Info/Partners">Партнёрам</a></li>
+                    <li><a asp-page="/Info/Hackathon">Хакатон «PEAK IT»</a></li>
+                    <li><a asp-page="/Info/PressKit">Пресс-кит</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h2 class="site-footer__title">Контакты</h2>
+                <ul class="site-footer__list">
+                    <li><a href="mailto:@contacts.Email">@contacts.Email</a></li>
+                    <li><a href="tel:@contacts.Phone">@contacts.Phone</a></li>
+                    <li>@contacts.Address</li>
+                    <li>@contacts.Hours</li>
+                </ul>
+                <p style="margin:14px 0 0;font-size:14px;font-weight:700">Узнавайте о новых волнах первыми</p>
+                <p style="margin:4px 0 0;font-size:13px;opacity:.75">Раз в 2 недели — без спама</p>
+                <form method="post" asp-page="/Newsletter/Subscribe" class="subscribe">
+                    <label class="visually-hidden" for="footerSubscribeEmail">Электронная почта для подписки</label>
+                    <input id="footerSubscribeEmail" type="email" name="Email" placeholder="Ваш e-mail" required />
+                    <button class="btn btn--primary btn--sm" type="submit">Подписаться</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="site-footer__bottom">
+            <span>© 2026 Сладкий мост · Корпорация развития Республики Саха (Якутия)</span>
+            <span class="row" style="gap:16px">
+                <a asp-page="/Info/Privacy">Политика конфиденциальности</a>
+                <a asp-page="/Info/Terms">Пользовательское соглашение</a>
+                <a asp-page="/Info/Cookies">Cookies</a>
+            </span>
+        </div>
+    </div>
+</footer>

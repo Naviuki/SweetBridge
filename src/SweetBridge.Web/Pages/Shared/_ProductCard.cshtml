@@ -1,0 +1,54 @@
+@model SweetBridge.Web.Services.Catalog.ProductCardViewModel
+@using SweetBridge.Web.Extensions
+@{
+    string photoPath = string.IsNullOrWhiteSpace(Model.PhotoPath)
+        ? "/images/placeholders/product.svg"
+        : Model.PhotoPath;
+    string regionClass = Model.Region == Region.Yakutia ? "chip--yakutia" : "chip--donbass";
+    string photoModifier = Model.Region == Region.Yakutia ? "product-card__photo--yakutia" : "product-card__photo--donbass";
+    bool inCart = Model.QuantityInCart > 0;
+}
+<article class="card product-card">
+    <a class="product-card__photo-link" asp-page="/Catalog/Product" asp-route-id="@Model.Id">
+        <span class="chip @regionClass product-card__chip">
+            @IconRenderer.Render(Model.Region == Region.Yakutia ? "snowflake" : "sun")
+            @Model.Region.ToDisplayName()
+        </span>
+        @if (Model.IsTemperatureSensitive)
+        {
+            <span class="chip chip--accent product-card__thermo" title="Боится мороза и жары">
+                @IconRenderer.Render("thermo")
+            </span>
+        }
+        <img class="product-card__photo @photoModifier" src="@photoPath" alt="@Model.Name" loading="lazy" width="320" height="240" />
+    </a>
+    <div class="card__body product-card__body">
+        <p class="product-card__producer">@Model.ProducerName</p>
+        <h3 class="product-card__name">
+            <a asp-page="/Catalog/Product" asp-route-id="@Model.Id">@Model.Name</a>
+        </h3>
+        <p class="product-card__category">@Model.Category</p>
+        <p class="product-card__weight">
+            @IconRenderer.Render("weight")
+            @Model.WeightGrams.FormatWeight()
+        </p>
+        <div class="row row--between product-card__footer">
+            <span class="product-card__price">@Model.Price.FormatPrice()</span>
+            @if (inCart)
+            {
+                <span class="btn btn--outline btn--sm" aria-disabled="true">
+                    @IconRenderer.Render("check")
+                    В корзине
+                </span>
+            }
+            else
+            {
+                <form method="post" asp-page="/Catalog/Index" asp-page-handler="AddToCart" asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString">
+                    <input type="hidden" name="productId" value="@Model.Id" />
+                    <input type="hidden" name="quantity" value="1" />
+                    <button class="btn btn--primary btn--sm" type="submit">В корзину</button>
+                </form>
+            }
+        </div>
+    </div>
+</article>

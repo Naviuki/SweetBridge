@@ -495,3 +495,12 @@ SweetBridge/
 
 # Служебные материалы (отчёты, схемы, описания) — не входят в состав проекта
 /docs/
+# --- Сладкий мост ---
+App_Data/
+*.db
+*.db-shm
+*.db-wal
+wwwroot/uploads/
+appsettings.*.local.json
+.vs/
+SweetBridge/

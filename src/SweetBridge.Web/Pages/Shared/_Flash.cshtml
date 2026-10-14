@@ -1,0 +1,17 @@
+@{
+    var success = TempData["Success"] as string;
+    var error = TempData["Error"] as string;
+    var info = TempData["Info"] as string;
+}
+@if (!string.IsNullOrWhiteSpace(success))
+{
+    <div class="flash flash--success" role="status" aria-live="polite">@success</div>
+}
+@if (!string.IsNullOrWhiteSpace(error))
+{
+    <div class="flash flash--error" role="alert" aria-live="assertive">@error</div>
+}
+@if (!string.IsNullOrWhiteSpace(info))
+{
+    <div class="flash flash--info" role="status" aria-live="polite">@info</div>
+}
