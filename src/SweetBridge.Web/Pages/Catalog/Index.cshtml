@@ -4,34 +4,57 @@
 @using SweetBridge.Web.Extensions
 @{
     ViewData["Title"] = Model.Direction == ShippingDirection.YakutiaToDonbass ? "Сладости Якутии" : "Сладости Донбасса";
+    ViewData["EnableFavorite"] = true;
     string showcase = Model.Direction == ShippingDirection.YakutiaToDonbass ? "Якутия" : "Донбасс";
+    string destination = Model.Direction == ShippingDirection.YakutiaToDonbass ? "Донбасс" : "Якутия";
 }
 <section class="page">
     <div class="page-head">
         <div>
             <h1 class="page__title">@showcase</h1>
-            <p class="page__lead">
-                Витрина @(Model.Direction == ShippingDirection.YakutiaToDonbass ? "Якутии" : "ДНР") — доставка волнами
-                в @(Model.Direction == ShippingDirection.YakutiaToDonbass ? "Донбасс" : "Якутию").
-            </p>
+            <p class="page__lead">Витрина @showcase — доставка волнами в @destination.</p>
         </div>
-        <div class="row" style="gap:8px">
+        <div class="row gap-8">
             <a class="btn btn--ghost btn--sm @(Model.Direction == ShippingDirection.YakutiaToDonbass ? "is-active" : string.Empty)"
-               asp-page="/Catalog/Index" asp-route-region="@ShippingDirection.YakutiaToDonbass">Якутия</a>
+               asp-page="/Catalog/Index"
+               asp-route-direction="@ShippingDirection.YakutiaToDonbass"
+               asp-route-category="@Model.Category"
+               asp-route-q="@Model.Search"
+               asp-route-thermo="@(Model.ThermoSensitive ? "true" : null)"
+               asp-route-wave="@Model.Wave">Якутия</a>
             <a class="btn btn--ghost btn--sm @(Model.Direction == ShippingDirection.DonbassToYakutia ? "is-active" : string.Empty)"
-               asp-page="/Catalog/Index" asp-route-region="@ShippingDirection.DonbassToYakutia">Донбасс</a>
+               asp-page="/Catalog/Index"
+               asp-route-direction="@ShippingDirection.DonbassToYakutia"
+               asp-route-category="@Model.Category"
+               asp-route-q="@Model.Search"
+               asp-route-thermo="@(Model.ThermoSensitive ? "true" : null)"
+               asp-route-wave="@Model.Wave">Донбасс</a>
         </div>
     </div>
 
+    @if (Model.SelectedWave is not null)
+    {
+        <div class="flash flash--info" role="status">
+            @IconRenderer.Render("wave")
+            Выбрана волна №@Model.SelectedWave.Number, отправка @Model.SelectedWave.ShipDate.ToLongDateString().
+            <a asp-page="/Cart/Index">Перейти в корзину</a>
+            · <a asp-page="/Catalog/Index" asp-route-direction="@Model.Direction">Сменить</a>
+        </div>
+    }
+
     <form class="catalog-toolbar card card--flat" method="get" asp-page="/Catalog/Index">
-        <input type="hidden" name="region" value="@Model.Direction" />
+        <input type="hidden" name="direction" value="@Model.Direction" />
+        <input type="hidden" name="wave" value="@Model.Wave" />
+
         <label class="field">
             <span class="field__label">Поиск по каталогу</span>
-            <input class="field__control" type="search" name="q" value="@Model.Search" placeholder="Например, шоколад" />
+            <input class="field__control" type="search" name="q" value="@Model.Search"
+                   placeholder="Например, шоколад" autocomplete="off" data-field-control />
         </label>
+
         <label class="field">
             <span class="field__label">Категория</span>
-            <select class="field__control" name="category">
+            <select class="field__control" name="category" data-field-control>
                 <option value="">Все категории</option>
                 @foreach (string category in Model.Categories)
                 {
@@ -39,11 +62,18 @@
                 }
             </select>
         </label>
+
         <label class="field field--check">
             <input type="checkbox" name="thermo" value="true" checked="@Model.ThermoSensitive" />
             <span>Только термочувствительные</span>
         </label>
+
         <button class="btn btn--primary" type="submit">Применить</button>
+
+        @if (Model.HasActiveFilters)
+        {
+            <a class="btn btn--ghost" asp-page="/Catalog/Index" asp-route-direction="@Model.Direction">Сбросить фильтры</a>
+        }
     </form>
 
     @if (Model.Products.Count == 0)
@@ -52,19 +82,35 @@
             @IconRenderer.Render("search")
             <h2>Ничего не найдено</h2>
             <p class="muted">Попробуйте изменить запрос или сбросить фильтры.</p>
-            <a class="btn btn--outline" asp-page="/Catalog/Index" asp-route-region="@Model.Direction">Сбросить фильтры</a>
+            <a class="btn btn--outline" asp-page="/Catalog/Index" asp-route-direction="@Model.Direction">Сбросить фильтры</a>
         </div>
     }
     else
     {
-        <div class="product-grid">
-            @foreach (SweetBridge.Web.Services.Catalog.ProductCardViewModel product in Model.Products)
-                        {
-                ViewData["EnableFavorite"] = true;
-                <partial name="_ProductCard" model="product" />
-            }
+        <div class="product-grid" data-products-grid>
+            <partial name="_ProductItems" model="Model" />
         </div>
 
-        <partial name="_Pager" model="Model.Pager" />
+        <div class="pager">
+            <span class="muted" aria-live="polite"
+                  data-products-counter
+                  data-shown="@Model.Products.Count"
+                  data-total="@Model.TotalItems">Показано @Model.Products.Count из @Model.TotalItems товаров</span>
+            @if (Model.NextPage is int next)
+            {
+                <a class="btn btn--outline"
+                   href="@Model.BuildUrl(next)"
+                   data-load-more
+                   data-next-url="@Model.BuildItemsUrl(next)">
+                    Показать ещё
+                </a>
+            }
+        </div>
     }
+
+    <p class="visually-hidden" role="status" aria-live="polite" data-products-status></p>
 </section>
+
+@section Scripts {
+    <script src="~/js/catalog-loader.js" asp-append-version="true" defer></script>
+}

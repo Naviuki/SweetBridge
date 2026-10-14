@@ -1,0 +1,43 @@
+@model SweetBridge.Web.Services.Waves.WaveSummary
+@using SweetBridge.Web.Domain.Enums
+@using SweetBridge.Web.Extensions
+@{
+    ViewData["Wave"] = Model;
+    string title = Model.Direction == ShippingDirection.YakutiaToDonbass ? "Якутия → Донбасс" : "Донбасс → Якутия";
+    int percent = (int)Math.Round(Model.FillPercent);
+}
+<article class="card wave-card">
+    <div class="wave-card__head">
+        <strong class="wave-card__title">Волна №@Model.Number</strong>
+        <span class="chip chip--accent wave-card__chip">@title</span>
+    </div>
+
+    <p class="wave-card__dates">
+        <svg class="icon" aria-hidden="true"><use href="#icon-truck"></use></svg>
+        <span>Отправка @Model.ShipDate.ToLongDate()</span>
+        <span aria-hidden="true">·</span>
+        <span>приём заказов до @Model.OrderCutoffDate.ToDeadline()</span>
+    </p>
+
+    <div class="progress"
+         data-progress
+         data-progress-max="100"
+         data-progress-value="@percent"
+         role="progressbar"
+         aria-valuenow="@percent"
+         aria-valuemin="0"
+         aria-valuemax="100"
+         aria-label="Заполнение волны №@Model.Number">
+        <span class="progress__value" data-progress-fill></span>
+    </div>
+
+    <p class="muted wave-card__fill">
+        Заполнено на @percent.ToString(System.Globalization.CultureInfo.InvariantCulture)% ·
+        @Model.LoadedGrams.FormatWeight() из @Model.CapacityGrams.FormatWeight()
+    </p>
+
+    <a class="btn btn--outline btn--sm"
+       asp-page="/Catalog/Index"
+       asp-route-direction="@Model.Direction"
+       asp-route-wave="@Model.Id">Собрать заказ</a>
+</article>

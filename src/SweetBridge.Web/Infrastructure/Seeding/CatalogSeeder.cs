@@ -92,18 +92,36 @@ public sealed class CatalogSeeder
 
     private static List<CatalogCsvRecord> ReadCatalog()
     {
-        string filePath = Path.Combine(AppContext.BaseDirectory, DataFolderName, CatalogFileName);
-
-        if (!File.Exists(filePath))
-        {
-            throw new DomainException($"Файл каталога не найден: {filePath}.");
-        }
+        string filePath = ResolveCatalogPath();
 
         CsvConfiguration configuration = new(CultureInfo.InvariantCulture);
 
         using CsvReader reader = new(new StreamReader(filePath, Encoding.UTF8), configuration);
 
         return reader.GetRecords<CatalogCsvRecord>().ToList();
+    }
+
+    /// <summary>
+    /// Ищет CSV каталога: сначала в папке приложения, затем в выходной папке сборки.
+    /// </summary>
+    /// <returns>Путь к файлу каталога.</returns>
+    private static string ResolveCatalogPath()
+    {
+        string[] candidates =
+        [
+            Path.Combine(AppContext.BaseDirectory, DataFolderName, CatalogFileName),
+            Path.Combine(Directory.GetCurrentDirectory(), DataFolderName, CatalogFileName)
+        ];
+
+        foreach (string candidate in candidates)
+        {
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        return candidates[0];
     }
 
     private static Product ToProduct(CatalogCsvRecord record, int producerId) => Product.Create(

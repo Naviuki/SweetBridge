@@ -34,24 +34,63 @@
   --container: 1160px;
 
   /* Шрифты */
-  --font-head: "Unbounded", "Arial Black", system-ui, sans-serif;
-  --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-head: "Unbounded", "Arial Black", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Manrope", system-ui, -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
 }
 
-/* --- Базовые элементы --- */
+/* --- Сброс и базовые правила --- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
   background: var(--c-bg);
   color: var(--c-ink);
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+input,
+select,
+textarea,
+button {
+  font: inherit;
+  font-size: 16px;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+main {
+  flex: 1 0 auto;
+  width: 100%;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -168,6 +207,7 @@ a:hover {
 }
 
 .site-nav__link {
+  white-space: nowrap;
   position: relative;
   color: var(--c-ink);
   font-weight: 500;
@@ -871,5 +911,210 @@ a:hover {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Единые контролы: высота 48 px, шрифт 16 px */
+
+/* Базовые стили контролов не должны перебивать оформление отдельных компонентов,
+   поэтому селекторы имеют нулевую специфичность (:where). */
+:where(
+  .field__control,
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  input[type="search"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea
+) {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-control);
+  background: var(--c-surface);
+  color: var(--c-ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+select {
+  cursor: pointer;
+}
+
+/* Пароль: кнопка показа внутри поля */
+
+.field--password {
+  position: relative;
+}
+
+.field--password .field__control {
+  padding-right: 104px;
+}
+
+.field__reveal {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+  min-width: 92px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--r-control);
+  background: transparent;
+  color: var(--c-navy);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.field__reveal:hover {
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+}
+
+.field__reveal[aria-pressed="true"] {
+  color: var(--c-accent);
+}
+
+/* Автозаполнение браузера не должен ломать дизайн-систему */
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+input:autofill,
+input:autofill:hover,
+input:autofill:focus {
+  -webkit-text-fill-color: var(--c-ink);
+  caret-color: var(--c-ink);
+  -webkit-box-shadow: 0 0 0 1000px var(--c-surface) inset;
+  box-shadow: 0 0 0 1000px var(--c-surface) inset;
+  transition: background-color 600000s 0s, color 600000s 0s;
+}
+
+/* Футер: единый контейнер, сетка, без отступов снизу */
+
+.site-footer {
+  margin-top: 56px;
+  margin-bottom: 0;
+  flex-shrink: 0;
+  background: var(--c-navy);
+  color: rgba(255, 255, 255, 0.86);
+  border-radius: 28px 28px 0 0;
+}
+
+.site-footer__inner {
+  display: grid;
+  gap: 28px;
+  padding: 40px 0 24px;
+}
+
+.site-footer__brand {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.site-footer__columns {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.site-footer__subscribe {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: var(--r-card);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.site-footer__subscribe-title {
+  margin: 0;
+  font-family: var(--font-head);
+  font-size: 16px;
+  font-weight: 800;
+  color: #fff;
+}
+
+.site-footer__subscribe-note {
+  margin: 4px 0 0;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.site-footer__subscribe .subscribe {
+  margin: 0;
+  flex: 1 1 320px;
+  max-width: 460px;
+}
+
+.site-footer__subscribe .subscribe input {
+  min-height: 48px;
+}
+
+.footer-social {
+  display: flex;
+  gap: 10px;
+}
+
+.footer-social__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.footer-social__link:hover,
+.footer-social__link:focus-visible {
+  background: var(--c-accent);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.footer-social__link svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@media (max-width: 1099px) {
+  .site-footer__columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 699px) {
+  .site-footer__columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .site-footer__subscribe {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .site-footer__subscribe .subscribe {
+    max-width: none;
   }
 }

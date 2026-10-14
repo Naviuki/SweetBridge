@@ -56,27 +56,9 @@
         }
         @foreach (SweetBridge.Web.Services.Waves.WaveSummary wave in allWaves)
         {
-            <article class="card card--flat wave-card">
-                <div class="row row--between">
-                    <strong>Волна №@wave.Number</strong>
-                    <span class="chip">@(wave.Direction == ShippingDirection.YakutiaToDonbass ? "Якутия → Донбасс" : "Донбасс → Якутия")</span>
-                </div>
-                <p class="muted">
-                    @IconRenderer.Render("truck")
-                    Отправка @wave.ShipDate.ToString("dd.MM.yyyy") · приём заказов до @wave.OrderCutoffDate.ToString("dd.MM.yyyy")
-                </p>
-                <div class="progress" id="wave-@wave.Id" data-progress data-progress-max="100" data-progress-value="@wave.FillPercent">
-                    <span class="progress__value" data-progress-fill></span>
-                </div>
-                <p class="muted">
-                    Заполнено на @((int)Math.Round(wave.FillPercent))% ·
-                    @((wave.LoadedGrams / 1000.0).ToString("0.#")) кг из @(wave.CapacityGrams / 1000) кг
-                </p>
-                <a class="btn btn--outline btn--sm" asp-page="/Catalog/Index" asp-route-region="@wave.Direction">Собрать заказ</a>
-            </article>
+            <partial name="_WaveCard" model="wave" />
         }
-    </div>
-</section>
+    </div></section>
 
 <section class="section">
     <div class="section__head">

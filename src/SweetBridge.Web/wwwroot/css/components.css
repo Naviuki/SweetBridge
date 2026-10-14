@@ -733,23 +733,9 @@
   color: var(--c-navy);
 }
 
-/* Постраничная навигация */
 
-.pager {
-  margin-top: 20px;
-}
 
-/* Поле пароля с кнопкой показа */
 
-.password-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.password-wrap .field__control {
-  flex: 1 1 auto;
-}
 
 /* Админка: фотография товара и компактный список */
 
@@ -819,4 +805,141 @@
   flex: 1 1 auto;
   height: 1px;
   background: var(--c-border);
+}
+
+/* Инлайн-спрайт иконок: символы скрыты, ссылки #icon-* работают внутри документа */
+
+.icon-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* Карточка волны */
+
+.wave-card {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  padding: 20px 22px;
+}
+
+.wave-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.wave-card__title {
+  font-family: var(--font-head);
+  font-size: 17px;
+}
+
+.wave-card__chip {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.wave-card__dates {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 14px;
+}
+
+.wave-card__dates .icon {
+  flex-shrink: 0;
+  color: var(--c-navy);
+}
+
+.wave-card__fill {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Блок шага на странице «Как работает» */
+
+.step-block__title {
+  margin: 0 0 6px;
+  font-size: 18px;
+}
+
+/* Каталог: счётчик и кнопка подгрузки */
+
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.catalog-load-error {
+  margin-top: 12px;
+}
+
+/* Каталог: выравнивание фильтров */
+
+.catalog-toolbar {
+  align-items: flex-end;
+}
+
+.catalog-toolbar .field--check {
+  padding-bottom: 12px;
+}
+
+/* Витрина товаров: адаптивные колонки, одинаковая высота карточек */
+
+.product-grid {
+  align-items: stretch;
+}
+
+.product-card__name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+
+.product-card__footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.product-card__footer > .row {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.product-card__footer .btn {
+  white-space: nowrap;
+}
+
+.product-card__price {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1100px) {
+  .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 699px) {
+  .product-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

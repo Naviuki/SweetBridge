@@ -1,3 +1,4 @@
+using SweetBridge.Web.Services.Account;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using SweetBridge.Web.Options;
@@ -25,7 +26,19 @@ public sealed class LoginModel(
 {
     private const string AuthRateLimitPolicy = "Auth";
 
-    private IOptions<ExternalAuthOptions> ExternalAuth => externalAuth;
+    /// <summary>
+    /// Признак того, что вход через Mail.ru настроен.
+    /// </summary>
+    public bool IsMailRuConfigured => externalAuth.Value.MailRu.IsConfigured;
+    /// <summary>
+    /// Поле «Пароль» формы входа.
+    /// </summary>
+    public PasswordFieldViewModel NewPasswordField { get; } = new(
+        Name: "Input.Password",
+        Id: "Input_Password",
+        Label: "Пароль",
+        Autocomplete: "current-password",
+        Group: "Input_Password");
 
     /// <summary>
     /// Данные формы входа.

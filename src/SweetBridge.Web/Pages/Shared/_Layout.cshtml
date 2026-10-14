@@ -1,5 +1,6 @@
 @inject SweetBridge.Web.Services.Cart.ICartService CartService
 @using SweetBridge.Web.Extensions
+@using SweetBridge.Web.Options
 @{
     Layout = null;
     var route = ViewContext.RouteData.Values["page"] as string ?? string.Empty;
@@ -7,6 +8,7 @@
     int cartCount = CartService.GetItemCount();
     string? returnUrl = Context.Request.Path + Context.Request.QueryString;
     string? userName = User.Identity?.Name;
+    bool isAuthenticated = User.Identity?.IsAuthenticated == true;
     string initials = string.IsNullOrWhiteSpace(userName)
         ? string.Empty
         : string.Concat(userName.Split('@', '.', StringSplitOptions.RemoveEmptyEntries)
@@ -21,76 +23,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewData["Title"] — Сладкий мост</title>
     <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="~/fonts/unbounded-cyrillic-800-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="~/fonts/manrope-cyrillic-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="stylesheet" href="~/css/fonts.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
 </head>
 <body>
-    <a class="visually-hidden" href="#main">Перейти к содержимому</a>
+@* Инлайн-спрайт: символы доступны по коротким ссылкам #icon-name внутри документа. *@
+<svg xmlns="http://www.w3.org/2000/svg" class="icon-sprite" aria-hidden="true" focusable="false" data-icon-sprite>
+    <defs>
+        <symbol id="icon-cart" viewBox="0 0 24 24"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h2.2l2.4 12.2a1.6 1.6 0 0 0 1.6 1.3h9.1a1.6 1.6 0 0 0 1.6-1.3L21 7H5.3"/></symbol>
+        <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></symbol>
+        <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></symbol>
+        <symbol id="icon-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+        <symbol id="icon-snowflake" viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><line x1="4" y1="6" x2="20" y2="18"/><line x1="4" y1="18" x2="20" y2="6"/><path d="M12 6l-2-2m2 2 2-2M12 18l-2 2m2-2 2 2"/></symbol>
+        <symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/></symbol>
+        <symbol id="icon-thermo" viewBox="0 0 24 24"><path d="M14 14.8V4a2 2 0 0 0-4 0v10.8a4 4 0 1 0 4 0z"/><path d="M12 9v6"/></symbol>
+        <symbol id="icon-weight" viewBox="0 0 24 24"><path d="M6.5 7h11l2 13H4.5z"/><circle cx="12" cy="4.5" r="1.8"/></symbol>
+        <symbol id="icon-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.5-7-9.5A4 4 0 0 1 12 8a4 4 0 0 1 7 2.5C19 15.5 12 20 12 20z"/></symbol>
+        <symbol id="icon-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V5h6v2m-8 0 1 13h8l1-13"/></symbol>
+        <symbol id="icon-truck" viewBox="0 0 24 24"><path d="M3 7h10v9H3z"/><path d="M13 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></symbol>
+        <symbol id="icon-wave" viewBox="0 0 24 24"><path d="M2 15c2.5 0 2.5-3 5-3s2.5 3 5 3 2.5-3 5-3 2.5 3 5 3"/><path d="M2 19c2.5 0 2.5-3 5-3s2.5 3 5 3 2.5-3 5-3 2.5 3 5 3"/></symbol>
+        <symbol id="icon-check" viewBox="0 0 24 24"><path d="m4 12 5 5L20 6"/></symbol>
+        <symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 19h16"/></symbol>
+        <symbol id="icon-reload" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></symbol>
+        <symbol id="icon-message" viewBox="0 0 24 24"><path d="M4 5h16v11H8l-4 4z"/></symbol>
+        <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+        <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+        <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.5"/></symbol>
+        <symbol id="icon-telegram" viewBox="0 0 24 24"><path d="m21 4-3 16-6-5-3 3v-5z"/><path d="m10 13 11-9"/></symbol>
+        <symbol id="icon-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/></symbol>
+        <symbol id="icon-ticket" viewBox="0 0 24 24"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2 2 2 0 0 0 0 8 2 2 0 0 1-2 2H6a2 2 0 0 1-2-2 2 2 0 0 0 0-8z"/><path d="M13 7v10"/></symbol>
+        <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+        <symbol id="icon-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+        <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+        <symbol id="icon-map" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></symbol>
+        <symbol id="icon-gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4"/><path d="M5 12v8h14v-8M12 8v12"/><path d="M12 8c-2 0-4.5-.6-4.5-2.6C7.5 3.9 9 3.5 12 8zM12 8c2 0 4.5-.6 4.5-2.6C16.5 3.9 15 3.5 12 8z"/></symbol>
+        <symbol id="icon-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 5.3A3.2 3.2 0 0 1 16 11M18 20a6 6 0 0 0-2-4.5"/></symbol>
+        <symbol id="icon-box" viewBox="0 0 24 24"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></symbol>
+        <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></symbol>
+        <symbol id="icon-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+        <symbol id="icon-alert" viewBox="0 0 24 24"><path d="M12 4 2.5 20h19z"/><path d="M12 10v4M12 17h.01"/></symbol>
+    </defs>
+</svg>
 
-    <header class="site-header">
-        <div class="container site-header__inner">
-            <a class="brand" asp-page="/Index" aria-label="Сладкий мост — на главную">
-                <span class="brand__text">Сладкий мост<span class="brand__tagline">Мост к сладкому</span></span>
+<a class="visually-hidden" href="#main">Перейти к содержимому</a>
+
+<header class="site-header">
+    <div class="container site-header__inner">
+        <a class="brand" asp-page="/Index" aria-label="Сладкий мост — на главную">
+            <span class="brand__text">Сладкий мост<span class="brand__tagline">Мост к сладкому</span></span>
+        </a>
+
+        <button class="icon-button burger" type="button" data-menu-toggle
+                aria-expanded="false" aria-controls="mainNav" aria-label="Открыть меню">
+            <svg class="icon" aria-hidden="true"><use href="#icon-menu"></use></svg>
+        </button>
+
+        <nav class="site-nav" id="mainNav" data-menu aria-label="Основная навигация">
+            <a class="site-nav__link @(IsActive("/Index") ? "is-active" : string.Empty)" asp-page="/Index">Главная</a>
+            <a class="site-nav__link @(IsActive("/Catalog") ? "is-active" : string.Empty)" asp-page="/Catalog/Index">Каталог</a>
+            <a class="site-nav__link @(IsActive("/Gifts") ? "is-active" : string.Empty)" asp-page="/Gifts/Index">Подарочные наборы</a>
+            <a class="site-nav__link @(IsActive("/Orders/Track") ? "is-active" : string.Empty)" asp-page="/Orders/Track">Отследить заказ</a>
+            <a class="site-nav__link @(IsActive("/Info/HowItWorks") || IsActive("/Info/Article") ? "is-active" : string.Empty)" asp-page="/Info/HowItWorks">Как работает</a>
+        </nav>
+
+        <div class="header-actions">
+            @if (isAuthenticated)
+            {
+                <a class="icon-button" asp-page="/Account/Notifications" title="Уведомления" aria-label="Уведомления">
+                    <svg class="icon" aria-hidden="true"><use href="#icon-bell"></use></svg>
+                </a>
+            }
+
+            <a class="icon-button" asp-page="/Cart/Index" title="Корзина" aria-label="Корзина">
+                <svg class="icon" aria-hidden="true"><use href="#icon-cart"></use></svg>
+                @if (cartCount > 0)
+                {
+                    <span class="badge-counter">@(cartCount > 99 ? "99+" : cartCount.ToString())</span>
+                }
             </a>
 
-            <button class="icon-button burger" type="button" data-menu-toggle
-                    aria-expanded="false" aria-controls="mainNav" aria-label="Открыть меню">
-                @IconRenderer.Render("menu")
-            </button>
-
-            <nav class="site-nav" id="mainNav" data-menu aria-label="Основная навигация">
-                <a class="site-nav__link @(IsActive("/Index") ? "is-active" : string.Empty)" asp-page="/Index">Главная</a>
-                <a class="site-nav__link @(IsActive("/Catalog") ? "is-active" : string.Empty)" asp-page="/Catalog/Index">Каталог</a>
-                <a class="site-nav__link @(IsActive("/Gifts/Index") ? "is-active" : string.Empty)" asp-page="/Gifts/Index">Подарочные наборы</a>
-                <a class="site-nav__link @(IsActive("/Orders/Track") ? "is-active" : string.Empty)" asp-page="/Orders/Track">Отследить заказ</a>
-                <a class="site-nav__link @(IsActive("/Info/HowItWorks") ? "is-active" : string.Empty)" asp-page="/Info/HowItWorks">Как работает</a>
-            </nav>
-
-            <div class="header-actions">
-                @if (User.Identity?.IsAuthenticated == true)
-                {
-                    <a class="icon-button" asp-page="/Account/Notifications" title="Уведомления" aria-label="Уведомления">
-                        @IconRenderer.Render("bell")
-                    </a>
-                }
-
-                <a class="icon-button" asp-page="/Cart/Index" title="Корзина" aria-label="Корзина">
-                    @IconRenderer.Render("cart")
-                    @if (cartCount > 0)
-                    {
-                        <span class="badge-counter">@(cartCount > 99 ? "99+" : cartCount.ToString())</span>
-                    }
+            @if (isAuthenticated)
+            {
+                <a class="profile-pill" asp-page="/Account/Profile">
+                    <span class="profile-pill__avatar">@initials</span>
+                    <span>@userName</span>
                 </a>
-
-                @if (User.Identity?.IsAuthenticated == true)
-                {
-                    <a class="profile-pill" asp-page="/Account/Profile">
-                        <span class="profile-pill__avatar">@initials</span>
-                        <span>@userName</span>
-                    </a>
-                    <form method="post" asp-page="/Account/Logout" asp-page-handler="Logout" class="d-inline">
-                        <button class="btn btn--ghost btn--sm" type="submit">Выйти</button>
-                    </form>
-                }
-                else
-                {
-                    <a class="profile-pill" asp-page="/Account/Login" asp-route-returnUrl="@returnUrl">
-                        <span class="profile-pill__avatar">@IconRenderer.Render("user")</span>
-                        <span>Войти</span>
-                    </a>
-                }
-            </div>
+                <form method="post" asp-page="/Account/Logout" asp-page-handler="Logout" class="d-inline">
+                    <button class="btn btn--ghost btn--sm" type="submit">Выйти</button>
+                </form>
+            }
+            else
+            {
+                <a class="profile-pill" asp-page="/Account/Login" asp-route-returnUrl="@returnUrl">
+                    <span class="profile-pill__avatar"><svg class="icon" aria-hidden="true"><use href="#icon-user"></use></svg></span>
+                    <span>Войти</span>
+                </a>
+            }
         </div>
-    </header>
+    </div>
+</header>
 
-    <main id="main" class="container">
-        <partial name="_Flash" />
-        @RenderBody()
-    </main>
+<main id="main" class="container">
+    <partial name="_Flash" />
+    @RenderBody()
+</main>
 
-    <partial name="_Footer" />
+<partial name="_Footer" />
 
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+<script src="~/js/site.js" asp-append-version="true" defer></script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

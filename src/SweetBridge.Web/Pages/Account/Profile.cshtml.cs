@@ -1,3 +1,4 @@
+using SweetBridge.Web.Services.Account;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
@@ -12,9 +13,53 @@ namespace SweetBridge.Web.Pages.Account;
 /// Профиль покупателя: имя, телефон и смена пароля.
 /// </summary>
 /// <param name="userManager">Менеджер пользователей Identity.</param>
-public sealed class ProfileModel(UserManager<AppUser> userManager) : PageModel
+/// <param name="passwordPolicy">Требования к паролю из настроек Identity.</param>
+public sealed class ProfileModel(
+    UserManager<AppUser> userManager,
+    SweetBridge.Web.Services.Account.PasswordPolicyText passwordPolicy) : PageModel
 {
     /// <summary>
+    /// <summary>
+    /// Данные профиля.
+    /// </summary>
+    public string PasswordHint => passwordPolicy.Hint;
+
+/// <summary>
+    /// Группа полей пароля формы смены: одной кнопкой показываются все три поля.
+    /// </summary>
+    private const string PasswordGroup = "Password_CurrentPassword Password_NewPassword Password_ConfirmPassword";
+
+    /// <summary>
+    /// Поле «Текущий пароль».
+    /// </summary>
+    public PasswordFieldViewModel CurrentPasswordField { get; } = new(
+        Name: "Password.CurrentPassword",
+        Id: "Password_CurrentPassword",
+        Label: "Текущий пароль",
+        Autocomplete: "current-password",
+        Group: PasswordGroup);
+
+    /// <summary>
+    /// Поле «Новый пароль» с подсказкой из настроек Identity.
+    /// </summary>
+    public PasswordFieldViewModel NewPasswordField { get; } = new(
+        Name: "Password.NewPassword",
+        Id: "Password_NewPassword",
+        Label: "Новый пароль",
+        Autocomplete: "new-password",
+        Group: PasswordGroup,
+        Hint: passwordPolicy.Hint);
+
+    /// <summary>
+    /// Поле подтверждения нового пароля.
+    /// </summary>
+    public PasswordFieldViewModel ConfirmPasswordField { get; } = new(
+        Name: "Password.ConfirmPassword",
+        Id: "Password_ConfirmPassword",
+        Label: "Повторите новый пароль",
+        Autocomplete: "new-password",
+        Group: PasswordGroup);
+
     /// Данные профиля.
     /// </summary>
     [BindProperty]

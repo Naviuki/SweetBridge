@@ -4,26 +4,25 @@ using Microsoft.AspNetCore.Html;
 namespace SweetBridge.Web.Extensions;
 
 /// <summary>
-/// Renders icons from the local SVG sprite so that views stay free of repeated markup.
+/// Формирует ссылку на символ инлайн-спрайта иконок, вставленного в <c>_Layout</c>.
+/// Внешний спрайт не используется: он не работал в браузере из-за политики CORS.
 /// </summary>
 public static class IconRenderer
 {
-    private const string SpritePath = "/icons/sprite.svg";
-
     /// <summary>
-    /// Builds an inline SVG reference to the local sprite.
+    /// Возвращает разметку иконки.
     /// </summary>
-    /// <param name="name">Icon name without the <c>icon-</c> prefix.</param>
-    /// <param name="cssClass">CSS class of the icon element.</param>
-    /// <returns>HTML with the icon.</returns>
+    /// <param name="name">Имя символа без префикса <c>icon-</c>.</param>
+    /// <param name="cssClass">Класс элемента иконки.</param>
+    /// <returns>HTML со ссылкой на символ спрайта.</returns>
     public static IHtmlContent Render(string name, string cssClass = "icon")
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
         var builder = new StringBuilder();
-        builder.Append("<svg class=\"").Append(cssClass).Append("\" aria-hidden=\"true\"><use href=\"")
-            .Append(SpritePath)
-            .Append("#icon-")
+        builder.Append("<svg class=\"")
+            .Append(cssClass)
+            .Append("\" aria-hidden=\"true\" focusable=\"false\"><use href=\"#icon-")
             .Append(name)
             .Append("\"></use></svg>");
 

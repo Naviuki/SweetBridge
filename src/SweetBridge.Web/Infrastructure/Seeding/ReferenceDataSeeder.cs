@@ -150,7 +150,7 @@ public sealed partial class ReferenceDataSeeder
         _dbContext.PromoCodes.AddRange(
             PromoCode.Create("MOST10", PromoCodeKind.Percent, 10m, today.AddDays(-7), today.AddDays(60), 500, 2000m),
             PromoCode.Create("BRIDGE500", PromoCodeKind.FixedAmount, 500m, today.AddDays(-7), today.AddDays(60), 200, 5000m),
-            PromoCode.Create("PEAKIT", PromoCodeKind.Percent, 15m, today, today.AddDays(30), 100, 3000m));
+            PromoCode.Create("MOST15", PromoCodeKind.Percent, 15m, today, today.AddDays(30), 100, 3000m));
 
         await _dbContext.SaveChangesAsync(cancellationToken);
     }

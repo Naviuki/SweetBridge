@@ -41,27 +41,17 @@
             <div class="card card-pad">
                 <h2>Смена пароля</h2>
                 <form method="post" asp-page-handler="ChangePassword">
-                    <label class="field">
-                        <span class="field__label">Текущий пароль</span>
-                        <input class="field__control" asp-for="Password.CurrentPassword" data-field-control
-                               autocomplete="current-password" />
-                        <span class="field__error" asp-validation-for="Password.CurrentPassword"></span>
-                    </label>
+                    <partial name="_PasswordField"
+                             model="Model.CurrentPasswordField" />
+                    <span class="field__error" asp-validation-for="Password.CurrentPassword"></span>
 
-                    <label class="field">
-                        <span class="field__label">Новый пароль</span>
-                        <input class="field__control" asp-for="Password.NewPassword" data-field-control
-                               autocomplete="new-password" />
-                        <span class="field__hint">Минимум 8 символов, цифра, заглавная буква и спецсимвол</span>
-                        <span class="field__error" asp-validation-for="Password.NewPassword"></span>
-                    </label>
+                    <partial name="_PasswordField"
+                             model="Model.NewPasswordField" />
+                    <span class="field__error" asp-validation-for="Password.NewPassword"></span>
 
-                    <label class="field">
-                        <span class="field__label">Повторите новый пароль</span>
-                        <input class="field__control" asp-for="Password.ConfirmPassword" data-field-control
-                               autocomplete="new-password" />
-                        <span class="field__error" asp-validation-for="Password.ConfirmPassword"></span>
-                    </label>
+                    <partial name="_PasswordField"
+                             model="Model.ConfirmPasswordField" />
+                    <span class="field__error" asp-validation-for="Password.ConfirmPassword"></span>
 
                     <button class="btn btn--secondary" type="submit">Сменить пароль</button>
                 </form>

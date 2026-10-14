@@ -1,3 +1,4 @@
+using SweetBridge.Web.Services.Account;
 using Microsoft.AspNetCore.RateLimiting;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
@@ -16,8 +17,14 @@ namespace SweetBridge.Web.Pages.Account;
 /// <param name="userManager">Менеджер пользователей Identity.</param>
 /// <param name="signInManager">Менеджер входа Identity.</param>
 /// <param name="clock">Источник времени.</param>
+/// <param name="passwordPolicy">Требования к паролю из настроек Identity.</param>
+/// <param name="passwordPolicy">Текст требований к паролю из настроек Identity.</param>
 [AllowAnonymous]
-public sealed class RegisterModel(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IBusinessClock clock) : PageModel
+public sealed class RegisterModel(
+    UserManager<AppUser> userManager,
+    SignInManager<AppUser> signInManager,
+    IBusinessClock clock,
+    SweetBridge.Web.Services.Account.PasswordPolicyText passwordPolicy) : PageModel
 {
     private const string AuthRateLimitPolicy = "Auth";
 
@@ -25,6 +32,37 @@ public sealed class RegisterModel(UserManager<AppUser> userManager, SignInManage
     /// Данные формы регистрации.
     /// </summary>
     [BindProperty]
+    /// <summary>
+    /// Требования к паролю из настроек Identity: подсказка всегда совпадает с проверками сервера.
+    /// </summary>
+    public string PasswordHint => passwordPolicy.Hint;
+
+/// <summary>
+    /// Группа полей пароля формы: одной кнопкой показываются оба поля.
+    /// </summary>
+    private const string PasswordGroup = "Input_Password Input_ConfirmPassword";
+
+    /// <summary>
+    /// Поле «Пароль» формы регистрации.
+    /// </summary>
+    public PasswordFieldViewModel NewPasswordField { get; } = new(
+        Name: "Input.Password",
+        Id: "Input_Password",
+        Label: "Пароль",
+        Autocomplete: "new-password",
+        Group: PasswordGroup,
+        Hint: passwordPolicy.Hint);
+
+    /// <summary>
+    /// Поле «Повторите пароль» формы регистрации.
+    /// </summary>
+    public PasswordFieldViewModel ConfirmPasswordField { get; } = new(
+        Name: "Input.ConfirmPassword",
+        Id: "Input_ConfirmPassword",
+        Label: "Повторите пароль",
+        Autocomplete: "new-password",
+        Group: PasswordGroup);
+
     public InputModel Input { get; set; } = new();
 
     /// <summary>

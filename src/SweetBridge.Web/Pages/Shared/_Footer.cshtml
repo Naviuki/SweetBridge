@@ -1,35 +1,35 @@
-@using SweetBridge.Web.Extensions
 @using SweetBridge.Web.Options
 @inject Microsoft.Extensions.Options.IOptions<ContactsOptions> ContactsOptions
 @{
     var contacts = ContactsOptions.Value;
+    string? telegram = ViewData["SocialTelegram"] as string;
 }
 <footer class="site-footer">
-    <div class="container">
-        <div class="site-footer__grid">
-            <div>
-                <span class="brand__text footer-brand">Сладкий мост<span class="brand__tagline footer-tagline">Мост к сладкому</span></span>
-                <p class="footer-lead">
-                    Межрегиональный маркетплейс кондитерских изделий между Якутией и Донбассом.
-                </p>
-                <div class="footer-social">
-                    <a class="icon-button" href="https://t.me/sweetbridge" rel="noopener noreferrer nofollow" target="_blank" aria-label="Telegram">
-                        @IconRenderer.Render("telegram")
-                    </a>
-                    <a class="icon-button" href="https://go.mail.ru/" rel="noopener noreferrer nofollow" target="_blank" aria-label="Mail.ru">
-                        @IconRenderer.Render("mail")
-                    </a>
-                    <a class="icon-button" href="mailto:@contacts.Email" aria-label="Написать на почту">
-                        @IconRenderer.Render("mail")
-                    </a>
-                </div>
+    <div class="container site-footer__inner">
+        <div class="site-footer__brand">
+            <span class="brand__text footer-brand">Сладкий мост<span class="brand__tagline footer-tagline">Мост к сладкому</span></span>
+            <p class="footer-lead">Межрегиональный маркетплейс кондитерских изделий между Якутией и Донбассом.</p>
+            <div class="footer-social">
+                <a class="footer-social__link" href="https://t.me/sweetbridge" rel="noopener noreferrer nofollow"
+                   target="_blank" aria-label="Telegram">
+                    <svg aria-hidden="true"><use href="#icon-telegram"></use></svg>
+                </a>
+                <a class="footer-social__link" href="https://go.mail.ru/" rel="noopener noreferrer nofollow"
+                   target="_blank" aria-label="Mail.ru">
+                    <svg aria-hidden="true"><use href="#icon-mail"></use></svg>
+                </a>
+                <a class="footer-social__link" href="mailto:@contacts.Email" aria-label="Написать на почту">
+                    <svg aria-hidden="true"><use href="#icon-mail"></use></svg>
+                </a>
             </div>
+        </div>
 
+        <div class="site-footer__columns">
             <div>
                 <h2 class="site-footer__title">Каталог</h2>
                 <ul class="site-footer__list">
-                    <li><a asp-page="/Catalog/Index" asp-route-region="@Domain.Enums.ShippingDirection.YakutiaToDonbass">Сладости Якутии</a></li>
-                    <li><a asp-page="/Catalog/Index" asp-route-region="@Domain.Enums.ShippingDirection.DonbassToYakutia">Сладости Донбасса</a></li>
+                    <li><a asp-page="/Catalog/Index" asp-route-direction="@Domain.Enums.ShippingDirection.YakutiaToDonbass">Сладости Якутии</a></li>
+                    <li><a asp-page="/Catalog/Index" asp-route-direction="@Domain.Enums.ShippingDirection.DonbassToYakutia">Сладости Донбасса</a></li>
                     <li><a asp-page="/Gifts/Index">Подарочные наборы</a></li>
                     <li><a asp-page="/Corporate/Index">Корпоративные заказы</a></li>
                     <li><a asp-page="/Catalog/Index">Все товары</a></li>
@@ -39,7 +39,7 @@
             <div>
                 <h2 class="site-footer__title">Помощь</h2>
                 <ul class="site-footer__list">
-                    <li><a asp-page="/Info/Article" asp-route-slug="how-it-works">Как работает «волна»</a></li>
+                    <li><a asp-page="/Info/HowItWorks">Как работает «волна»</a></li>
                     <li><a asp-page="/Info/Article" asp-route-slug="delivery">Доставка и сроки</a></li>
                     <li><a asp-page="/Info/Article" asp-route-slug="payment">Оплата</a></li>
                     <li><a asp-page="/Info/Article" asp-route-slug="faq">Частые вопросы</a></li>
@@ -53,7 +53,6 @@
                     <li><a asp-page="/Info/Article" asp-route-slug="about">О «Сладком мосте»</a></li>
                     <li><a asp-page="/Info/Article" asp-route-slug="producers">Производители</a></li>
                     <li><a asp-page="/Info/Article" asp-route-slug="partners">Партнёрам</a></li>
-                    <li><a asp-page="/Info/Article" asp-route-slug="hackathon">Хакатон «PEAK IT»</a></li>
                     <li><a asp-page="/Info/Article" asp-route-slug="press-kit">Пресс-кит</a></li>
                 </ul>
             </div>
@@ -66,14 +65,20 @@
                     <li>@contacts.Address</li>
                     <li>@contacts.Hours</li>
                 </ul>
-                <p class="footer-subscribe-title">Узнавайте о новых волнах первыми</p>
-                <p class="footer-subscribe-note">Раз в 2 недели — без спама</p>
-                <form method="post" asp-page="/Newsletter/Subscribe" class="subscribe">
-                    <label class="visually-hidden" for="footerSubscribeEmail">Электронная почта для подписки</label>
-                    <input id="footerSubscribeEmail" type="email" name="Email" placeholder="Ваш e-mail" required />
-                    <button class="btn btn--primary btn--sm" type="submit">Подписаться</button>
-                </form>
             </div>
+        </div>
+
+        <div class="site-footer__subscribe">
+            <div>
+                <p class="site-footer__subscribe-title">Узнавайте о новых волнах первыми</p>
+                <p class="site-footer__subscribe-note">Раз в 2 недели — без спама</p>
+            </div>
+            <form method="post" asp-page="/Newsletter/Subscribe" class="subscribe">
+                <label class="visually-hidden" for="footerSubscribeEmail">Электронная почта для подписки</label>
+                <input id="footerSubscribeEmail" type="email" name="Email" placeholder="Ваш e-mail"
+                       autocomplete="email" required />
+                <button class="btn btn--primary" type="submit">Подписаться</button>
+            </form>
         </div>
 
         <div class="site-footer__bottom">

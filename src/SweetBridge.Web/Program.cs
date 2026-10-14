@@ -208,3 +208,11 @@ static async Task InitializeDatabaseAsync(WebApplication app)
     DatabaseInitializer initializer = scope.ServiceProvider.GetRequiredService<DatabaseInitializer>();
     await initializer.InitializeAsync(CancellationToken.None);
 }
+
+/// <summary>
+/// Точка входа: объявлена публичной для интеграционных тестов через WebApplicationFactory.
+/// </summary>
+public partial class Program;
+public partial class Program
+{
+}

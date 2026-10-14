@@ -160,6 +160,22 @@ public static class DisplayExtensions
         date.ToString("dd.MM.yyyy", RussianCulture);
 
     /// <summary>
+    /// Форматирует дату в длинном русском формате, например «18 октября 2026».
+    /// </summary>
+    /// <param name="date">Форматируемая дата.</param>
+    /// <returns>Отформатированная дата.</returns>
+    public static string ToLongDate(this DateOnly date) =>
+        date.ToString("d MMMM yyyy", RussianCulture);
+
+    /// <summary>
+    /// Форматирует дедлайн с окончанием суток, например «15 октября, 23:59».
+    /// </summary>
+    /// <param name="date">Форматируемая дата.</param>
+    /// <returns>Отформатированный дедлайн.</returns>
+    public static string ToDeadline(this DateOnly date) =>
+        string.Concat(date.ToString("d MMMM", RussianCulture), ", 23:59");
+
+    /// <summary>
     /// Форматирует момент времени UTC в локальном времени сервера.
     /// </summary>
     /// <param name="dateTimeUtc">Момент времени в UTC.</param>

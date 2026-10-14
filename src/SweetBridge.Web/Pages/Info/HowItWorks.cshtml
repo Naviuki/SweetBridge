@@ -1,0 +1,77 @@
+@page
+@model SweetBridge.Web.Pages.Info.HowItWorksModel
+@using SweetBridge.Web.Extensions
+@{
+    ViewData["Title"] = "Как работает «волна»";
+}
+<section class="page">
+    <div class="page-head">
+        <div>
+            <h1 class="page__title">Как работает «волна»</h1>
+            <p class="page__lead">
+                Заказы одного направления складываются в общую посылку и едут вместе раз в @Model.WaveIntervalDays дней.
+                Это делает доставку на тысячи километров выгодной и для покупателя, и для производителя.
+            </p>
+        </div>
+        <a class="btn btn--primary" asp-page="/Catalog/Index">В каталог</a>
+    </div>
+
+    <div class="grid grid--2 mt-16">
+        @foreach (SweetBridge.Web.Services.Content.ContentBlock step in Model.Steps)
+        {
+            <article class="card card-pad step-block">
+                <h2 class="step-block__title">@step.Title</h2>
+                <p class="muted">@step.Body</p>
+            </article>
+        }
+    </div>
+
+    <div class="grid grid--3 mt-24">
+        <article class="card card-pad">
+            <h2 class="article-side__title">Дедлайны</h2>
+            <p class="muted">
+                Приём заказов закрывается за @Model.CutoffDays дней до даты отправки —
+                до @Model.CutoffDays.ToString() + " " + Plural(Model.CutoffDays) + " до отправки включительно, до 23:59 по местному времени.
+            </p>
+        </article>
+
+        <article class="card card-pad">
+            <h2 class="article-side__title">Скидки за заполнение</h2>
+            <ul class="site-footer__list">
+                @foreach (SweetBridge.Web.Options.FillDiscountOption discount in Model.FillDiscounts)
+                {
+                    <li>от @discount.FillAbovePercent.ToString("0")% заполнения — минус @discount.DiscountPercent.ToString("0")% на доставку</li>
+                }
+            </ul>
+            <p class="muted mt-8">
+                Волна уходит в рейс, когда набрано не меньше @Model.MinWaveLoadKg.ToString() + " " + PluralKg(Model.MinWaveLoadKg) + ".
+            </p>
+        </article>
+
+        <article class="card card-pad">
+            <h2 class="article-side__title">Сроки и термоупаковка</h2>
+            <p class="muted">
+                Доставка занимает @Model.MinDeliveryDays–@Model.MaxDeliveryDays дней после отправки.
+                Термочувствительные товары в холодные месяцы едут в термоупаковке — её стоимость добавляется к доставке.
+            </p>
+        </article>
+    </div>
+
+    <div class="row gap-12 mt-24">
+        <a class="btn btn--primary" asp-page="/Catalog/Index">Перейти в каталог</a>
+        <a class="btn btn--ghost" asp-page="/Info/Article" asp-route-slug="faq" asp-fragment="faq">Частые вопросы</a>
+        <a class="btn btn--ghost" asp-page="/Info/Article" asp-route-slug="delivery">Доставка и сроки</a>
+    </div>
+</section>
+
+@functions {
+    private static string PluralKg(int value) =>
+        value == 1 ? "килограмма" : "килограммов";
+
+    private static string Plural(int value) =>
+        value % 10 == 1 && value % 100 != 11
+            ? "день"
+            : value % 10 >= 2 && value % 10 <= 4 && (value % 100 < 10 || value % 100 >= 20)
+                ? "дня"
+                : "дней";
+}

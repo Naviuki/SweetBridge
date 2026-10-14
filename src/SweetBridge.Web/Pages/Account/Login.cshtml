@@ -1,33 +1,31 @@
 @page
 @model SweetBridge.Web.Pages.Account.LoginModel
 @{
-    ViewData["Title"] = "Вход";
+    ViewData["Title"] = "Войти";
+    string? error = Request.Query["error"].FirstOrDefault();
 }
 <section class="page">
     <div class="card auth-card card-pad">
         <h1 class="page__title">Вход</h1>
         <p class="page__lead">Войдите, чтобы видеть заказы, избранное и уведомления.</p>
 
-        <form method="post" class="mt-16">
-            <div asp-validation-summary="ModelOnly" class="form-errors"></div>
+        <form method="post" class="mt-16" novalidate>
+            <div asp-validation-summary="ModelOnly" class="form-errors" role="alert"></div>
+            @if (!string.IsNullOrWhiteSpace(error))
+            {
+                <div class="flash flash--error" role="alert">Вход через внешний сервис не удался. Попробуйте ещё раз.</div>
+            }
 
             <label class="field">
                 <span class="field__label">Электронная почта</span>
                 <input class="field__control" asp-for="Input.Email" data-field-control type="email"
-                       autocomplete="username" autofocus />
-                <span class="field__error" asp-validation-for="Input.Email"></span>
+                       autocomplete="username" inputmode="email" maxlength="320" required autofocus
+                       aria-describedby="email-error" />
+                <span class="field__error" id="email-error" asp-validation-for="Input.Email"></span>
             </label>
 
-            <label class="field">
-                <span class="field__label">Пароль</span>
-                <span class="password-wrap">
-                    <input class="field__control" asp-for="Input.Password" data-field-control
-                           autocomplete="current-password" data-password-field />
-                    <button class="btn btn--ghost btn--sm" type="button"
-                            data-password-toggle="Input_Password" aria-label="Показать пароль">Показать</button>
-                </span>
-                <span class="field__error" asp-validation-for="Input.Password"></span>
-            </label>
+            <partial name="_PasswordField" model="Model.NewPasswordField" />
+            <span class="field__error" asp-validation-for="Input.Password"></span>
 
             <label class="field field--check">
                 <input asp-for="Input.RememberMe" type="checkbox" />
@@ -36,6 +34,15 @@
 
             <button class="btn btn--primary btn--block" type="submit">Войти</button>
         </form>
+
+        @if (Model.IsMailRuConfigured)
+        {
+            <p class="auth-divider"><span>или</span></p>
+            <a class="btn btn--ghost btn--block" asp-page="/Account/MailRu">
+                <svg class="icon" aria-hidden="true"><use href="#icon-mail"></use></svg>
+                Войти через Mail.ru
+            </a>
+        }
 
         <div class="row row--between mt-16">
             <a asp-page="/Account/Register">Создать аккаунт</a>

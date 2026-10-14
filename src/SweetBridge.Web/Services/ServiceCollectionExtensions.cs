@@ -1,3 +1,4 @@
+using SweetBridge.Web.Services.Account;
 using SweetBridge.Web.Services.Auditing;
 using SweetBridge.Web.Services.Cart;
 using SweetBridge.Web.Services.Catalog;
@@ -55,6 +56,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGiftSetService, GiftSetService>();
         services.AddSingleton<IReceiptBuilder, ReceiptBuilder>();
         services.AddScoped<IEmailSender, EmailSender>();
+        services.AddScoped<PasswordPolicyText>();
         services.AddScoped<IEmailComposer, EmailComposer>();
 
         return services;

@@ -1,3 +1,4 @@
+using SweetBridge.Web.Services.Account;
 using Microsoft.AspNetCore.RateLimiting;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
@@ -14,10 +15,46 @@ namespace SweetBridge.Web.Pages.Account;
 /// </summary>
 /// <param name="userManager">Менеджер пользователей Identity.</param>
 /// <param name="signInManager">Менеджер входа Identity.</param>
+/// <param name="passwordPolicy">Требования к паролю из настроек Identity.</param>
 [AllowAnonymous]
-public sealed class ResetPasswordModel(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager) : PageModel
+public sealed class ResetPasswordModel(
+    UserManager<AppUser> userManager,
+    SignInManager<AppUser> signInManager,
+    SweetBridge.Web.Services.Account.PasswordPolicyText passwordPolicy) : PageModel
 {
     private const string AuthRateLimitPolicy = "Auth";
+
+    /// <summary>
+    /// Требования к паролю из настроек Identity.
+    /// </summary>
+    public string PasswordHint => passwordPolicy.Hint;
+
+/// <summary>
+    /// Группа полей пароля формы: одной кнопкой показываются оба поля.
+    /// </summary>
+    private const string PasswordGroup = "Input_Password Input_ConfirmPassword";
+
+    /// <summary>
+    /// Поле «Новый пароль» формы сброса.
+    /// </summary>
+    public PasswordFieldViewModel NewPasswordField { get; } = new(
+        Name: "Input.Password",
+        Id: "Input_Password",
+        Label: "Новый пароль",
+        Autocomplete: "new-password",
+        Group: PasswordGroup,
+        Hint: passwordPolicy.Hint);
+
+    /// <summary>
+    /// Поле подтверждения нового пароля.
+    /// </summary>
+    public PasswordFieldViewModel ConfirmPasswordField { get; } = new(
+        Name: "Input.ConfirmPassword",
+        Id: "Input_ConfirmPassword",
+        Label: "Повторите новый пароль",
+        Autocomplete: "new-password",
+        Group: PasswordGroup);
+
 
     /// <summary>
     /// Данные формы.

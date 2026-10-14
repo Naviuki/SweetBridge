@@ -1,0 +1,12 @@
+@model SweetBridge.Web.Pages.Catalog.IndexModel
+@{
+    ViewData["EnableFavorite"] = true;
+}
+@foreach (SweetBridge.Web.Services.Catalog.ProductCardViewModel product in Model.Products)
+{
+    <partial name="_ProductCard" model="product" />
+}
+@if (Model.NextPage is int next)
+{
+    <span hidden data-next-url="@Model.BuildItemsUrl(next)"></span>
+}
