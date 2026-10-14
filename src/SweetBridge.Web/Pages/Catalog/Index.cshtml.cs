@@ -149,7 +149,7 @@ public class IndexModel(
         {
             TempData["Error"] = $"Количество должно быть от 1 до {CartLimits.MaxQuantityPerProduct}.";
 
-            return RedirectToPage();
+            return LocalRedirect(BuildQueryUrl(1, handler: null));
         }
 
         try
@@ -162,7 +162,7 @@ public class IndexModel(
             TempData["Error"] = exception.Message;
         }
 
-        return RedirectToPage(null, CurrentRouteValues());
+        return LocalRedirect(BuildQueryUrl(1, handler: null));
     }
 
     /// <summary>
@@ -183,7 +183,7 @@ public class IndexModel(
         bool added = await favoriteService.ToggleAsync(userId, productId, cancellationToken);
         TempData[added ? "Success" : "Info"] = added ? "Товар добавлен в избранное." : "Товар убран из избранного.";
 
-        return RedirectToPage(null, CurrentRouteValues());
+        return LocalRedirect(BuildQueryUrl(1, handler: null));
     }
 
     /// <summary>
@@ -270,13 +270,4 @@ public class IndexModel(
             FavoriteIds.Contains(product.Id)))
     ];
 
-    private Dictionary<string, string?> CurrentRouteValues() => new(StringComparer.Ordinal)
-    {
-        ["direction"] = Direction.ToString(),
-        ["category"] = Category,
-        ["q"] = Search,
-        ["thermo"] = ThermoSensitive ? "true" : null,
-        ["wave"] = Wave?.ToString(System.Globalization.CultureInfo.InvariantCulture),
-        ["page"] = CurrentPage > 1 ? CurrentPage.ToString(System.Globalization.CultureInfo.InvariantCulture) : null
-    };
 }

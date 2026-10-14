@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -20,9 +21,8 @@ public sealed class ErrorModel : PageModel
     /// <summary>
     /// Признак того, что идентификатор запроса известен.
     /// </summary>
-    public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
-
-    /// <summary>
+    [BindNever] // Служебное свойство страницы: не участвует в биндинге модели.
+    public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);    /// <summary>
     /// Обрабатывает ответ с ошибкой.
     /// </summary>
     /// <param name="requestId">Идентификатор неуспешного запроса.</param>

@@ -22,6 +22,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewData["Title"] — Сладкий мост</title>
+    <meta name="description" content="@(ViewData["Description"] as string ?? "Межрегиональный маркетплейс кондитерских изделий между Якутией и Донбассом: доставка сборными волнами, подарочные наборы и отслеживание заказа.")"/>
+    <meta name="theme-color" content="#0f5173"/>
     <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
     <link rel="preload" href="~/fonts/unbounded-cyrillic-800-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="~/fonts/manrope-cyrillic-400-normal.woff2" as="font" type="font/woff2" crossorigin />
@@ -72,7 +74,7 @@
 
 <header class="site-header">
     <div class="container site-header__inner">
-        <a class="brand" asp-page="/Index" aria-label="Сладкий мост — на главную">
+        <a class="brand" asp-page="/Index">
             <span class="brand__text">Сладкий мост<span class="brand__tagline">Мост к сладкому</span></span>
         </a>
 

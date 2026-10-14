@@ -3,10 +3,12 @@
 @using SweetBridge.Web.Extensions
 @{
     ViewData["Title"] = "Подарочные наборы";
+    ViewData["Description"] = "Подарочные наборы из сладостей Якутии и Донбасса с доставкой волной.";
 }
 <section class="page">
     <h1 class="page__title">Подарочные наборы</h1>
     <p class="page__lead">Готовые подборки сладостей одной витрины: состав уже собран, добавьте открытку при оформлении.</p>
+    <h2 class="visually-hidden">Каталог подарочных наборов</h2>
 
     @if (Model.Sets.Count == 0)
     {

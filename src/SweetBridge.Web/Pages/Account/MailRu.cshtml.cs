@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -35,9 +36,8 @@ public sealed class MailRuModel(
     /// <summary>
     /// Признак того, что вход через Mail.ru настроен.
     /// </summary>
-    public bool IsConfigured => _provider.IsConfigured;
-
-    /// <summary>
+    [BindNever] // Служебное свойство страницы: не участвует в биндинге модели.
+    public bool IsConfigured => _provider.IsConfigured;    /// <summary>
     /// Отправляет покупателя на страницу авторизации Mail.ru.
     /// </summary>
     /// <returns>Перенаправление на Mail.ru.</returns>

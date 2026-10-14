@@ -4,6 +4,7 @@
 @using SweetBridge.Web.Extensions
 @{
     ViewData["Title"] = Model.Direction == ShippingDirection.YakutiaToDonbass ? "Сладости Якутии" : "Сладости Донбасса";
+    ViewData["Description"] = "Каталог сладостей: доставка волнами между Якутией и Донбассом. Фильтры по категории, поиску и термочувствительности.";
     ViewData["EnableFavorite"] = true;
     string showcase = Model.Direction == ShippingDirection.YakutiaToDonbass ? "Якутия" : "Донбасс";
     string destination = Model.Direction == ShippingDirection.YakutiaToDonbass ? "Донбасс" : "Якутия";
@@ -87,6 +88,7 @@
     }
     else
     {
+<h2 class="visually-hidden">Товары витрины @showcase</h2>
         <div class="product-grid" data-products-grid>
             <partial name="_ProductItems" model="Model" />
         </div>

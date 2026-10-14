@@ -14,14 +14,14 @@
             <label class="field">
                 <span class="field__label">Имя и фамилия</span>
                 <input class="field__control" asp-for="Input.Name" data-field-control autocomplete="name"
-                       maxlength="200" required aria-describedby="name-error" autofocus />
+                       maxlength="200" required data-val-required-message="Заполните это поле." aria-describedby="name-error" autofocus />
                 <span class="field__error" id="name-error" asp-validation-for="Input.Name"></span>
             </label>
 
             <label class="field">
                 <span class="field__label">Электронная почта</span>
                 <input class="field__control" asp-for="Input.Email" data-field-control type="email"
-                       autocomplete="email" inputmode="email" maxlength="320" required aria-describedby="email-error" />
+                       autocomplete="email" inputmode="email" maxlength="320" required data-val-required-message="Заполните это поле." aria-describedby="email-error" />
                 <span class="field__error" id="email-error" asp-validation-for="Input.Email"></span>
             </label>
 

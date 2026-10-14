@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SweetBridge.Web.Services.Account;
 using Microsoft.AspNetCore.RateLimiting;
 using System.ComponentModel.DataAnnotations;
@@ -35,9 +36,8 @@ public sealed class RegisterModel(
     /// <summary>
     /// Требования к паролю из настроек Identity: подсказка всегда совпадает с проверками сервера.
     /// </summary>
-    public string PasswordHint => passwordPolicy.Hint;
-
-/// <summary>
+    [BindNever] // Служебное свойство страницы: не участвует в биндинге модели.
+    public string PasswordHint => passwordPolicy.Hint;/// <summary>
     /// Группа полей пароля формы: одной кнопкой показываются оба поля.
     /// </summary>
     private const string PasswordGroup = "Input_Password Input_ConfirmPassword";
@@ -63,6 +63,10 @@ public sealed class RegisterModel(
         Autocomplete: "new-password",
         Group: PasswordGroup);
 
+    /// <summary>
+    /// Данные формы регистрации.
+    /// </summary>
+    [BindProperty]
     public InputModel Input { get; set; } = new();
 
     /// <summary>

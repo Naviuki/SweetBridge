@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SweetBridge.Web.Services.Account;
 using Microsoft.AspNetCore.RateLimiting;
 using System.ComponentModel.DataAnnotations;
@@ -27,9 +28,8 @@ public sealed class ResetPasswordModel(
     /// <summary>
     /// Требования к паролю из настроек Identity.
     /// </summary>
-    public string PasswordHint => passwordPolicy.Hint;
-
-/// <summary>
+    [BindNever] // Служебное свойство страницы: не участвует в биндинге модели.
+    public string PasswordHint => passwordPolicy.Hint;/// <summary>
     /// Группа полей пароля формы: одной кнопкой показываются оба поля.
     /// </summary>
     private const string PasswordGroup = "Input_Password Input_ConfirmPassword";

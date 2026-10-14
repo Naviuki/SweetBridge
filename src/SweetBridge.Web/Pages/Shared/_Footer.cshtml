@@ -76,7 +76,7 @@
             <form method="post" asp-page="/Newsletter/Subscribe" class="subscribe">
                 <label class="visually-hidden" for="footerSubscribeEmail">Электронная почта для подписки</label>
                 <input id="footerSubscribeEmail" type="email" name="Email" placeholder="Ваш e-mail"
-                       autocomplete="email" required />
+                       autocomplete="email" required data-val-required-message="Заполните это поле." />
                 <button class="btn btn--primary" type="submit">Подписаться</button>
             </form>
         </div>

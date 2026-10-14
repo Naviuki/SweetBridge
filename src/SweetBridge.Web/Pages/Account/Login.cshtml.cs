@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SweetBridge.Web.Services.Account;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
@@ -29,6 +30,7 @@ public sealed class LoginModel(
     /// <summary>
     /// Признак того, что вход через Mail.ru настроен.
     /// </summary>
+    [BindNever] // Служебное свойство страницы: не участвует в биндинге модели.
     public bool IsMailRuConfigured => externalAuth.Value.MailRu.IsConfigured;
     /// <summary>
     /// Поле «Пароль» формы входа.

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using SweetBridge.Web.Services.Account;
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
@@ -22,9 +23,8 @@ public sealed class ProfileModel(
     /// <summary>
     /// Данные профиля.
     /// </summary>
-    public string PasswordHint => passwordPolicy.Hint;
-
-/// <summary>
+    [BindNever] // Служебное свойство страницы: не участвует в биндинге модели.
+    public string PasswordHint => passwordPolicy.Hint;/// <summary>
     /// Группа полей пароля формы смены: одной кнопкой показываются все три поля.
     /// </summary>
     private const string PasswordGroup = "Password_CurrentPassword Password_NewPassword Password_ConfirmPassword";

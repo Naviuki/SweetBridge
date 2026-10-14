@@ -8,15 +8,17 @@
   --c-ink: #2a1710;
   --c-navy: #0f5173;
   --c-navy-dark: #0a3d58;
-  --c-accent: #e95d79;
+  --c-accent: #c03654;
+  /* Более тёмный розовый: белый текст на кнопке даёт контраст 5.39:1. */
   --c-accent-soft: #fde6eb;
   --c-yakutia: #d8eef8;
   --c-donbass: #fbe6cc;
   --c-border: #e6dcc3;
-  --c-muted: #8a7b70;
-  --c-success: #2f9e6e;
-  --c-warning: #d98b1f;
-  --c-danger: #d94f4f;
+  --c-muted: #706359;
+  /* Приглушённый текст: не ниже 5.4:1 на белом и 5.1:1 на фоне страницы. */
+  --c-success: #177a50;
+  --c-warning: #9a5f08;
+  --c-danger: #c93b3b;
 
   /* Градиент прогресса */
   --c-progress-from: #7ccbea;
@@ -1051,7 +1053,7 @@ input:autofill:focus {
 .site-footer__subscribe-note {
   margin: 4px 0 0;
   font-size: 13px;
-  opacity: 0.75;
+  color: #c3d6df;
 }
 
 .site-footer__subscribe .subscribe {

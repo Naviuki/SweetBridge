@@ -34,7 +34,15 @@ public sealed class PayModel(IOrderService orderService, IPaymentGateway payment
     {
         Order = await LoadAsync(cancellationToken);
 
-        return Order is null ? NotFound() : Page();
+        if (Order is null)
+        {
+            // Без номера заказа страница оплаты бессмысленна: возвращаем покупателя к его заказам.
+            TempData["Info"] = "Выберите заказ для оплаты в списке ваших заказов.";
+
+            return RedirectToPage("/Account/Orders");
+        }
+
+        return Page();
     }
 
     /// <summary>
