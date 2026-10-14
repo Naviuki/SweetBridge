@@ -130,7 +130,8 @@ public class IndexModel : PageModel
                 product.Price,
                 product.IsTemperatureSensitive,
                 product.PhotoPath,
-                _cartService.GetQuantity(product.Id)))
+                _cartService.GetQuantity(product.Id),
+                FavoriteIds.Contains(product.Id)))
             .ToList();
 
         Products = pageItems;

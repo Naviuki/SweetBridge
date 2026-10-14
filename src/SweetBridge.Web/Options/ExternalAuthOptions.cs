@@ -1,7 +1,7 @@
 namespace SweetBridge.Web.Options;
 
 /// <summary>
-/// Параметры внешних провайдеров авторизации.
+/// Параметры внешней авторизации.
 /// </summary>
 public sealed class ExternalAuthOptions
 {
@@ -11,14 +11,9 @@ public sealed class ExternalAuthOptions
     public const string SectionName = "ExternalAuth";
 
     /// <summary>
-    /// Параметры Google.
+    /// Параметры Mail.ru.
     /// </summary>
-    public ExternalAuthProvider Google { get; set; } = new();
-
-    /// <summary>
-    /// Параметры VK.
-    /// </summary>
-    public ExternalAuthProvider Vk { get; set; } = new();
+    public ExternalAuthProvider MailRu { get; set; } = new();
 }
 
 /// <summary>

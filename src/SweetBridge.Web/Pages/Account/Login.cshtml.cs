@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Options;
+using SweetBridge.Web.Options;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -15,10 +17,15 @@ namespace SweetBridge.Web.Pages.Account;
 /// Вход в личный кабинет.
 /// </summary>
 /// <param name="signInManager">Менеджер входа Identity.</param>
+/// <param name="externalAuth">Параметры внешней авторизации.</param>
 [AllowAnonymous]
-public sealed class LoginModel(SignInManager<AppUser> signInManager) : PageModel
+public sealed class LoginModel(
+    SignInManager<AppUser> signInManager,
+    IOptions<ExternalAuthOptions> externalAuth) : PageModel
 {
     private const string AuthRateLimitPolicy = "Auth";
+
+    private IOptions<ExternalAuthOptions> ExternalAuth => externalAuth;
 
     /// <summary>
     /// Данные формы входа.

@@ -5,11 +5,12 @@
         ? "/images/placeholders/product.svg"
         : Model.PhotoPath;
     string regionClass = Model.Region == Region.Yakutia ? "chip--yakutia" : "chip--donbass";
-    string photoModifier = Model.Region == Region.Yakutia ? "product-card__photo--yakutia" : "product-card__photo--donbass";
+    string photoClass = Model.Region == Region.Yakutia ? "product-card__photo-link" : "product-card__photo-link--donbass";
+    bool withFavorite = ViewData["EnableFavorite"] as bool? ?? false;
     bool inCart = Model.QuantityInCart > 0;
 }
 <article class="card product-card">
-    <a class="product-card__photo-link" asp-page="/Catalog/Product" asp-route-id="@Model.Id">
+    <a class="@photoClass" asp-page="/Catalog/Product" asp-route-id="@Model.Id">
         <span class="chip @regionClass product-card__chip">
             @IconRenderer.Render(Model.Region == Region.Yakutia ? "snowflake" : "sun")
             @Model.Region.ToDisplayName()
@@ -20,9 +21,10 @@
                 @IconRenderer.Render("thermo")
             </span>
         }
-        <img class="product-card__photo @photoModifier" src="@photoPath" alt="@Model.Name" loading="lazy" width="320" height="240" />
+        <img class="product-card__photo" src="@photoPath" alt="@Model.Name" loading="lazy" width="320" height="240" />
     </a>
-    <div class="card__body product-card__body">
+
+    <div class="product-card__body">
         <p class="product-card__producer">@Model.ProducerName</p>
         <h3 class="product-card__name">
             <a asp-page="/Catalog/Product" asp-route-id="@Model.Id">@Model.Name</a>
@@ -32,23 +34,39 @@
             @IconRenderer.Render("weight")
             @Model.WeightGrams.FormatWeight()
         </p>
+
         <div class="row row--between product-card__footer">
             <span class="product-card__price">@Model.Price.FormatPrice()</span>
-            @if (inCart)
-            {
-                <span class="btn btn--outline btn--sm" aria-disabled="true">
-                    @IconRenderer.Render("check")
-                    В корзине
-                </span>
-            }
-            else
-            {
-                <form method="post" asp-page="/Catalog/Index" asp-page-handler="AddToCart" asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString">
-                    <input type="hidden" name="productId" value="@Model.Id" />
-                    <input type="hidden" name="quantity" value="1" />
-                    <button class="btn btn--primary btn--sm" type="submit">В корзину</button>
-                </form>
-            }
+
+            <span class="row gap-6">
+                @if (withFavorite)
+                {
+                    <form method="post" asp-page="/Catalog/Index" asp-page-handler="ToggleFavorite">
+                        <input type="hidden" name="productId" value="@Model.Id" />
+                        <button class="icon-button @(Model.IsFavorite ? "is-active" : string.Empty)" type="submit"
+                                title="@(Model.IsFavorite ? "Убрать из избранного" : "В избранное")"
+                                aria-label="@(Model.IsFavorite ? "Убрать из избранного" : "Добавить в избранное")">
+                            @IconRenderer.Render("heart")
+                        </button>
+                    </form>
+                }
+
+                @if (inCart)
+                {
+                    <span class="btn btn--outline btn--sm is-active">
+                        @IconRenderer.Render("check")
+                        В корзине
+                    </span>
+                }
+                else
+                {
+                    <form method="post" asp-page="/Catalog/Index" asp-page-handler="AddToCart">
+                        <input type="hidden" name="productId" value="@Model.Id" />
+                        <input type="hidden" name="quantity" value="1" />
+                        <button class="btn btn--primary btn--sm" type="submit">В корзину</button>
+                    </form>
+                }
+            </span>
         </div>
     </div>
 </article>

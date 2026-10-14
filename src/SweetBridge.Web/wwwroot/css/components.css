@@ -618,3 +618,205 @@
   margin-left: 8px;
   font-size: 13px;
 }
+
+/* Карточка товара: витрина, каталог, подарки и главная */
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+}
+
+.product-card__photo-link {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--c-yakutia);
+}
+
+.product-card__photo-link--donbass {
+  background: var(--c-donbass);
+}
+
+.product-card__photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-card__chip {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 1;
+}
+
+.product-card__thermo {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  padding: 6px;
+  border-radius: var(--r-chip);
+}
+
+.product-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 auto;
+  padding: 16px;
+}
+
+.product-card__producer {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+}
+
+.product-card__name {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.product-card__name a {
+  color: var(--c-ink);
+}
+
+.product-card__name a:hover {
+  color: var(--c-accent);
+  text-decoration: none;
+}
+
+.product-card__category {
+  margin: 0;
+  font-size: 13px;
+  color: var(--c-muted);
+}
+
+.product-card__weight {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  color: var(--c-muted);
+  list-style: none;
+}
+
+.product-card__footer {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--c-border);
+}
+
+.product-card__price {
+  font-family: var(--font-head);
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--c-navy);
+}
+
+/* Постраничная навигация */
+
+.pager {
+  margin-top: 20px;
+}
+
+/* Поле пароля с кнопкой показа */
+
+.password-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.password-wrap .field__control {
+  flex: 1 1 auto;
+}
+
+/* Админка: фотография товара и компактный список */
+
+.admin-photo {
+  display: block;
+  width: 320px;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--r-control);
+  border: 1px solid var(--c-border);
+  background: var(--c-yakutia);
+}
+
+.admin-select {
+  min-height: 36px;
+  padding: 4px 10px;
+  font-size: 14px;
+}
+
+/* Полоса заполнения: полоса-заливка обязана быть блочным элементом */
+
+.progress__value {
+  display: block;
+  height: 100%;
+  min-width: 0;
+  border-radius: var(--r-chip);
+  background: linear-gradient(90deg, var(--c-progress-from), var(--c-progress-to));
+  transition: width 0.3s ease;
+}
+
+/* Заголовок блока волны на главной */
+
+.wave-card__fill {
+  display: grid;
+  gap: 6px;
+}
+
+.wave-card__dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+.wave-card__dates .icon {
+  color: var(--c-navy);
+}
+
+/* Разделитель внешней авторизации */
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 14px;
+  color: var(--c-muted);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1 1 auto;
+  height: 1px;
+  background: var(--c-border);
+}
