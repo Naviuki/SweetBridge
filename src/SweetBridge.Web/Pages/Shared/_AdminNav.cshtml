@@ -1,43 +1,18 @@
 @using SweetBridge.Web.Extensions
+@{
+    string current = ViewContext.RouteData.Values["page"] as string ?? string.Empty;
+    string Cls(string prefix) => current.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) ? "is-active" : string.Empty;
+    string? Cur(string prefix) => current.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) ? "page" : null;
+}
 <nav class="card admin-nav" aria-label="Администрирование">
-    <a href="/Admin/Dashboard">
-        @IconRenderer.Render("info")
-        Сводка
-    </a>
-    <a href="/Admin/Orders">
-        @IconRenderer.Render("box")
-        Заказы
-    </a>
-    <a href="/Admin/Waves">
-        @IconRenderer.Render("wave")
-        Волны
-    </a>
-    <a href="/Admin/Products">
-        @IconRenderer.Render("cart")
-        Товары
-    </a>
-    <a href="/Admin/PromoCodes">
-        @IconRenderer.Render("ticket")
-        Промокоды
-    </a>
-    <a href="/Admin/PickupPoints">
-        @IconRenderer.Render("map")
-        Пункты выдачи
-    </a>
-    <a href="/Admin/GiftSets">
-        @IconRenderer.Render("gift")
-        Подарочные наборы
-    </a>
-    <a href="/Admin/Forms">
-        @IconRenderer.Render("message")
-        Обращения и заявки
-    </a>
-    <a href="/Admin/Users">
-        @IconRenderer.Render("users")
-        Пользователи
-    </a>
-    <a href="/Admin/Audit">
-        @IconRenderer.Render("clock")
-        Журнал действий
-    </a>
+    <a asp-page="/Admin/Dashboard/Index" class="@Cls("/Admin/Dashboard")" aria-current="@Cur("/Admin/Dashboard")">@IconRenderer.Render("info") Сводка</a>
+    <a asp-page="/Admin/Orders/Index" class="@Cls("/Admin/Orders")" aria-current="@Cur("/Admin/Orders")">@IconRenderer.Render("box") Заказы</a>
+    <a asp-page="/Admin/Waves/Index" class="@Cls("/Admin/Waves")" aria-current="@Cur("/Admin/Waves")">@IconRenderer.Render("wave") Волны</a>
+    <a asp-page="/Admin/Products/Index" class="@Cls("/Admin/Products")" aria-current="@Cur("/Admin/Products")">@IconRenderer.Render("cart") Товары</a>
+    <a asp-page="/Admin/PromoCodes/Index" class="@Cls("/Admin/PromoCodes")" aria-current="@Cur("/Admin/PromoCodes")">@IconRenderer.Render("ticket") Промокоды</a>
+    <a asp-page="/Admin/PickupPoints/Index" class="@Cls("/Admin/PickupPoints")" aria-current="@Cur("/Admin/PickupPoints")">@IconRenderer.Render("map") Пункты выдачи</a>
+    <a asp-page="/Admin/GiftSets/Index" class="@Cls("/Admin/GiftSets")" aria-current="@Cur("/Admin/GiftSets")">@IconRenderer.Render("gift") Подарочные наборы</a>
+    <a asp-page="/Admin/Forms/Index" class="@Cls("/Admin/Forms")" aria-current="@Cur("/Admin/Forms")">@IconRenderer.Render("message") Обращения и заявки</a>
+    <a asp-page="/Admin/Users/Index" class="@Cls("/Admin/Users")" aria-current="@Cur("/Admin/Users")">@IconRenderer.Render("users") Пользователи</a>
+    <a asp-page="/Admin/Audit/Index" class="@Cls("/Admin/Audit")" aria-current="@Cur("/Admin/Audit")">@IconRenderer.Render("clock") Журнал действий</a>
 </nav>

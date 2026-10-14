@@ -3,16 +3,31 @@
 @using SweetBridge.Web.Extensions
 @using SweetBridge.Web.Domain.Enums
 @{
-    var order = Model.Order!;
-    ViewData["Title"] = $"Заказ {order.Number}";
-    string statusClass = order.Status switch
-    {
-        OrderStatus.Cancelled => "chip--muted",
-        OrderStatus.Received => "chip--success",
-        OrderStatus.InTransit or OrderStatus.ReadyForPickup => "chip--yakutia",
-        _ => "chip--accent"
-    };
+    var order = Model.Order;
+    ViewData["Title"] = order is null ? "Заказ не найден" : $"Заказ {order.Number}";
+    string statusClass = order is null
+        ? string.Empty
+        : order.Status switch
+        {
+            OrderStatus.Cancelled => "chip--muted",
+            OrderStatus.Received => "chip--success",
+            OrderStatus.InTransit or OrderStatus.ReadyForPickup => "chip--yakutia",
+            _ => "chip--accent"
+        };
 }
+@if (Model.Order is null)
+{
+    <section class="page">
+        <h1 class="page__title">Заказ не найден</h1>
+        <p class="page__lead">Проверьте номер заказа в письме или откройте список заказов в личном кабинете.</p>
+        <div class="row gap-12">
+            <a class="btn btn--primary" asp-page="/Account/Orders">Мои заказы</a>
+            <a class="btn btn--ghost" asp-page="/Orders/Track">Отследить заказ</a>
+        </div>
+    </section>
+}
+else if (order is not null)
+{
 <section class="page">
     <nav class="breadcrumbs" aria-label="Хлебные крошки">
         <a asp-page="/Account/Orders">Мои заказы</a>
@@ -28,9 +43,9 @@
     <div class="checkout-layout mt-16">
         <div class="stack gap-16">
             <div class="card card-pad">
+                <h2>Лента статусов</h2>
                 <partial name="_OrderTracker" model="order.ToTracker()" />
 
-                <h2 class="mt-16">Лента статусов</h2>
                 <ol class="history-list">
                     @foreach (SweetBridge.Web.Services.Orders.OrderStatusPoint point in order.History)
                     {
@@ -44,6 +59,7 @@
 
             <div class="card card-pad">
                 <h2>Состав заказа</h2>
+                <div class="table-scroll">
                 <table class="table mt-8">
                     <thead>
                         <tr><th>Товар</th><th class="text-end">Кол-во</th><th class="text-end">Цена</th><th class="text-end">Сумма</th></tr>
@@ -60,6 +76,7 @@
                         }
                     </tbody>
                 </table>
+                </div>
 
                 <dl class="summary-list mt-16">
                     <div class="summary-row"><dt>Товары</dt><dd>@order.GoodsCost.FormatPrice()</dd></div>
@@ -69,8 +86,9 @@
                     }
                     <div class="summary-row"><dt>Доставка</dt><dd>@order.ShippingCost.FormatPrice()</dd></div>
                     <div class="summary-row"><dt>Термоупаковка</dt><dd>@order.ThermoPackCost.FormatPrice()</dd></div>
-                    <div class="summary-total"><span>Итого</span><span>@order.Total.FormatPrice()</span></div>
                 </dl>
+
+                <div class="summary-total"><span>Итого</span><span>@order.Total.FormatPrice()</span></div>
             </div>
         </div>
 
@@ -124,3 +142,5 @@
         </aside>
     </div>
 </section>
+}
+

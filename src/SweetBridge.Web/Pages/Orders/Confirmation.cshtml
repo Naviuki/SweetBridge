@@ -31,6 +31,7 @@
 
                 <partial name="_OrderTracker" model="order.ToTracker()" />
 
+                <div class="table-scroll">
                 <table class="table table--compact mt-16">
                     <tbody>
                         <tr><th>Волна</th><td>№@order.WaveNumber, отправка @order.WaveShipDate.ToString("dd.MM.yyyy")</td></tr>
@@ -43,10 +44,12 @@
                         }
                     </tbody>
                 </table>
+                </div>
             </div>
 
             <div class="card card-pad">
                 <h2>Состав заказа</h2>
+                <div class="table-scroll">
                 <table class="table mt-8">
                     <thead>
                         <tr><th>Товар</th><th class="text-end">Кол-во</th><th class="text-end">Цена</th><th class="text-end">Сумма</th></tr>
@@ -63,6 +66,7 @@
                         }
                     </tbody>
                 </table>
+                </div>
 
                 <dl class="summary-list mt-16">
                     <div class="summary-row"><dt>Товары</dt><dd>@order.GoodsCost.FormatPrice()</dd></div>

@@ -19,7 +19,6 @@ namespace SweetBridge.Web.Pages.Account;
 /// <param name="signInManager">Менеджер входа Identity.</param>
 /// <param name="clock">Источник времени.</param>
 /// <param name="passwordPolicy">Требования к паролю из настроек Identity.</param>
-/// <param name="passwordPolicy">Текст требований к паролю из настроек Identity.</param>
 [AllowAnonymous]
 public sealed class RegisterModel(
     UserManager<AppUser> userManager,
@@ -27,6 +26,11 @@ public sealed class RegisterModel(
     IBusinessClock clock,
     SweetBridge.Web.Services.Account.PasswordPolicyText passwordPolicy) : PageModel
 {
+    private const string PasswordGroup = "Input_Password Input_ConfirmPassword";
+
+/// <summary>
+/// Группа полей пароля формы: одной кнопкой показываются все поля.
+/// </summary>
     private const string AuthRateLimitPolicy = "Auth";
 
     /// <summary>
@@ -37,10 +41,8 @@ public sealed class RegisterModel(
     /// Требования к паролю из настроек Identity: подсказка всегда совпадает с проверками сервера.
     /// </summary>
     [BindNever] // Служебное свойство страницы: не участвует в биндинге модели.
-    public string PasswordHint => passwordPolicy.Hint;/// <summary>
-    /// Группа полей пароля формы: одной кнопкой показываются оба поля.
-    /// </summary>
-    private const string PasswordGroup = "Input_Password Input_ConfirmPassword";
+    public string PasswordHint => passwordPolicy.Hint;
+
 
     /// <summary>
     /// Поле «Пароль» формы регистрации.

@@ -5,7 +5,9 @@
         ? "/images/placeholders/product.svg"
         : Model.PhotoPath;
     string regionClass = Model.Region == Region.Yakutia ? "chip--yakutia" : "chip--donbass";
-    string photoClass = Model.Region == Region.Yakutia ? "product-card__photo-link" : "product-card__photo-link--donbass";
+    string photoClass = Model.Region == Region.Yakutia
+        ? "product-card__photo-link"
+        : "product-card__photo-link product-card__photo-link--donbass";
     bool withFavorite = ViewData["EnableFavorite"] as bool? ?? false;
     bool inCart = Model.QuantityInCart > 0;
 }

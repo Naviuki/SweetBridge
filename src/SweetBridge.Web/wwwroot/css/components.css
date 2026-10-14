@@ -523,7 +523,8 @@
 .gap-16 { gap: 16px; }
 .text-end { text-align: end; }
 .nowrap { white-space: nowrap; }
-.is-active { border-color: var(--c-accent); color: var(--c-accent); }
+.btn.is-active,
+.icon-button.is-active { border-color: var(--c-accent); color: var(--c-accent); }
 
 @media (max-width: 900px) {
   .hero,

@@ -37,7 +37,9 @@ public sealed class MailRuModel(
     /// Признак того, что вход через Mail.ru настроен.
     /// </summary>
     [BindNever] // Служебное свойство страницы: не участвует в биндинге модели.
-    public bool IsConfigured => _provider.IsConfigured;    /// <summary>
+    public bool IsConfigured => _provider.IsConfigured;
+
+    /// <summary>
     /// Отправляет покупателя на страницу авторизации Mail.ru.
     /// </summary>
     /// <returns>Перенаправление на Mail.ru.</returns>
@@ -53,9 +55,8 @@ public sealed class MailRuModel(
         string state = RandomNumberGenerator.GetHexString(32);
         HttpContext.Session.SetString(StateKey, state);
 
-        string challenge = string.Join(
+        string challenge = AuthorizationUrl + "?" + string.Join(
             "&",
-            AuthorizationUrl,
             "response_type=code",
             "client_id=" + Uri.EscapeDataString(_provider.ClientId),
             "redirect_uri=" + Uri.EscapeDataString(BuildCallbackUrl()),
@@ -109,7 +110,7 @@ public sealed class MailRuModel(
 
     private string BuildCallbackUrl()
     {
-        string path = Url.Page("./MailRuCallback") ?? "/Account/MailRuCallback";
+        string path = Url.Page("/Account/MailRu", "Callback") ?? "/Account/MailRu?handler=Callback";
 
         return string.Concat(Request.Scheme, "://", Request.Host.Value, path);
     }

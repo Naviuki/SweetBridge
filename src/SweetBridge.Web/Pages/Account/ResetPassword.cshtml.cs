@@ -23,16 +23,19 @@ public sealed class ResetPasswordModel(
     SignInManager<AppUser> signInManager,
     SweetBridge.Web.Services.Account.PasswordPolicyText passwordPolicy) : PageModel
 {
+    private const string PasswordGroup = "Input_Password Input_ConfirmPassword";
+
+/// <summary>
+/// Группа полей пароля формы: одной кнопкой показываются все поля.
+/// </summary>
     private const string AuthRateLimitPolicy = "Auth";
 
     /// <summary>
     /// Требования к паролю из настроек Identity.
     /// </summary>
     [BindNever] // Служебное свойство страницы: не участвует в биндинге модели.
-    public string PasswordHint => passwordPolicy.Hint;/// <summary>
-    /// Группа полей пароля формы: одной кнопкой показываются оба поля.
-    /// </summary>
-    private const string PasswordGroup = "Input_Password Input_ConfirmPassword";
+    public string PasswordHint => passwordPolicy.Hint;
+
 
     /// <summary>
     /// Поле «Новый пароль» формы сброса.

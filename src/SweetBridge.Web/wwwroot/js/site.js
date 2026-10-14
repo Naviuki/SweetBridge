@@ -108,12 +108,14 @@ function initProgress() {
   });
 }
 
-// Трекер статусов заказа.
+// Трекер статусов заказа: линия идёт от центра первого шага до центра последнего.
 function initTracker() {
   document.querySelectorAll('[data-tracker]').forEach(tracker => {
     const current = parseInt(tracker.getAttribute('data-tracker-current') || '0', 10);
-    const total = parseInt(tracker.getAttribute('data-tracker-total') || '5', 10);
+    const total = Math.max(1, parseInt(tracker.getAttribute('data-tracker-total') || '5', 10));
     const steps = tracker.querySelectorAll('[data-tracker-step]');
+
+    tracker.style.setProperty('--tracker-steps', String(total));
 
     steps.forEach((step, index) => {
       if (index < current) {
@@ -127,14 +129,16 @@ function initTracker() {
 
     const fill = tracker.querySelector('[data-tracker-fill]');
     const percentLabel = tracker.querySelector('[data-tracker-percent]');
-    const percent = total > 0 ? ((current + 1) / total) * 100 : 0;
+    const labelPercent = Math.round(((current + 1) / total) * 100);
+    const lineSpan = 100 - 100 / total;
+    const fillWidth = total > 1 ? (current / (total - 1)) * lineSpan : 0;
 
     if (fill) {
-      fill.style.width = `${percent.toFixed(0)}%`;
+      fill.style.width = `${fillWidth.toFixed(1)}%`;
     }
 
     if (percentLabel) {
-      percentLabel.textContent = `${percent.toFixed(0)}%`;
+      percentLabel.textContent = `${labelPercent}%`;
     }
   });
 }

@@ -1,0 +1,463 @@
+/* Сладкий мост — исправления вёрстки и мягкая полировка.
+   Подключать последним: после fonts.css, site.css, components.css. */
+
+:root {
+  --c-border-strong: #d4c7a6;
+  --shadow-btn: 0 6px 16px rgba(192, 54, 84, 0.22);
+  --ring: 0 0 0 3px rgba(192, 54, 84, 0.22);
+}
+
+/* ---------- 1. Чекбоксы, радио, файлы ---------- */
+
+input[type="checkbox"],
+input[type="radio"] {
+  -webkit-appearance: auto;
+  appearance: auto;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 0;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--c-accent);
+  cursor: pointer;
+}
+
+input[type="file"] {
+  height: auto;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.field--check,
+.switch-box {
+  cursor: pointer;
+}
+
+.field--check {
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* ---------- 2. Поле пароля ---------- */
+
+.field--password {
+  position: static;
+}
+
+.field__wrap {
+  position: relative;
+}
+
+.field__wrap .field__control {
+  padding-right: 104px;
+}
+
+.field__reveal {
+  top: 50%;
+  right: 4px;
+  transform: translateY(-50%);
+}
+
+/* ---------- 3. Подсказки и ошибки форм ---------- */
+
+.form-errors {
+  display: block;
+  margin: 0 0 14px;
+  padding: 12px 14px;
+}
+
+.form-errors.validation-summary-valid,
+.form-errors:empty {
+  display: none;
+}
+
+.form-errors ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.field__error:empty,
+.field-validation-valid:empty {
+  display: none;
+}
+
+.field__control:focus,
+.field__control:focus-visible {
+  border-color: var(--c-accent);
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+select.field__control,
+select {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 40px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--c-navy) 50%),
+    linear-gradient(135deg, var(--c-navy) 50%, transparent 50%);
+  background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+}
+
+textarea.field__control {
+  resize: vertical;
+  min-height: 110px;
+}
+
+/* ---------- 4. Страницы входа/регистрации ---------- */
+
+.auth-card {
+  position: relative;
+  max-width: 460px;
+  margin: 48px auto 24px;
+  padding: 34px 28px 28px;
+  overflow: hidden;
+}
+
+.auth-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--c-progress-from), var(--c-progress-to));
+}
+
+.auth-card .page__title {
+  font-size: clamp(26px, 5vw, 32px);
+}
+
+.auth-card .page__lead {
+  margin: 0;
+  font-size: 15px;
+}
+
+.auth-card .btn--block {
+  margin-top: 6px;
+}
+
+/* Кнопки-блоки подряд (страница оплаты и т.п.) */
+.btn--block + .btn--block,
+form + .btn--block,
+.flash + form,
+.flash + .btn--block {
+  margin-top: 12px;
+}
+
+.cart-summary .btn--block,
+.cart-summary form + .btn--block,
+.cart-summary .btn--block + .btn--block {
+  margin-top: 0;
+}
+
+/* ---------- 5. Шапка ---------- */
+
+.site-header {
+  background: rgba(255, 255, 255, 0.94);
+  -webkit-backdrop-filter: saturate(1.4) blur(10px);
+  backdrop-filter: saturate(1.4) blur(10px);
+}
+
+.site-header__inner {
+  gap: 16px;
+}
+
+.header-actions {
+  margin-left: auto;
+}
+
+.site-nav {
+  flex: 0 1 auto;
+  margin-left: 8px;
+  gap: 20px;
+}
+
+.profile-pill > span:last-child {
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.site-header form {
+  margin: 0;
+}
+
+@media (max-width: 1100px) {
+  .header-actions {
+    order: 2;
+  }
+
+  .burger {
+    order: 3;
+    display: inline-flex;
+  }
+
+  .site-nav {
+    display: none;
+  }
+
+  .site-nav.is-open {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: grid;
+    gap: 2px;
+    margin: 0;
+    padding: 10px 20px 16px;
+    background: var(--c-surface);
+    border-bottom: 1px solid var(--c-border);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .site-nav.is-open .site-nav__link {
+    padding: 12px 4px;
+  }
+
+  .site-nav__link.is-active::after {
+    bottom: 6px;
+    right: auto;
+    width: 28px;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-pill > span:last-child {
+    display: none;
+  }
+
+  .profile-pill {
+    padding: 6px;
+  }
+}
+
+@media (max-width: 560px) {
+  .site-header__inner {
+    min-height: 64px;
+    gap: 10px;
+  }
+
+  .header-actions {
+    gap: 6px;
+  }
+}
+
+.brand__tagline {
+  font-family: var(--font-body);
+  font-weight: 600;
+}
+
+main > .flash:first-child {
+  margin-top: 16px;
+}
+
+/* ---------- 6. Подвал ---------- */
+
+.site-footer__inner {
+  padding: 40px 20px 24px;
+}
+
+/* ---------- 7. Заголовки ---------- */
+
+.page__title {
+  font-size: clamp(26px, 4vw, 40px);
+  line-height: 1.12;
+  overflow-wrap: break-word;
+}
+
+.empty .page__title,
+.empty h2 {
+  font-size: clamp(22px, 3.2vw, 28px);
+}
+
+.page > .checkout-form {
+  max-width: 780px;
+  margin-inline: auto;
+}
+
+/* ---------- 8. Кнопки и карточки ---------- */
+
+.btn--primary {
+  box-shadow: var(--shadow-btn);
+}
+
+.btn--primary:hover {
+  box-shadow: 0 10px 22px rgba(192, 54, 84, 0.28);
+}
+
+.btn--ghost.is-active,
+.btn--outline.is-active {
+  background: var(--c-accent-soft);
+}
+
+.icon-button.is-active .icon {
+  fill: currentColor;
+}
+
+.product-card {
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift);
+}
+
+.product-card__photo-link,
+.product-card__photo-link--donbass {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+
+.product-card__photo-link--donbass {
+  background: var(--c-donbass);
+}
+
+.product-card__thermo {
+  padding: 6px;
+}
+
+/* ---------- 9. Каталог: тулбар ---------- */
+
+.catalog-toolbar .field--check {
+  flex: 0 0 auto;
+  min-height: 48px;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.catalog-toolbar .btn {
+  min-height: 48px;
+}
+
+/* ---------- 10. Степпер ---------- */
+
+.stepper__btn {
+  flex: 0 0 auto;
+}
+
+.stepper__value {
+  width: 48px;
+  min-width: 48px;
+  height: 38px;
+  min-height: 0;
+  padding: 0;
+  border-radius: 0;
+  text-align: center;
+}
+
+/* ---------- 11. Трекер заказа ---------- */
+
+.tracker__track {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  padding-top: 0;
+}
+
+.tracker__bar {
+  position: absolute;
+  top: 8px;
+  left: calc(50% / var(--tracker-steps, 5));
+  right: calc(50% / var(--tracker-steps, 5));
+  height: 6px;
+  border-radius: var(--r-chip);
+  background: #eee3d7;
+}
+
+.tracker__bar.tracker__bar-progress {
+  right: auto;
+  width: 0;
+  height: 6px;
+  background: linear-gradient(90deg, var(--c-progress-from), var(--c-progress-to));
+  transition: width 0.4s ease;
+}
+
+.tracker__step {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 0;
+  padding-top: 34px;
+  text-align: center;
+}
+
+.tracker__dot {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tracker__step.is-current {
+  color: var(--c-accent);
+  font-weight: 700;
+}
+
+@media (max-width: 560px) {
+  .tracker__step {
+    font-size: 11px;
+  }
+}
+
+/* ---------- 12. Сетки и таблицы ---------- */
+
+@media (max-width: 640px) {
+  .grid-2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .card-pad,
+  .checkout-form,
+  .cart-summary {
+    padding: 18px;
+  }
+}
+
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-scroll > .table {
+  min-width: 520px;
+}
+
+@media (max-width: 900px) {
+  .cart-line__controls,
+  .cart-line__total {
+    grid-column: 1 / -1;
+  }
+
+  .cart-line__total {
+    min-width: 0;
+  }
+}
+
+/* ---------- 13. Навигация кабинета и админки ---------- */
+
+.account-nav a.is-active,
+.admin-nav a.is-active {
+  background: var(--c-accent-soft);
+  color: var(--c-accent);
+}
+
+/* ---------- 14. Опции волны ---------- */
+
+.wave-option__head {
+  align-items: center;
+}
+
+.wave-option input[type="radio"] {
+  margin-right: 2px;
+}

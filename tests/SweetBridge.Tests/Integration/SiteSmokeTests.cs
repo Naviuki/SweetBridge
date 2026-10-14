@@ -157,7 +157,10 @@ public sealed class SiteSmokeTests : IClassFixture<SiteWebApplicationFactory>
         string html = await GetHtmlAsync(client, "/Account/Register");
 
         Assert.Contains("data-password-reveal", html, StringComparison.Ordinal);
-        Assert.Contains("aria-controls=\"Input_Password Input_ConfirmPassword\"", html, StringComparison.Ordinal);
+
+        // Каждая кнопка «Показать» управляет только своим полем.
+        Assert.Contains("aria-controls=\"Input_Password\"", html, StringComparison.Ordinal);
+        Assert.Contains("aria-controls=\"Input_ConfirmPassword\"", html, StringComparison.Ordinal);
     }
 
     [Fact]

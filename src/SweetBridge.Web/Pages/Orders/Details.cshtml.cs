@@ -59,9 +59,16 @@ public sealed class DetailsModel(
     /// <returns>Результат выполнения.</returns>
     public async Task<IActionResult> OnPostCancelAsync(CancellationToken cancellationToken)
     {
+        OrderSummary? order = await LoadAsync(cancellationToken);
+
+        if (order is null)
+        {
+            return NotFound();
+        }
+
         try
         {
-            await orderService.CancelByCustomerAsync(Order!.Id, cancellationToken);
+            await orderService.CancelByCustomerAsync(order.Id, cancellationToken);
             TempData["Success"] = "Заказ отменён, вес освобождён в волне.";
         }
         catch (DomainException exception)
@@ -69,7 +76,7 @@ public sealed class DetailsModel(
             TempData["Error"] = exception.Message;
         }
 
-        return RedirectToPage();
+        return RedirectToPage(new { number = order.Number });
     }
 
     /// <summary>
@@ -77,16 +84,28 @@ public sealed class DetailsModel(
     /// </summary>
     /// <param name="cancellationToken">Токен отмены.</param>
     /// <returns>Перенаправление в корзину.</returns>
-    public IActionResult OnPostRepeatAsync()
+    public async Task<IActionResult> OnPostRepeatAsync(CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNull(Order);
+        OrderSummary? order = await LoadAsync(cancellationToken);
 
-        foreach (OrderLineSummary line in Order.Items)
+        if (order is null)
         {
-            cartService.Add(line.ProductId, line.Quantity);
+            return NotFound();
         }
 
-        TempData["Success"] = "Состав заказа перенесён в корзину.";
+        try
+        {
+            foreach (OrderLineSummary line in order.Items)
+            {
+                cartService.Add(line.ProductId, line.Quantity);
+            }
+
+            TempData["Success"] = "Состав заказа перенесён в корзину.";
+        }
+        catch (DomainException exception)
+        {
+            TempData["Error"] = exception.Message;
+        }
 
         return RedirectToPage("/Cart/Index");
     }

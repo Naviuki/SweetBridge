@@ -193,6 +193,7 @@ public class IndexModel(
     /// <returns>Адрес страницы каталога.</returns>
     public string BuildUrl(int page) => BuildQueryUrl(page, handler: null);
 
+    /// <summary>
     /// Ключ «page» зарезервирован генератором ссылок Razor Pages, поэтому строка запроса
     /// собирается явно: так фильтры и номер страницы гарантированно попадают в адрес.
     /// </summary>

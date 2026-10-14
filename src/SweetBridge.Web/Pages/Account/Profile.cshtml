@@ -43,15 +43,12 @@
                 <form method="post" asp-page-handler="ChangePassword">
                     <partial name="_PasswordField"
                              model="Model.CurrentPasswordField" />
-                    <span class="field__error" asp-validation-for="Password.CurrentPassword"></span>
 
                     <partial name="_PasswordField"
                              model="Model.NewPasswordField" />
-                    <span class="field__error" asp-validation-for="Password.NewPassword"></span>
 
                     <partial name="_PasswordField"
                              model="Model.ConfirmPasswordField" />
-                    <span class="field__error" asp-validation-for="Password.ConfirmPassword"></span>
 
                     <button class="btn btn--secondary" type="submit">Сменить пароль</button>
                 </form>
