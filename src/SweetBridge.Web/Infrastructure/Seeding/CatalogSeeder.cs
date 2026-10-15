@@ -49,7 +49,12 @@ public sealed class CatalogSeeder
                 .ToListAsync(cancellationToken))
             .ToHashSet(StringComparer.Ordinal);
 
+        // Уже загруженные товары не пересоздаём, но освежаем фотографию:
+        // сидер запускается при каждом старте, поэтому новая картинка подхватывается сама.
+        List<Product> stored = await _dbContext.Products.ToListAsync(cancellationToken);
+
         var imported = 0;
+        var refreshed = 0;
 
         foreach (CatalogCsvRecord record in records)
         {
@@ -57,6 +62,19 @@ public sealed class CatalogSeeder
 
             if (existingIds.Contains(id))
             {
+                Product? product = stored.FirstOrDefault(item =>
+                    string.Equals(item.Id, id, StringComparison.Ordinal));
+
+                string photo = record.Photo?.Trim() ?? string.Empty;
+
+                if (product is not null
+                    && !string.IsNullOrWhiteSpace(photo)
+                    && !string.Equals(product.PhotoPath, photo, StringComparison.Ordinal))
+                {
+                    product.UpdatePhoto(photo);
+                    refreshed++;
+                }
+
                 continue;
             }
 
@@ -65,6 +83,11 @@ public sealed class CatalogSeeder
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             imported++;
+        }
+
+        if (refreshed > 0)
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
         return imported;

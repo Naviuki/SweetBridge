@@ -496,6 +496,7 @@ SweetBridge/
 # Служебные материалы (отчёты, схемы, описания) — не входят в состав проекта
 /docs/*
 !/docs/*.md
+!/docs/photo-import/
 !/docs/screenshots/
 # --- Сладкий мост ---
 App_Data/

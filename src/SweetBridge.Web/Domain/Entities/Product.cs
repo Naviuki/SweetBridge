@@ -100,6 +100,17 @@ public sealed class Product
     public string? Description { get; private set; }
 
     /// <summary>
+    /// Обновляет фотографию товара: путь хранится относительно wwwroot.
+    /// </summary>
+    /// <param name="photoPath">Путь к изображению или <see langword="null"/>.</param>
+    public void UpdatePhoto(string? photoPath)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(photoPath);
+
+        PhotoPath = photoPath.TrimStart('/');
+    }
+
+    /// <summary>
     /// Признак мягкого удаления.
     /// </summary>
     public bool IsActive { get; private set; }
