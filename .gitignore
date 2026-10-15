@@ -497,6 +497,7 @@ SweetBridge/
 /docs/*
 !/docs/*.md
 !/docs/photo-import/
+!/docs/info/
 !/docs/screenshots/
 # --- Сладкий мост ---
 App_Data/
